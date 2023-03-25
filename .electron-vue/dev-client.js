@@ -1,5 +1,5 @@
 const hotClient = require('webpack-hot-middleware/client?noInfo=true&reload=true')
-
+import 'polyfill-object.fromentries';
 hotClient.subscribe(event => {
   /**
    * Reload browser when HTMLWebpackPlugin emits a new index.html

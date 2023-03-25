@@ -10,3 +10,4 @@ thumbs.db
 !.gitkeep
 /dist/electron/.gitkeep
 /dist/web/.gitkeep
+/.idea/*
