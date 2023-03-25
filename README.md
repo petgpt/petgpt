@@ -11,10 +11,11 @@ npm install
 # serve with hot reload at localhost:9080
 npm run dev
 
+# 生成简单的可执行文件，没有完整的安装程序。用于快速测试。进入build/win-unpacked，运行里面的exe就行了
+npm run build:dir
+
 # build electron application for production
 npm run build
-
-
 ```
 
 ---
