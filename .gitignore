@@ -1,0 +1,12 @@
+.DS_Store
+dist/*
+#dist/web/*
+build/*
+!build/icons
+node_modules/
+npm-debug.log
+npm-debug.log.*
+thumbs.db
+!.gitkeep
+/dist/electron/.gitkeep
+/dist/web/.gitkeep
