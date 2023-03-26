@@ -1,0 +1,1 @@
+export const SET_MINI_WINDOW_POS = 'SET_MINI_WINDOW_POS'
