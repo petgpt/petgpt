@@ -6,11 +6,11 @@ export default createRouter({
         {
             path: '/',
             name: "PetTest",
-            component: () => import("@/pages/PetTest.vue")
+            component: () => import("../pages/PetTest.vue")
         },
-        {
-            path: '/:pathMatch(.*)*',
-            redirect: '/'
-        }
+        // {
+        //     path: '/:pathMatch(.*)*',
+        //     redirect: '/'
+        // }
     ]
 })

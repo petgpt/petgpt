@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import PetTest from './pages/PetTest.vue'
-
-console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}!`)
+  console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}!`)
 </script>
 
 <template>
-  <PetTest />
+  <router-view />
 </template>
 
 <style>

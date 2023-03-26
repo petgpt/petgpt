@@ -1,4 +1,25 @@
-# electron-vite-vue
+# petgpt
+
+> desktop pet + chatgpt + tools
+
+#### Build Setup
+
+``` bash
+# install dependencies
+yarn / npm install
+
+# serve with hot reload at localhost:9080
+yarn run dev / npm run dev
+
+# build
+yarn run build
+```
+
+---
+
+This project was generated with
+
+## electron-vite-vue
 
 🥳 Really simple `Electron` + `Vue` + `Vite` boilerplate.
 
@@ -10,7 +31,7 @@
 [![GitHub Build](https://github.com/electron-vite/electron-vite-vue/actions/workflows/build.yml/badge.svg)](https://github.com/electron-vite/electron-vite-vue/actions/workflows/build.yml)
 [![GitHub Discord](https://img.shields.io/badge/chat-discord-blue?logo=discord)](https://discord.gg/sRqjYpEAUK)
 
-## Features
+### Features
 
 📦 Out of the box  
 🎯 Based on the official [template-vue-ts](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-vue-ts), less invasive  
@@ -19,7 +40,7 @@
 🔩 Support C/C++ native addons  
 🖥 It's easy to implement multiple windows  
 
-## Quick Start
+### Quick Start
 
 ```sh
 npm create electron-vite
@@ -29,11 +50,11 @@ npm create electron-vite
 
 ![electron-vite-vue.gif](/public/electron-vite-vue.gif)
 
-## Debug
+### Debug
 
 ![electron-vite-react-debug.gif](https://github.com/electron-vite/electron-vite-react/blob/main/public/electron-vite-react-debug.gif?raw=true)
 
-## Directory
+### Directory
 
 ```diff
 + ├─┬ electron
@@ -48,7 +69,7 @@ npm create electron-vite
   └── vite.config.ts
 ```
 
-## Be aware
+### Be aware
 
 🚨 By default, this template integrates Node.js in the Renderer process. If you don't need it, you just remove the option below. [Because it will modify the default config of Vite](https://github.com/electron-vite/vite-plugin-electron-renderer#config-presets-opinionated).
 
@@ -65,7 +86,7 @@ export default {
 }
 ```
 
-## FAQ
+### FAQ
 
 - [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
 - [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
