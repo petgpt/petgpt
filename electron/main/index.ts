@@ -2,7 +2,7 @@ import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu} from 'el
 import { release } from 'node:os'
 import { join } from 'node:path'
 
-import {SET_MINI_WINDOW_POS} from "../../src/utils/events/constants";
+import {SET_MAIN_WINDOW_POS} from "../../src/utils/events/constants";// 不知道为啥
 
 ipcMain.on(SET_MINI_WINDOW_POS, (evt, pos) => {
   const window = BrowserWindow.getFocusedWindow()

@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import {onBeforeMount, ref} from 'vue'
-import {SET_MINI_WINDOW_POS} from "../utils/events/constants";
+import {SET_MAIN_WINDOW_POS} from "../utils/events/constants";
 import {sendToMain} from "../utils/dataSender";
 
 const dragging = ref(false)
@@ -34,7 +34,7 @@ function handleMouseMove (e: MouseEvent) {
     const xLoc = e.screenX - wX.value
     const yLoc = e.screenY - wY.value
     console.log(`move`, xLoc, yLoc)
-    sendToMain(SET_MINI_WINDOW_POS, {
+    sendToMain(SET_MAIN_WINDOW_POS, {
       x: xLoc,
       y: yLoc,
       width: 200,
