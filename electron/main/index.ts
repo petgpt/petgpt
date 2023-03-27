@@ -1,13 +1,33 @@
-import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog } from 'electron'
+import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog, screen } from 'electron'
 import { release } from 'node:os'
 import { join } from 'node:path'
 import pkg from '../../package.json'
 
 import {SET_MAIN_WINDOW_POS} from "../../src/utils/events/constants";// 不知道为啥
 
+
 ipcMain.on(SET_MAIN_WINDOW_POS, (evt, pos) => {
-  const window = BrowserWindow.getFocusedWindow()
-  window.setBounds(pos)
+  const window = BrowserWindow.getFocusedWindow();
+  let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
+  let screenW = screenWorkAreaSize.width
+  let screenH = screenWorkAreaSize.height
+
+  let bounds = window.getBounds();
+  let x = bounds.x;// 当前窗口的x
+  let y = bounds.y;// 当前窗口的y
+  let winW = bounds.width
+  let winH = bounds.height
+
+  let isOverlappingScreen = x < 0 || y < 0 || x + winW > screenW || y + winH > screenH;
+  console.log(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
+
+  if (isOverlappingScreen) {
+    pos.x = x < 0 ? 0 : (x + winW > screenW ? screenW - winW : x);
+    pos.y = y < 0 ? 0 : (y + winH > screenH ? screenH - winH : y);
+    window.setBounds(pos);// TODO：后面改，现在会出现窗口闪一下的情况，Pet组件里如果能获取到屏幕的宽高，就不会出现这种情况了，传来的坐标就是正确的
+  } else {
+    window.setBounds(pos);
+  }
 })
 
 
@@ -77,7 +97,7 @@ async function createWindow() {
       label: '退出',
       click: function () {
         app.quit();
-        app.quit();//因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
+        app.quit();//因为程序设定关闭为最小化, 所以调用两次关闭, 防止最大化时一次不能关闭的情况
       }
     }]);
   let tray = new Tray(join(process.env.PUBLIC, 'favicon.ico'))
@@ -104,7 +124,7 @@ async function createWindow() {
     alwaysOnTop: true,
     fullscreenable: false, // 是否允许全屏
     center: true, // 是否出现在屏幕居中的位置
-    backgroundColor: '#00000000', // 背景色，用于transparent和frameless窗口
+    backgroundColor: '#00000000', // 背景色, 用于transparent和frameless窗口
     frame: false, // 是否创建frameless窗口
     transparent: true, // 是否是透明窗口（仅macOS）
     // titleBarStyle: 'hidden',
@@ -127,7 +147,7 @@ async function createWindow() {
     win.loadFile(indexHtml)
   }
 
-  win.webContents.closeDevTools() // dev的时候默认会打开控制台，这里关闭控制台
+  win.webContents.closeDevTools() // dev的时候默认会打开控制台, 这里关闭控制台
 
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {
