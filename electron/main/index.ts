@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 import {SET_MAIN_WINDOW_POS} from "../../src/utils/events/constants";// 不知道为啥
 
-ipcMain.on(SET_MINI_WINDOW_POS, (evt, pos) => {
+ipcMain.on(SET_MAIN_WINDOW_POS, (evt, pos) => {
   const window = BrowserWindow.getFocusedWindow()
   window.setBounds(pos)
 })
