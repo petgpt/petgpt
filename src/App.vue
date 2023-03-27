@@ -14,7 +14,7 @@ import variables from '../src/assets/css/variables.module.less';// less变量，
 </script>
 
 <template>
-  <div class="test" :style="{ color: variables['greenColor'] }">vuex测试代码{{store.state.test}}</div>
+  <div class="test" :style="{ color: variables['greenColor'] }">vuex less测试 可删除{{store.state.test}}</div>
   <router-view />
 </template>
 

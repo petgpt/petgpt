@@ -1,6 +1,7 @@
-import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu} from 'electron'
+import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog } from 'electron'
 import { release } from 'node:os'
 import { join } from 'node:path'
+import pkg from '../../package.json'
 
 import {SET_MAIN_WINDOW_POS} from "../../src/utils/events/constants";// 不知道为啥
 
@@ -53,16 +54,23 @@ async function createWindow() {
     {
       label: '设置',
       click: function () {
+
       } //打开相应页面
     },
     {
-      label: '帮助',
+      label: '切换皮肤',
       click: function () {
+
       }
     },
     {
       label: '关于',
       click: function () {
+        dialog.showMessageBox({
+          title: 'PetGpt',
+          message: 'PetGpt',
+          detail: `Version: ${pkg.version}\nAuthor: PetGpt\\nGithub: https://github.com/petgpt/petgpt/tree/vite-vue3-ts`
+        })
       }
     },
     {
