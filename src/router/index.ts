@@ -8,9 +8,10 @@ export default createRouter({
             name: "PetTest",
             component: () => import("../pages/PetTest.vue")
         },
-        // {
-        //     path: '/:pathMatch(.*)*',
-        //     redirect: '/'
-        // }
+        {
+            path: '/petDetail',
+            name: "PetDetail",
+            component: () => import("../pages/PetDetail.vue")
+        },
     ]
 })

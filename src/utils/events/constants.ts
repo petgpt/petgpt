@@ -1,1 +1,3 @@
-export const SET_MAIN_WINDOW_POS = 'SET_MINI_WINDOW_POS'
+export const Set_Main_Window_Pos = 'Set_Main_Window_Pos'
+
+export const Mouse_Event_Click = 'Mouse_Event_Click'

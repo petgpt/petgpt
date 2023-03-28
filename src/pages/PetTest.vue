@@ -1,10 +1,10 @@
 <template>
-  <div class="gif"></div>
+  <div class="gif" @click="handleClick"></div>
 </template>
 
 <script setup lang="ts">
 import {onBeforeMount, ref} from 'vue'
-import {SET_MAIN_WINDOW_POS} from "../utils/events/constants";
+import {Mouse_Event_Click, Set_Main_Window_Pos} from "../utils/events/constants";
 import {sendToMain} from "../utils/dataSender";
 
 const dragging = ref(false)
@@ -18,6 +18,13 @@ onBeforeMount(() => {
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
 })
+
+function handleClick(e: MouseEvent) {
+  console.log("click", e)
+  sendToMain(Mouse_Event_Click, {
+    test: 1
+  })
+}
 
 function handleMouseDown (e: MouseEvent) {
   dragging.value = true
@@ -34,7 +41,7 @@ function handleMouseMove (e: MouseEvent) {
     const xLoc = e.screenX - wX.value
     const yLoc = e.screenY - wY.value
     console.log(`move`, xLoc, yLoc)
-    sendToMain(SET_MAIN_WINDOW_POS, {
+    sendToMain(Set_Main_Window_Pos, {
       x: xLoc,
       y: yLoc,
       width: 200,
