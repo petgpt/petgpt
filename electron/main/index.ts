@@ -93,8 +93,8 @@ async function createWindow() {
     title: 'Main window',
     skipTaskbar: true,
     icon: join(process.env.PUBLIC, 'favicon.ico'),
-    height: 170,
     width: 200,
+    height: 170,
     useContentSize: true,
     alwaysOnTop: true,
     fullscreenable: false, // 是否允许全屏
@@ -117,12 +117,10 @@ async function createWindow() {
   if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
     win.loadURL(url)
     // Open devTool if the app is not packaged
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools() // dev的时候默认会打开控制台，可以用closeDevTools关闭
   } else {
     win.loadFile(indexHtml)
   }
-
-  // win.webContents.closeDevTools() // dev的时候默认会打开控制台, 这里关闭控制台
 
   // Test actively push message to the Electron-Renderer
   win.webContents.on('did-finish-load', () => {
@@ -139,11 +137,23 @@ async function createWindow() {
 
 app.whenReady().then(() => {
   createWindow()
-  globalShortcut.register('CommandOrControl+d', () => {
-    console.log('CommandOrControl+d is pressed')
-  })
+  globalShortcut.register('Control+shift+c', () => openMainWindowDevTool())
   console.log(globalShortcut.isRegistered('CommandOrControl+d'));
 })
+
+function openMainWindowDevTool() {
+  if (win) {
+    let isDevToolsOpen = win.webContents.isDevToolsOpened();
+    if (isDevToolsOpen) {
+      win.webContents.closeDevTools();
+      win.setSize(200, 170)
+    } else {
+      win.webContents.openDevTools()
+      win.setSize(800, 600)
+      win.center();
+    }
+  }
+}
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()

@@ -60,7 +60,7 @@ export function onMainWindowMove() {
         let winH = bounds.height
 
         let isOverlappingScreen = x < 0 || y < 0 || x + winW > screenW || y + winH > screenH;
-        console.log(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
+        // console.log(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
 
         if (isOverlappingScreen) {
             pos.x = x < 0 ? 0 : (x + winW > screenW ? screenW - winW : x);
