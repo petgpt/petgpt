@@ -42,6 +42,8 @@ export function onMainWindowMouseClick() {
         console.log(`[${Mouse_Event_Click}] arg:`, arg)
         if (!window) {
             createMainDetailWin();
+        } else {
+            window.show()
         }
     })
 }

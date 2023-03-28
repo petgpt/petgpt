@@ -1,5 +1,5 @@
 <template>
-  <div class="gif" @click="handleClick"></div>
+  <div class="gif"></div>
 </template>
 
 <script setup lang="ts">
@@ -18,13 +18,6 @@ onBeforeMount(() => {
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
 })
-
-function handleClick(e: MouseEvent) {
-  console.log("click", e)
-  sendToMain(Mouse_Event_Click, {
-    test: 1
-  })
-}
 
 function handleMouseDown (e: MouseEvent) {
   dragging.value = true
@@ -59,11 +52,14 @@ function handleMouseMove (e: MouseEvent) {
 function handleMouseUp (e: MouseEvent) {
   dragging.value = false
   if (screenX.value === e.screenX && screenY.value === e.screenY) {
-    // if (e.button === 0) { // left mouse
-    //   openUploadWindow()
-    // } else {
-    //   openContextMenu()
-    // }
+    if (e.button === 0) { // left mouse
+      console.log("click", e)
+      sendToMain(Mouse_Event_Click, {
+        test: 1
+      })
+    } else {
+      // openContextMenu()
+    }
   }
 }
 
