@@ -18,6 +18,9 @@
              clearable maxlength="20"
              :placeholder="placeholder" @blur="inputBlur()" @keydown="getShortKeys"/>
     </el-col>
+    <el-col>
+      点击获取系统路径：{{dirPath}}<el-button @click="getSystemDirPath">获取系统路径</el-button>
+    </el-col>
   </el-row>
 </template>
 
@@ -26,16 +29,20 @@ import {useTitleStore, usePersistStoreTest} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
 import {computed, ref} from "vue";
-import {Set_Short_Keys} from "../utils/events/constants";
-const title = useTitleStore()
-const persistStoreTest = usePersistStoreTest();
+import {Get_System_File_Path, Set_Short_Keys} from "../utils/events/constants";
 
-const computedStoreTitle = computed(() => title.title)
+const platform = computed(() => process.platform) // 获取当前的操作系统
+
+
+// 【start】----------- 全局状态获取 -----------【start】
+const titleStore = useTitleStore()
+const computedStoreTitle = computed(() => titleStore.title)
 const persistStoreTestCount = computed(() => persistStoreTest.state.count)
-const platform = computed(() => process.platform)
+const storeClick = () => console.log(titleStore.title)
+// 【end】---------------------- 全局状态获取 ----------------------【end】
 
-const storeClick = () => console.log(title.title)
 
+// 【start】----------- main线程与renderer线程通信 -----------【start】
 function ipcRenderInvokeTest() {
   // invoke方法会返回一个promise对象，可以通过then方法获取返回值。可以通过catch捕获主进程处理函数抛出的错误。
   ipcRenderer.invoke('ping', '[invoke]ping').then((arg: {msg: string}) => {
@@ -51,11 +58,18 @@ function ipcRenderSendTest() {
     console.log(arg)
   })
 }
+// 【end】---------------------- main线程与renderer线程通信 ----------------------【end】
 
+
+// 【start】----------- 全局数据持久化 -----------【start】
+const persistStoreTest = usePersistStoreTest();
 function addPersistStoreTest() {
   persistStoreTest.state.count++
 }
+// 【end】---------------------- 全局数据持久化 ----------------------【end】
 
+
+// 【start】----------- 动态修改快捷键 -----------【start】
 // TODO: 可能会与现有的快捷键冲突，例如：ctrl + shift + c 唤起了gif窗口的F12
 const shortcut = ref('')
 const placeholder = ref('点击input框按下快捷键')
@@ -103,6 +117,21 @@ function getShortKeys(e: KeyboardEvent) {
     shortcut.value = str.substring(0, str.lastIndexOf('+') + 1) + publicKey
   }
 }
+// 【end】--------------------- 动态修改快捷键 ----------------------【end】
+
+
+// 【start】----------- 获取系统文件路径 -----------【start】
+const dirPath = ref('')
+function getSystemDirPath() {
+  sendToMain(Get_System_File_Path)
+  ipcRenderer.on(Get_System_File_Path, (event: IpcRendererEvent, arg: {path: string}) => {
+    console.log(`[renderer][on:${Get_System_File_Path}]获取到的文件夹路径:`, arg.path)
+    dirPath.value = arg.path
+  })
+}
+// 【end】---------------------- 获取系统文件路径 ----------------------【end】
+
+
 </script>
 
 <style scoped lang="less">

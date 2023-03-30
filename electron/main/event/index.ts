@@ -1,5 +1,6 @@
-import {Mouse_Event_Click, Set_Main_Window_Pos, Set_Short_Keys} from "../../../src/utils/events/constants";
-import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent, globalShortcut} from "electron";
+// @ts-ignore
+import {Get_System_File_Path, Mouse_Event_Click, Set_Main_Window_Pos, Set_Short_Keys} from "../../../src/utils/events/constants";
+import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent, globalShortcut, dialog} from "electron";
 import node_path from "node:path";
 
 let window: BrowserWindow | null = null
@@ -97,6 +98,22 @@ export function listenShortKeySet() {
         globalShortcut.register(args.new, () => {
             // 调用截图方法
             console.log(`[globalShortcut.registered] ${args.new} is pressed`) // 如果新绑定的按键被按下，就会在terminal打印出来！
+        })
+    });
+}
+
+export function listenOpenDirSelect() {
+    ipcMain.on(Get_System_File_Path, (event: IpcMainEvent, args) => {
+        console.log(`[Get_System_File_Path] arg:`, args); // 打印接收到的消息
+
+        dialog.showOpenDialog({
+            properties: ['openDirectory']
+        }).then(result => {
+            console.log(`[ipcMain.on Get_System_File_Path]result`, result, ` result.filePaths: `, result.filePaths)
+            event.sender.send(Get_System_File_Path, {path: result.filePaths[0]});
+        }).catch(err => {
+            console.log(err)
+            event.sender.send(Get_System_File_Path, {path: ''});
         })
     });
 }
