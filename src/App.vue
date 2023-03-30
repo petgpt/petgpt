@@ -1,3 +1,8 @@
+<template>
+  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>
+  <router-view />
+</template>
+
 <script setup lang="ts">
 import {useTitleStore} from './store';
 import {computed} from "vue";
@@ -67,11 +72,6 @@ console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}
 // ---------------- 使用preload里暴露的api ----------------
 // window.electronAPI.loadPreferences().then(res => {})
 </script>
-
-<template>
-  <div class="test" :style="{ color: variables['greenColor'] }">全局状态title：{{ titleStore.title }}</div>
-  <router-view />
-</template>
 
 <style lang="less">
 .test{

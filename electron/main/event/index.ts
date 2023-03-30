@@ -1,5 +1,10 @@
-// @ts-ignore
-import {Get_System_File_Path, Mouse_Event_Click, Set_Main_Window_Pos, Set_Short_Keys} from "../../../src/utils/events/constants";
+import {
+    Get_System_File_Path,
+    Mouse_Event_Click,
+    Reset_Short_Key,
+    Set_Main_Window_Pos,
+    Set_Short_Keys
+} from "../../../src/utils/events/constants";
 import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent, globalShortcut, dialog} from "electron";
 import node_path from "node:path";
 
@@ -100,6 +105,10 @@ export function listenShortKeySet() {
             console.log(`[globalShortcut.registered] ${args.new} is pressed`) // 如果新绑定的按键被按下，就会在terminal打印出来！
         })
     });
+
+    ipcMain.on(Reset_Short_Key, (event: IpcMainEvent, old) => {
+        globalShortcut.unregister(old)
+    });
 }
 
 export function listenOpenDirSelect() {
@@ -110,7 +119,7 @@ export function listenOpenDirSelect() {
             properties: ['openDirectory']
         }).then(result => {
             console.log(`[ipcMain.on Get_System_File_Path]result`, result, ` result.filePaths: `, result.filePaths)
-            event.sender.send(Get_System_File_Path, {path: result.filePaths[0]});
+            if(!result.canceled) event.sender.send(Get_System_File_Path, {path: result.filePaths[0]});
         }).catch(err => {
             console.log(err)
             event.sender.send(Get_System_File_Path, {path: ''});

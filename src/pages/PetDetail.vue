@@ -16,7 +16,7 @@
       点击开始监听用户按下的组合键：
       <el-input class="iconfont" v-model="shortcut" style="width:320px;"
              clearable maxlength="20"
-             :placeholder="placeholder" @blur="inputBlur()" @keydown="getShortKeys"/>
+             :placeholder="placeholder" @blur="inputBlur()" @keydown="getShortKeys" @clear="clearAllShortKey"/>
     </el-col>
     <el-col>
       点击获取系统路径：{{dirPath}}<el-button @click="getSystemDirPath">获取系统路径</el-button>
@@ -29,7 +29,7 @@ import {useTitleStore, usePersistStoreTest} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
 import {computed, ref} from "vue";
-import {Get_System_File_Path, Set_Short_Keys} from "../utils/events/constants";
+import {Get_System_File_Path, Reset_Short_Key, Set_Short_Keys} from "../utils/events/constants";
 
 const platform = computed(() => process.platform) // 获取当前的操作系统
 
@@ -116,6 +116,10 @@ function getShortKeys(e: KeyboardEvent) {
   } else {
     shortcut.value = str.substring(0, str.lastIndexOf('+') + 1) + publicKey
   }
+}
+
+function clearAllShortKey() {
+  ipcRenderer.send(Reset_Short_Key, oldKeys.value)
 }
 // 【end】--------------------- 动态修改快捷键 ----------------------【end】
 
