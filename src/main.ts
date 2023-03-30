@@ -4,13 +4,14 @@ import App from './App.vue'
 import './samples/node-api'
 import router from './router'
 import { createPinia } from 'pinia'
+import piniaPluginPersist from 'pinia-plugin-persist'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
 createApp(App)
     .use(router)
     .use(ElementPlus)
-    .use(createPinia())
+    .use(createPinia().use(piniaPluginPersist))
     .mount('#app')
     .$nextTick(() => {
         postMessage({payload: 'removeLoading'}, '*')

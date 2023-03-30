@@ -5,6 +5,9 @@
       <el-button @click="storeClick">获取全局状态title: {{computedStoreTitle}}</el-button>
     </el-col>
     <el-col>
+      <el-button @click="addPersistStoreTest">持久化状态count(存放在localStorage): {{ persistStoreTestCount }}</el-button>
+    </el-col>
+    <el-col>
       <div>main线程与renderer线程通信</div>
       <el-button @click="ipcRenderInvokeTest">异步函数调用 invoke</el-button>
       <el-button @click="ipcRenderSendTest">ipcRenderer.send</el-button>
@@ -13,13 +16,15 @@
 </template>
 
 <script setup lang="ts">
-import {useTitleStore} from "../store";
+import {useTitleStore, usePersistStoreTest} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
 import {computed} from "vue";
 const title = useTitleStore()
+const persistStoreTest = usePersistStoreTest();
 
 const computedStoreTitle = computed(() => title.title)
+const persistStoreTestCount = computed(() => persistStoreTest.state.count)
 const storeClick = () => console.log(title.title)
 
 function ipcRenderInvokeTest() {
@@ -38,6 +43,9 @@ function ipcRenderSendTest() {
   })
 }
 
+function addPersistStoreTest() {
+  persistStoreTest.state.count++
+}
 </script>
 
 <style scoped lang="less">
