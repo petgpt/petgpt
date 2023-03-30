@@ -21,6 +21,9 @@
     <el-col>
       点击获取系统路径：{{dirPath}}<el-button @click="getSystemDirPath">获取系统路径</el-button>
     </el-col>
+    <el-col>
+      剪贴板内容类型:{{clipBoardType}}<el-button @click="getClipBoardType">点击获取</el-button>
+    </el-col>
   </el-row>
 </template>
 
@@ -135,6 +138,17 @@ function getSystemDirPath() {
 }
 // 【end】---------------------- 获取系统文件路径 ----------------------【end】
 
+// 【start】----------- 获取剪贴板内容 -----------【start】
+const clipBoardType = ref('')
+function getClipBoardType() {
+  ipcRenderer.invoke('Get_ClipBoard_Type').then((arg) => {
+    console.log(`[renderer][on:Get_ClipBoard_Type]获取到的剪贴板信息:`, arg)
+    clipBoardType.value = arg;
+  }).catch((err) => {
+    alert(`获取到的剪贴板信息 err:${JSON.stringify(err)}`)
+  });
+}
+// 【end】---------------------- 获取剪贴板内容 ----------------------【end】
 
 </script>
 

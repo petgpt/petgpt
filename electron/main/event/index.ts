@@ -4,9 +4,23 @@ import {
     Reset_Short_Key,
     Set_Main_Window_Pos,
     Set_Short_Keys
-} from "../../../src/utils/events/constants";
-import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent, globalShortcut, dialog} from "electron";
+}
+// @ts-ignore
+from "../../../src/utils/events/constants";
+
+import {
+    BrowserWindow,
+    clipboard,
+    dialog,
+    globalShortcut,
+    ipcMain,
+    IpcMainEvent,
+    IpcMainInvokeEvent,
+    screen
+} from "electron";
 import node_path from "node:path";
+
+const clipboardEx = require('electron-clipboard-ex');
 
 let window: BrowserWindow | null = null
 
@@ -85,6 +99,20 @@ export function mainCommunicateWithRendererTest() {
         console.log(`[ipcMain.handle]arg: `, args)
         // 处理异步调用请求
         return {msg: "[ipcMain.handle]pong"};
+    })
+
+    ipcMain.handle('Get_ClipBoard_Type', async (event: IpcMainInvokeEvent, ...args) => {
+        let formats = clipboard.availableFormats();
+        if (formats.includes('text/plain') || formats.includes('text/html')) {
+            return clipboard.readText();// 剪贴板中包含文本数据
+        }
+        // if (formats.includes('text/uri-list')) {
+        //     // 剪贴板中包含文件
+        //     const files = clipboard.readBuffer('FileNameW')?.toString('ucs2')?.replace(RegExp(String.fromCharCode(0), 'g'), '')
+        //     console.log('文件路径列表:', files)
+        //     return {type: 'file', data: files};
+        // }
+        return clipboardEx.readFilePaths();
     })
 
     ipcMain.on('ping', (event: IpcMainEvent, args) => {

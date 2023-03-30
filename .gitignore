@@ -26,3 +26,4 @@ release
 
 # lockfile
 pnpm-lock.yaml
+package-lock.json
