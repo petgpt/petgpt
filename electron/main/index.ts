@@ -2,11 +2,12 @@ import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog }
 import { release } from 'node:os'
 import { join } from 'node:path'
 import pkg from '../../package.json'
-import {mainCommunicateWithRendererTest, onMainWindowMouseClick, onMainWindowMove} from "./event";
+import {listenShortKeySet, mainCommunicateWithRendererTest, onMainWindowMouseClick, onMainWindowMove} from "./event";
 
 onMainWindowMouseClick()
 onMainWindowMove()
 mainCommunicateWithRendererTest()
+listenShortKeySet()
 // The built directory structure
 //
 // ├─┬ dist-electron

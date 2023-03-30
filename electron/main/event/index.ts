@@ -1,11 +1,11 @@
-import {Mouse_Event_Click, Set_Main_Window_Pos} from "../../../src/utils/events/constants";
-import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent} from "electron";
+import {Mouse_Event_Click, Set_Main_Window_Pos, Set_Short_Keys} from "../../../src/utils/events/constants";
+import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent, globalShortcut} from "electron";
 import node_path from "node:path";
 
 let window: BrowserWindow | null = null
 
 function createMainDetailWin() {
-    const serverUrl = process.env.VITE_DEV_SERVER_URL;
+    // const serverUrl = process.env.VITE_DEV_SERVER_URL;
     const indexHtml = node_path.join(process.env.DIST, "index.html");
 
     const winURL = process.env.VITE_DEV_SERVER_URL
@@ -84,5 +84,19 @@ export function mainCommunicateWithRendererTest() {
     ipcMain.on('ping', (event: IpcMainEvent, args) => {
         console.log(`[ipcMain.on]arg:`, args); // 打印接收到的消息
         event.sender.send('ping-replay', {msg: "[event.sender.send]pong"});
+    });
+}
+
+export function listenShortKeySet() {
+    ipcMain.on(Set_Short_Keys, (event: IpcMainEvent, args: {
+        new: string,
+        old: string
+    }) => {
+        console.log(`[ipcMain.on] old and new short key:`, args);
+        if(args.old) globalShortcut.unregister(args.old)
+        globalShortcut.register(args.new, () => {
+            // 调用截图方法
+            console.log(`[globalShortcut.registered] ${args.new} is pressed`) // 如果新绑定的按键被按下，就会在terminal打印出来！
+        })
     });
 }
