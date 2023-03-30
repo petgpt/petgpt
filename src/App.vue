@@ -56,7 +56,16 @@ setTimeout(()=> {
   titleStore.$patch({title: '2222'})
 }, 2000) //调用mutations，修改store中的test的值
 
+setTimeout(()=> {
+  titleStore.changeTitleAsync('!!!').then(() => {
+    titleStore.$reset();
+  })
+}, 5000) //调用mutations，修改store中的test的值
+
 console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}!`)
+
+// ---------------- 使用preload里暴露的api ----------------
+// window.electronAPI.loadPreferences().then(res => {})
 </script>
 
 <template>

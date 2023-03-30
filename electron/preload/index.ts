@@ -1,3 +1,5 @@
+import {ipcRenderer, contextBridge } from "electron";
+
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
   return new Promise((resolve) => {
     if (condition.includes(document.readyState)) {
@@ -90,3 +92,9 @@ window.onmessage = (ev) => {
 }
 
 setTimeout(removeLoading, 4999)
+
+// contextIsolation disabled/enabled，都可以在preload里暴露api给renderer线程使用，参考：https://www.electronjs.org/docs/latest/tutorial/context-isolation
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  loadPreferences: () => ipcRenderer.invoke('load-prefs')
+})
