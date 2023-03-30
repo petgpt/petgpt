@@ -1,5 +1,5 @@
 import {Mouse_Event_Click, Set_Main_Window_Pos} from "../../../src/utils/events/constants";
-import {BrowserWindow, ipcMain, screen} from "electron";
+import {BrowserWindow, ipcMain, IpcMainEvent, screen, IpcMainInvokeEvent} from "electron";
 import node_path from "node:path";
 
 let window: BrowserWindow | null = null
@@ -72,4 +72,17 @@ export function onMainWindowMove() {
             window.setBounds(pos);
         }
     })
+}
+
+export function mainCommunicateWithRendererTest() {
+    ipcMain.handle('ping', async (event: IpcMainInvokeEvent, ...args) => {
+        console.log(`[ipcMain.handle]arg: `, args)
+        // 处理异步调用请求
+        return {msg: "[ipcMain.handle]pong"};
+    })
+
+    ipcMain.on('ping', (event: IpcMainEvent, args) => {
+        console.log(`[ipcMain.on]arg:`, args); // 打印接收到的消息
+        event.sender.send('ping-replay', {msg: "[event.sender.send]pong"});
+    });
 }
