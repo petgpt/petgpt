@@ -59,8 +59,8 @@ function handleMouseMove (e: MouseEvent) {
     sendToMain(Set_Main_Window_Pos, {
       x: xLoc,
       y: yLoc,
-      width: 200,
-      height: 170,
+      width: 220,
+      height: 220,
     })
     // remote.BrowserWindow.getFocusedWindow()!.setBounds({
     //   x: xLoc,

@@ -44,7 +44,7 @@ const os = process.platform
  * Using different icon format because macOS version vite don't support `ico` format
  * currently use `png` for macOS.
  */
-const iconFile = 
+const iconFile =
   os == 'darwin' ? 'favicon.png' :
   os == 'win32'  ? 'favicon.ico' :
   /* else */       'favicon.ico' ;
@@ -120,8 +120,8 @@ async function createWindow() {
     title: 'Main window',
     skipTaskbar: true,
     icon: join(process.env.PUBLIC, iconFile),
-    width: 200,
-    height: 170,
+    width: 220,
+    height: 220,
     useContentSize: true,
     alwaysOnTop: true,
     fullscreenable: false, // 是否允许全屏
@@ -181,7 +181,7 @@ function openMainWindowDevTool() {
     let isDevToolsOpen = petWindow.webContents.isDevToolsOpened();
     if (isDevToolsOpen) {
       petWindow.webContents.closeDevTools();
-      petWindow.setSize(200, 170)
+      petWindow.setSize(220, 220)
     } else {
       petWindow.webContents.openDevTools()
       petWindow.setSize(800, 600)
