@@ -348,11 +348,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/uuid@^9.0.1":
-  version "9.0.1"
-  resolved "https://registry.npmmirror.com/@types/uuid/-/uuid-9.0.1.tgz"
-  integrity sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==
-
 "@types/verror@^1.10.3":
   version "1.10.6"
   resolved "https://registry.npmmirror.com/@types/verror/-/verror-1.10.6.tgz#3e600c62d210c5826460858f84bcbb65805460bb"

@@ -33,6 +33,22 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? join(process.env.DIST_ELECTRON, '../public')
   : process.env.DIST
 
+/**
+ * Check OS type
+ * Possible os: 'aix' | 'android' | 'darwin' | 'freebsd' | 'haiku' | 'linux' | 'openbsd' | 'sunos' | 'win32' | 'cygwin' | 'netbsd';
+ */
+const os = process.platform
+
+/**
+ * Determin icon file
+ * Using different icon format because macOS version vite don't support `ico` format
+ * currently use `png` for macOS.
+ */
+const iconFile = 
+  os == 'darwin' ? 'favicon.png' :
+  os == 'win32'  ? 'favicon.ico' :
+  /* else */       'favicon.ico' ;
+
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
 
@@ -86,7 +102,7 @@ async function createWindow() {
         app.quit();//因为程序设定关闭为最小化, 所以调用两次关闭, 防止最大化时一次不能关闭的情况
       }
     }]);
-  let tray = new Tray(join(process.env.PUBLIC, 'favicon.ico'))
+  let tray = new Tray(join(process.env.PUBLIC, iconFile))
   tray.setContextMenu(contextMenu)
   tray.setToolTip('PetGpt')
   tray.setTitle('PetGpt')
@@ -103,7 +119,7 @@ async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
     skipTaskbar: true,
-    icon: join(process.env.PUBLIC, 'favicon.ico'),
+    icon: join(process.env.PUBLIC, iconFile),
     width: 200,
     height: 170,
     useContentSize: true,
