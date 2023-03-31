@@ -1,6 +1,13 @@
 // global
 import type { ChatMessage } from 'chatgpt'
 
+interface INotification {
+    title: string
+    body: string
+    icon?: string
+    clickFn?: () => void
+}
+
 interface IStringKeyMap {
   [propName: string]: any
 }

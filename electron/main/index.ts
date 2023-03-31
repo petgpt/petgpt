@@ -3,6 +3,7 @@ import { release } from 'node:os'
 import { join } from 'node:path'
 import pkg from '../../package.json'
 import {
+  listenNotification,
   listenOpenDirSelect,
   listenShortKeySet,
   mainCommunicateWithRendererTest,
@@ -15,6 +16,7 @@ onMainWindowMove()
 mainCommunicateWithRendererTest()
 listenShortKeySet()
 listenOpenDirSelect()
+listenNotification()
 // The built directory structure
 //
 // ├─┬ dist-electron

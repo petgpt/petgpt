@@ -24,6 +24,9 @@
     <el-col>
       剪贴板内容类型:{{clipBoardType}}<el-button @click="getClipBoardType">点击获取</el-button>
     </el-col>
+    <el-col>
+      <el-button @click="showSysNotification">点击弹出系统通知</el-button>
+    </el-col>
   </el-row>
 </template>
 
@@ -150,6 +153,18 @@ function getClipBoardType() {
 }
 // 【end】---------------------- 获取剪贴板内容 ----------------------【end】
 
+// 【start】----------- main与renderer线程的系统通知 -----------【start】
+function showSysNotification() {
+  ipcRenderer.send('notification', {
+    title: '系统通知',
+    body: '这是一个main线程触发的通知',
+  })
+
+  const NOTIFICATION_TITLE = 'Title'
+  const NOTIFICATION_BODY = 'Notification from the Renderer process. Click to log to console.'
+  new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY })
+}
+// 【end】---------------------- main与renderer线程的系统通知 ----------------------【end】
 </script>
 
 <style scoped lang="less">

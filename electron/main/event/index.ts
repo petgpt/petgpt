@@ -19,6 +19,8 @@ import {
     screen
 } from "electron";
 import node_path from "node:path";
+import {INotification} from "../../../src/utils/types/types";
+import {showNotification} from "../utils";
 
 const clipboardEx = require('electron-clipboard-ex');
 
@@ -151,6 +153,15 @@ export function listenOpenDirSelect() {
         }).catch(err => {
             console.log(err)
             event.sender.send(Get_System_File_Path, {path: ''});
+        })
+    });
+}
+
+export function listenNotification() {
+    ipcMain.on('notification', (event: IpcMainEvent, options: INotification) => {
+        showNotification({
+            ...options,
+            // clickFn: () => console.log(`notification clicked!/closed!`),
         })
     });
 }
