@@ -20,7 +20,7 @@ import {
 } from "electron";
 import node_path from "node:path";
 import {INotification} from "../../../src/utils/types/types";
-import {showNotification} from "../utils";
+import {getFileType, isDirectory, showNotification} from "../utils";
 
 const clipboardEx = require('electron-clipboard-ex');
 
@@ -106,15 +106,21 @@ export function mainCommunicateWithRendererTest() {
     ipcMain.handle('Get_ClipBoard_Type', async (event: IpcMainInvokeEvent, ...args) => {
         let formats = clipboard.availableFormats();
         if (formats.includes('text/plain') || formats.includes('text/html')) {
-            return clipboard.readText();// 剪贴板中包含文本数据
+            return [{type: 'text', data: clipboard.readText()}];// 剪贴板中包含文本数据
         }
-        // if (formats.includes('text/uri-list')) {
-        //     // 剪贴板中包含文件
-        //     const files = clipboard.readBuffer('FileNameW')?.toString('ucs2')?.replace(RegExp(String.fromCharCode(0), 'g'), '')
-        //     console.log('文件路径列表:', files)
-        //     return {type: 'file', data: files};
-        // }
-        return clipboardEx.readFilePaths();
+
+        let paths = clipboardEx.readFilePaths();
+        paths.forEach(path => {
+            isDirectory(path).then(isDir => {
+                let fileType = getFileType(path);
+                dialog.showMessageBox({
+                    title: '',
+                    message: `path: ${path}, isDir: ${isDir}, hex: ${fileType.hex}, type:${fileType.type}`
+                })
+                // paths.push({type: fileType.type, path: path, isDir: isDir});
+            })
+        })
+        return paths;
     })
 
     ipcMain.on('ping', (event: IpcMainEvent, args) => {
