@@ -1,4 +1,4 @@
-import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog } from 'electron'
+import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog, IpcMainEvent} from 'electron'
 import { release } from 'node:os'
 import { join } from 'node:path'
 import pkg from '../../package.json'
@@ -65,7 +65,7 @@ if (!app.requestSingleInstanceLock()) {
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-let win: BrowserWindow | null = null
+let petWindow: BrowserWindow | null = null
 // Here, you can also use other preload
 const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
@@ -108,7 +108,7 @@ async function createWindow() {
   tray.setTitle('PetGpt')
 
   tray.on('click',function(){
-    win.show();
+    petWindow.show();
   })
   //右键
   tray.on('right-click', () => {
@@ -116,7 +116,7 @@ async function createWindow() {
   });
 
 
-  win = new BrowserWindow({
+  petWindow = new BrowserWindow({
     title: 'Main window',
     skipTaskbar: true,
     icon: join(process.env.PUBLIC, iconFile),
@@ -142,24 +142,32 @@ async function createWindow() {
   })
 
   if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
-    win.loadURL(url)
+    petWindow.loadURL(url)
     // Open devTool if the app is not packaged
-    // win.webContents.openDevTools() // dev的时候默认会打开控制台，可以用closeDevTools关闭
+    // petWindow.webContents.openDevTools() // dev的时候默认会打开控制台，可以用closeDevTools关闭
   } else {
-    win.loadFile(indexHtml)
+    petWindow.loadFile(indexHtml)
   }
 
   // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString())
+  petWindow.webContents.on('did-finish-load', () => {
+    petWindow?.webContents.send('main-process-message', new Date().toLocaleString())
   })
 
   // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  petWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   })
-  // win.webContents.on('will-navigate', (event, url) => { }) #344
+  // petWindow.webContents.on('will-navigate', (event, url) => { }) #344
+  // console.log(`petWindow.webContents.id: `, petWindow.webContents.id)
+
+  // 监听渲染进程的消息，要发往petWindow，通过这样的方式来。试过mitt/pinia/sendTo都不行。这样是可以的！！！！// TODO: refactor
+  ipcMain.on('changeImage', (event: IpcMainEvent, args) => {
+    console.log(`main receive changeImage, args:`, args)
+    event.sender.send('changeImage-replay', args)
+    petWindow.webContents.send('changeImage-replay', args)
+  })
 }
 
 app.whenReady().then(() => {
@@ -169,15 +177,15 @@ app.whenReady().then(() => {
 })
 
 function openMainWindowDevTool() {
-  if (win) {
-    let isDevToolsOpen = win.webContents.isDevToolsOpened();
+  if (petWindow) {
+    let isDevToolsOpen = petWindow.webContents.isDevToolsOpened();
     if (isDevToolsOpen) {
-      win.webContents.closeDevTools();
-      win.setSize(200, 170)
+      petWindow.webContents.closeDevTools();
+      petWindow.setSize(200, 170)
     } else {
-      win.webContents.openDevTools()
-      win.setSize(800, 600)
-      win.center();
+      petWindow.webContents.openDevTools()
+      petWindow.setSize(800, 600)
+      petWindow.center();
     }
   }
 }
@@ -187,15 +195,15 @@ app.on('will-quit', () => {
 })
 
 app.on('window-all-closed', () => {
-  win = null
+  petWindow = null
   if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('second-instance', () => {
-  if (win) {
+  if (petWindow) {
     // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore()
-    win.focus()
+    if (petWindow.isMinimized()) petWindow.restore()
+    petWindow.focus()
   }
 })
 

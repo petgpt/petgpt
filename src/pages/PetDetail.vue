@@ -28,6 +28,9 @@
       <el-button @click="showSysNotification">点击弹出系统通知</el-button>
     </el-col>
   </el-row>
+  <el-row>
+    <el-button @click="changeImage">点击动态切换pet的gif样子</el-button>
+  </el-row>
 </template>
 
 <script setup lang="ts">
@@ -165,6 +168,13 @@ function showSysNotification() {
   new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY })
 }
 // 【end】---------------------- main与renderer线程的系统通知 ----------------------【end】
+
+// 【start】----------- 更改Pet的gif展示 -----------【start】
+function changeImage() {
+  ipcRenderer.send('changeImage', '[from detail/send] from detail.vue send to main thread')
+}
+// 【end】---------------------- 更改Pet的gif展示 ----------------------【end】
+
 </script>
 
 <style scoped lang="less">
