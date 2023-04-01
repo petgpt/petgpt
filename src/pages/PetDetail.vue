@@ -128,7 +128,7 @@ function getShortKeys(e: KeyboardEvent) {
 }
 
 function clearAllShortKey() {
-  ipcRenderer.send(Reset_Short_Key, oldKeys.value)
+  if(oldKeys.value !== '') ipcRenderer.send(Reset_Short_Key, oldKeys.value)
 }
 // 【end】--------------------- 动态修改快捷键 ----------------------【end】
 

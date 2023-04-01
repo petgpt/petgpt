@@ -2,21 +2,8 @@ import {app, BrowserWindow, shell, ipcMain, globalShortcut, Tray, Menu, dialog, 
 import { release } from 'node:os'
 import { join } from 'node:path'
 import pkg from '../../package.json'
-import {
-  listenNotification,
-  listenOpenDirSelect,
-  listenShortKeySet,
-  mainCommunicateWithRendererTest,
-  onMainWindowMouseClick,
-  onMainWindowMove
-} from "./event";
+import ipcList from './event/index'
 
-onMainWindowMouseClick()
-onMainWindowMove()
-mainCommunicateWithRendererTest()
-listenShortKeySet()
-listenOpenDirSelect()
-listenNotification()
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -49,15 +36,66 @@ const iconFile =
   os == 'win32'  ? 'favicon.ico' :
   /* else */       'favicon.ico' ;
 
-// Disable GPU Acceleration for Windows 7
-if (release().startsWith('6.1')) app.disableHardwareAcceleration()
+class LifeCycle {
+  private async beforeReady () {
+    ipcList.listen()
+  }
 
-// Set application name for Windows 10+ notifications
-if (process.platform === 'win32') app.setAppUserModelId(app.getName())
+  private onReady () {
+    app.whenReady().then(() => {
+      createWindow()
+      globalShortcut.register('Control+shift+c', () => openMainWindowDevTool())
+      console.log(globalShortcut.isRegistered('CommandOrControl+d'));
+    })
+  }
 
-if (!app.requestSingleInstanceLock()) {
-  app.quit()
-  process.exit(0)
+  private onRunning () {
+    // Disable GPU Acceleration for Windows 7
+    if (release().startsWith('6.1')) app.disableHardwareAcceleration()
+
+    // Set application name for Windows 10+ notifications
+    if (process.platform === 'win32') app.setAppUserModelId(app.getName())
+
+    app.on('second-instance', () => {
+      if (petWindow) {
+        // Focus on the main window if the user tried to open another
+        if (petWindow.isMinimized()) petWindow.restore()
+        petWindow.focus()
+      }
+    })
+    app.on('activate', () => {
+      const allWindows = BrowserWindow.getAllWindows()
+      if (allWindows.length) {
+        allWindows[0].focus()
+      } else {
+        createWindow()
+      }
+    })
+  }
+
+  private onQuit () {
+    app.on('window-all-closed', () => {
+      petWindow = null
+      if (process.platform !== 'darwin') app.quit()
+    })
+    app.on('will-quit', () => {
+      globalShortcut.unregisterAll()
+    })
+  }
+
+
+  async launchApp () {
+    const gotTheLock = app.requestSingleInstanceLock()
+    if (!gotTheLock) {
+      app.quit()
+      process.exit(0)
+    } else {
+      await this.beforeReady()
+      this.onReady()
+      this.onRunning()
+      this.onQuit()
+    }
+  }
 }
 
 // Remove electron security warnings
@@ -170,12 +208,6 @@ async function createWindow() {
   })
 }
 
-app.whenReady().then(() => {
-  createWindow()
-  globalShortcut.register('Control+shift+c', () => openMainWindowDevTool())
-  console.log(globalShortcut.isRegistered('CommandOrControl+d'));
-})
-
 function openMainWindowDevTool() {
   if (petWindow) {
     let isDevToolsOpen = petWindow.webContents.isDevToolsOpened();
@@ -190,45 +222,6 @@ function openMainWindowDevTool() {
   }
 }
 
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll()
-})
+const lifeCycle = new LifeCycle()
 
-app.on('window-all-closed', () => {
-  petWindow = null
-  if (process.platform !== 'darwin') app.quit()
-})
-
-app.on('second-instance', () => {
-  if (petWindow) {
-    // Focus on the main window if the user tried to open another
-    if (petWindow.isMinimized()) petWindow.restore()
-    petWindow.focus()
-  }
-})
-
-app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows()
-  if (allWindows.length) {
-    allWindows[0].focus()
-  } else {
-    createWindow()
-  }
-})
-
-// New window example arg: new windows url
-ipcMain.handle('open-win', (_, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  })
-
-  if (process.env.VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${url}#${arg}`)
-  } else {
-    childWindow.loadFile(indexHtml, { hash: arg })
-  }
-})
+lifeCycle.launchApp();
