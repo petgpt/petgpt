@@ -1,44 +1,54 @@
 <template>
   <div style="background-color: red">功能演示, 平台{{platform}}</div>
   <el-row>
+    <el-divider></el-divider>
     <el-col>
       获取全局状态title: {{computedStoreTitle}}
+      <div>
+        持久化状态count(存放在localStorage): {{ persistStoreTestCount }}<el-button type="primary" size="small" @click="addPersistStoreTest">点击+1 不受刷新影响</el-button>
+      </div>
     </el-col>
+    <el-divider></el-divider>
     <el-col>
-      持久化状态count(存放在localStorage): {{ persistStoreTestCount }}<el-button @click="addPersistStoreTest">点击+1 不受刷新影响</el-button>
+      main renderer线程通信：
+      <el-button type="primary" size="small" @click="ipcRenderInvokeTest">invoke</el-button>
+      <el-button type="primary" size="small" @click="ipcRenderSendTest">send</el-button>
     </el-col>
-    <el-col>
-      main线程与renderer线程通信：
-      <el-button @click="ipcRenderInvokeTest">异步函数调用 invoke</el-button>
-      <el-button @click="ipcRenderSendTest">ipcRenderer.send</el-button>
-    </el-col>
+    <el-divider></el-divider>
     <el-col>
       点击开始监听用户按下的组合键：
-      <el-input class="iconfont" v-model="shortcut" style="width:320px;"
+      <el-input class="iconfont" v-model="shortcut" style="width:150px;"
              clearable maxlength="20"
              :placeholder="placeholder" @blur="inputBlur()" @keydown="getShortKeys" @clear="clearAllShortKey"/>
     </el-col>
+    <el-divider></el-divider>
     <el-col>
-      点击获取系统路径：{{dirPath}}<el-button @click="getSystemDirPath">获取系统路径</el-button>
-    </el-col>
-    <el-col>
-      剪贴板内容类型:{{clipBoardType}}<el-button @click="getClipBoardType">点击获取</el-button>
-    </el-col>
-    <el-col>
-      <el-button @click="showSysNotification">点击弹出系统通知</el-button>
+      点击获取系统路径：{{dirPath}}<el-button type="primary" size="small" @click="getSystemDirPath">获取系统路径</el-button>
+      <div>剪贴板内容类型:{{clipBoardType}}<el-button type="primary" size="small" @click="getClipBoardType">获取</el-button></div>
+      <div>
+        <el-button type="primary" size="small" @click="showSysNotification">弹系统通知</el-button>
+        <el-button type="primary" size="small" @click="changeImage">切换pet gif</el-button>
+      </div>
     </el-col>
   </el-row>
+  <el-divider></el-divider>
   <el-row>
-    <el-button @click="changeImage">点击动态切换pet的gif样子</el-button>
+    <div>输入cmd：
+      <el-button type="primary" size="small" @click="executeCmd">执行cmd</el-button>
+      <el-input v-model="cmd" style="width:300px;"></el-input>
+    </div>
+<!--    输入参数数组(string[]，|号分隔)(TODO：有些参数没有效果)：<el-input v-model="parameters"></el-input>-->
   </el-row>
+  <el-divider></el-divider>
 </template>
 
 <script setup lang="ts">
 import {useTitleStore, usePersistStoreTest} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
-import {computed, ref} from "vue";
+import {computed, reactive, ref} from "vue";
 import {Get_System_File_Path, Reset_Short_Key, Set_Short_Keys} from "../utils/events/constants";
+import {getRawData} from "../utils/common";
 
 const platform = computed(() => process.platform) // 获取当前的操作系统
 
@@ -175,8 +185,32 @@ function changeImage() {
 }
 // 【end】---------------------- 更改Pet的gif展示 ----------------------【end】
 
+// 【start】----------- 运行cmd -----------【start】
+let cmd = ref("\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --chrome-frame --incognito --app=https://www.baidu.com");
+function executeCmd() {
+  ipcRenderer.send('cmd', cmd.value)
+}
+
+// 下面是分离exe与params的写法，main线程用的child_process.execFile来运行
+// let exePath = ref('C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe')
+// let parameters = ref("--incognito");
+// function openExecutableFile() {
+//   let args = {
+//     executablePath: exePath.value,
+//     parameters: parameters.value.split("|")
+//     // --incognito|--window-size="1080,1000"|--window-position="0,0" 为啥不行
+//     // "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --chrome-frame --app=https://www.baidu.com
+//   };
+//   console.log(`exe arg: `, args)
+//   ipcRenderer.send('cmd', args)
+// }
+// 【end】----------- 运行cmd -----------【end】
+
+
 </script>
 
 <style scoped lang="less">
-
+.el-divider--horizontal{
+  margin: 10px;
+}
 </style>

@@ -24,6 +24,8 @@ import {getFileType, isDirectory, showNotification} from "../utils";
 
 const clipboardEx = require('electron-clipboard-ex');
 
+import * as child_process from "child_process";
+
 let window: BrowserWindow | null = null
 
 function createMainDetailWin() {
@@ -164,6 +166,18 @@ export default {
                 ...options,
                 // clickFn: () => console.log(`notification clicked!/closed!`),
             })
+        });
+
+        // 运行cmd
+        ipcMain.on('cmd', (event: IpcMainEvent, cmd: string) => {
+            let child = child_process.execFile;
+
+            child_process.exec(cmd)
+            // child(args.executablePath, ['--incognito', '--window-size=800,600'], function(err, data) {
+            //     // dialog.showMessageBox({
+            //     //     // message: `err: ${err}, data: ${data}`
+            //     // })
+            // });
         });
     }
 }
