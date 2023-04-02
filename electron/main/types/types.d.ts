@@ -7,6 +7,7 @@ declare interface IWindowListItem {
     multiple: boolean
     options: () => IBrowserWindowOptions,
     callback: (window: BrowserWindow, windowManager: IWindowManager) => void
+    listen: (window: BrowserWindow, windowManager: IWindowManager) => void
 }
 
 declare interface IBrowserWindowOptions {

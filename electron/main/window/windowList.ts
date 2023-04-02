@@ -1,8 +1,9 @@
 import {join} from "node:path";
-import {ipcMain, IpcMainEvent, Menu, dialog, Tray, app} from "electron";
+import {app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, screen, Tray} from "electron";
 import {IWindowList} from "../types/enum";
 import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
+import {Change_Image, Change_Image_Replay, Set_Main_Window_Pos} from "../../../src/utils/events/constants";
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -55,7 +56,7 @@ windowList.set(IWindowList.PET_WINDOW, {
         }
         return options
     },
-    callback (window) {
+    callback (petWindow) {
         const contextMenu = Menu.buildFromTemplate([
             {
                 label: '设置',
@@ -93,7 +94,7 @@ windowList.set(IWindowList.PET_WINDOW, {
         tray.setTitle('PetGpt')
 
         tray.on('click',function(){
-            window.show();
+            petWindow.show();
         })
         //右键
         tray.on('right-click', () => {
@@ -101,9 +102,9 @@ windowList.set(IWindowList.PET_WINDOW, {
         });
 
         if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
-            window.loadURL(process.env.VITE_DEV_SERVER_URL)
+            petWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
         } else {
-            window.loadFile(join(process.env.DIST, 'index.html'))
+            petWindow.loadFile(join(process.env.DIST, 'index.html'))
         }
 
         // Test actively push message to the Electron-Renderer
@@ -117,12 +118,38 @@ windowList.set(IWindowList.PET_WINDOW, {
         // })
         // window.webContents.on('will-navigate', (event, url) => { }) #344
         // console.log(`window.webContents.id: `, window.webContents.id)
-
-        // 监听渲染进程的消息，要发往window，通过这样的方式来。试过mitt/pinia/sendTo都不行。这样是可以的！！！！// TODO: refactor
-        ipcMain.on('changeImage', (event: IpcMainEvent, args) => {
+    },
+    listen(petWindow){
+        // 监听渲染进程的消息，要发往PetTest里的监听，通过这样的方式来。试过mitt/pinia/sendTo都不行。这样是可以的！！！！
+        ipcMain.on(Change_Image, (event: IpcMainEvent, args) => {
             console.log(`main receive changeImage, args:`, args)
-            event.sender.send('changeImage-replay', args)
-            window.webContents.send('changeImage-replay', args)
+            // event.sender.send('changeImage-replay', args)
+            petWindow.webContents.send(Change_Image_Replay, args)
+        })
+
+        // 设置main窗口的位置
+        ipcMain.on(Set_Main_Window_Pos, (evt, pos) => {
+            const window = BrowserWindow.getFocusedWindow();
+            let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
+            let screenW = screenWorkAreaSize.width
+            let screenH = screenWorkAreaSize.height
+
+            let bounds = window.getBounds();
+            let x = bounds.x;// 当前窗口的x
+            let y = bounds.y;// 当前窗口的y
+            let winW = bounds.width
+            let winH = bounds.height
+
+            let isOverlappingScreen = x < 0 || y < 0 || x + winW > screenW || y + winH > screenH;
+            // console.log(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
+
+            if (isOverlappingScreen) {
+                pos.x = x < 0 ? 0 : (x + winW > screenW ? screenW - winW : x);
+                pos.y = y < 0 ? 0 : (y + winH > screenH ? screenH - winH : y);
+                window.setBounds(pos);// TODO：后面改，现在会出现窗口闪一下的情况，Pet组件里如果能获取到屏幕的宽高，就不会出现这种情况了，传来的坐标就是正确的
+            } else {
+                window.setBounds(pos);
+            }
         })
     }
 })
@@ -145,20 +172,22 @@ windowList.set(IWindowList.PET_DETAIL_WINDOW, {
         }
         return options;
     },
-    callback (window) {
+    callback (petDetailWindow) {
         if (process.env.VITE_DEV_SERVER_URL) {
-            let winUrl = `http://localhost:5173` + `#/petDetail}`;
+            let winUrl = `http://localhost:5173` + `#/petDetail`;
 
-            window.loadURL(winUrl);
-            window.webContents.openDevTools()
+            petDetailWindow.loadURL(winUrl);
+            petDetailWindow.webContents.openDevTools()
         } else {
-            window.loadFile(join(process.env.DIST, 'index.html'), { hash: 'petDetail' });
+            petDetailWindow.loadFile(join(process.env.DIST, 'index.html'), { hash: 'petDetail' });
         }
 
         // 在窗口关闭时清除window对象
-        window.on('closed', () => {
-            window = null
+        petDetailWindow.on('closed', () => {
+            petDetailWindow = null
         })
+    },
+    listen(petDetailWindow){
     }
 });
 

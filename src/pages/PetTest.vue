@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import {onBeforeMount, onBeforeUnmount, onMounted, ref} from 'vue'
-import {Mouse_Event_Click, Set_Main_Window_Pos} from "../utils/events/constants";
+import {Change_Image_Replay, Mouse_Event_Click, Set_Main_Window_Pos} from "../utils/events/constants";
 import {sendToMain} from "../utils/dataSender";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
@@ -23,7 +23,7 @@ onBeforeMount(() => {
   window.addEventListener('mousemove', handleMouseMove, false)
   window.addEventListener('mouseup', handleMouseUp, false)
 
-  ipcRenderer.on('changeImage-replay', (event: IpcRendererEvent, args) => {
+  ipcRenderer.on(Change_Image_Replay, (event: IpcRendererEvent, args) => {
     console.log(`收到changeImage, args:`, args)
     if (imageUrl.value === image2) {
       imageUrl.value = image
@@ -33,7 +33,7 @@ onBeforeMount(() => {
   })
 })
 onBeforeUnmount(() => {
-  ipcRenderer.removeAllListeners('changeImage-replay')
+  ipcRenderer.removeAllListeners(Change_Image_Replay)
   window.removeEventListener('mousedown', handleMouseDown)
   window.removeEventListener('mousemove', handleMouseMove)
   window.removeEventListener('mouseup', handleMouseUp)

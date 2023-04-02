@@ -23,6 +23,7 @@ class WindowManager implements IWindowManager {
                 this.windowIdMap.set(window.id, name)
             }
             windowConfig.callback(window, this)
+            windowConfig.listen(window, this) // 如果监听鼠标左键点击事件放到这里的listen里，又因为没有调用DetailWindow的create，所以没有listen，所以就无法监听左键单击。总结：这里面listen的监听依赖先create window// TODO: refactor
             window.on('close', () => {
                 this.deleteById(id)
             })

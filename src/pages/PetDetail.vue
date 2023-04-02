@@ -33,7 +33,7 @@
   </el-row>
   <el-divider></el-divider>
   <el-row>
-    <div>输入cmd：
+    <div>输入正确的cmd命令（提供了一个示例）：
       <el-button type="primary" size="small" @click="executeCmd">执行cmd</el-button>
       <el-input v-model="cmd" style="width:300px;"></el-input>
     </div>
@@ -47,7 +47,14 @@ import {useTitleStore, usePersistStoreTest} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
 import {computed, reactive, ref} from "vue";
-import {Get_System_File_Path, Reset_Short_Key, Set_Short_Keys} from "../utils/events/constants";
+import {
+  Change_Image, Execute_Cmd,
+  Get_ClipBoard_Type,
+  Get_System_File_Path,
+  Reset_Short_Key,
+  Set_Short_Keys,
+  Sys_Notification
+} from "../utils/events/constants";
 import {getRawData} from "../utils/common";
 
 const platform = computed(() => process.platform) // 获取当前的操作系统
@@ -157,7 +164,7 @@ function getSystemDirPath() {
 // 【start】----------- 获取剪贴板内容 -----------【start】
 const clipBoardType = ref('')
 function getClipBoardType() {
-  ipcRenderer.invoke('Get_ClipBoard_Type').then((arg) => {
+  ipcRenderer.invoke(Get_ClipBoard_Type).then((arg) => {
     console.log(`[renderer][on:Get_ClipBoard_Type]获取到的剪贴板信息:`, arg)
     clipBoardType.value = arg;
   }).catch((err) => {
@@ -168,7 +175,7 @@ function getClipBoardType() {
 
 // 【start】----------- main与renderer线程的系统通知 -----------【start】
 function showSysNotification() {
-  ipcRenderer.send('notification', {
+  ipcRenderer.send(Sys_Notification, {
     title: '系统通知',
     body: '这是一个main线程触发的通知',
   })
@@ -181,14 +188,14 @@ function showSysNotification() {
 
 // 【start】----------- 更改Pet的gif展示 -----------【start】
 function changeImage() {
-  ipcRenderer.send('changeImage', '[from detail/send] from detail.vue send to main thread')
+  ipcRenderer.send(Change_Image, '[from detail/send] from detail.vue send to main thread')
 }
 // 【end】---------------------- 更改Pet的gif展示 ----------------------【end】
 
 // 【start】----------- 运行cmd -----------【start】
 let cmd = ref("\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --chrome-frame --incognito --app=https://www.baidu.com");
 function executeCmd() {
-  ipcRenderer.send('cmd', cmd.value)
+  ipcRenderer.send(Execute_Cmd, cmd.value)
 }
 
 // 下面是分离exe与params的写法，main线程用的child_process.execFile来运行
