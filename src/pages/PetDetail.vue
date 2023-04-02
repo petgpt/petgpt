@@ -39,7 +39,32 @@
     </div>
 <!--    输入参数数组(string[]，|号分隔)(TODO：有些参数没有效果)：<el-input v-model="parameters"></el-input>-->
   </el-row>
-  <el-divider></el-divider>
+  <el-divider>↓↓ 打开配置文件 ↓↓</el-divider>
+  <el-row>
+    <el-button type="primary" size="small" @click="openConfigFile">打开配置文件</el-button>
+  </el-row>
+  <el-divider>↓↓ 配置文件的CRUD ↓↓</el-divider>
+  <el-row>
+    <el-col>
+      <el-button type="primary" size="small" @click="dbGetKey">db-get</el-button>
+      read: {{dbGetContent}}
+    </el-col>
+    <el-col>
+
+    </el-col>
+    <el-col>
+      <el-input style="width: 70px" placeholder="key" v-model="key">key</el-input>
+      <el-input style="width: 70px" placeholder="value" v-model="value">value</el-input>
+      <el-button type="primary" size="small" @click="dbSet">db-set</el-button>
+    </el-col>
+    <el-col>
+      <el-button type="primary" size="small" @click="dbWrite">db-write</el-button>
+    </el-col>
+    <el-col>
+      <el-input style="width: 70px" placeholder="value" v-model="keyToDelete">value</el-input>
+      <el-button type="primary" size="small" @click="dbDelete">db-set</el-button>
+    </el-col>
+  </el-row>
 </template>
 
 <script setup lang="ts">
@@ -213,7 +238,36 @@ function executeCmd() {
 // }
 // 【end】----------- 运行cmd -----------【end】
 
+// 【start】----------- 打开配置文件 -----------【start】
+function openConfigFile() {
+  ipcRenderer.send('open-file', 'data.json');
+}
+// 【end】----------- 打开配置文件 -----------【end】
 
+// 【start】----------- 配置文件的CRUD -----------【start】
+let dbGetContent = ref('')
+function dbGetKey() {
+  ipcRenderer.invoke('db-get', 'user').then(res => {
+    dbGetContent.value = JSON.stringify(res)
+  })
+}
+
+let key = ref('')
+let value = ref('')
+function dbSet() {
+  ipcRenderer.send('db-set', {key: key.value, value: value.value})
+}
+
+function dbWrite() {
+  ipcRenderer.send('db-write')
+}
+
+let keyToDelete = ref('')
+
+function dbDelete() {
+  ipcRenderer.send('db-delete', keyToDelete.value)
+}
+// 【end】----------- 配置文件的CRUD -----------【end】
 </script>
 
 <style scoped lang="less">

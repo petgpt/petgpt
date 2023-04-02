@@ -9,12 +9,13 @@ import {
     from "../../../src/utils/events/constants";
 
 import {
+    app as APP,
     clipboard,
     dialog,
     globalShortcut,
     ipcMain,
     IpcMainEvent,
-    IpcMainInvokeEvent,
+    IpcMainInvokeEvent, shell,
 } from "electron";
 import {INotification} from "../../../src/utils/types/types";
 import {getFileType, isDirectory, showNotification} from "../utils";
@@ -24,9 +25,40 @@ const clipboardEx = require('electron-clipboard-ex');
 import * as child_process from "child_process";
 import windowManger from "../window/windowManger";
 import {IWindowList} from "../types/enum";
+import path from "path";
+import fs from "fs";
+import db from "../data/db";
 
 export default {
     listen () {
+        // 配置文件打开
+        const STORE_PATH = APP.getPath('userData')
+        ipcMain.on('open-file', (event: IpcMainEvent, fileName: string) => {
+            console.log(`STORE_PATH:${STORE_PATH}`)
+            const abFilePath = path.join(STORE_PATH, fileName)
+            if (fs.existsSync(abFilePath)) {
+                shell.openPath(abFilePath);
+            } else {
+                console.log(`file not exists`)
+                fs.writeFileSync(abFilePath, '{}')
+                setTimeout(() => shell.openPath(abFilePath), 1000)
+            }
+        });
+
+        // 配置文件CRUD
+        ipcMain.handle('db-get', (event: IpcMainEvent, key: string) => {
+            return db.read();
+        })
+        ipcMain.on('db-set', (event: IpcMainEvent, args: {key: string, value: string}) => {
+            db.set(args.key, args.value)
+        })
+        ipcMain.on('db-write', (event: IpcMainEvent, key: string) => {
+            db.flush()
+        })
+        ipcMain.on('db-delete', (event: IpcMainEvent, key: string) => {
+            db.remove(key)
+        })
+
         // 监听鼠标点击事件 -> 窗口PetDetail页面
         ipcMain.on(Mouse_Event_Click, (evt, arg) => {
             console.log(`[${Mouse_Event_Click}] arg:`, arg)
