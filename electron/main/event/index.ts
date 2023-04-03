@@ -15,22 +15,38 @@ import {
     globalShortcut,
     ipcMain,
     IpcMainEvent,
-    IpcMainInvokeEvent, shell,
+    IpcMainInvokeEvent,
+    shell,
 } from "electron";
 import {INotification} from "../../../src/utils/types/types";
 import {getFileType, isDirectory, showNotification} from "../utils";
-
-const clipboardEx = require('electron-clipboard-ex');
-
 import * as child_process from "child_process";
 import windowManger from "../window/windowManger";
 import {IWindowList} from "../types/enum";
 import path from "path";
 import fs from "fs";
 import db from "../data/db";
+import {join} from "node:path";
+
+const clipboardEx = require('electron-clipboard-ex');
 
 export default {
     listen () {
+        // 路由跳转
+        ipcMain.on('router', (event: IpcMainEvent, arg: {window: IWindowList, hash: string}) => {
+            let window = windowManger.get(arg.window);
+            if (window) {
+                if (process.env.VITE_DEV_SERVER_URL) {
+                    let winUrl = `http://localhost:5173` + `#/${arg.hash}`;
+
+                    window.loadURL(winUrl);
+                    window.webContents.openDevTools();
+                } else {
+                    window.loadFile(join(process.env.DIST, 'index.html'), { hash: `${arg.hash}` });
+                }
+            }
+        })
+
         // 配置文件打开
         const STORE_PATH = APP.getPath('userData')
         ipcMain.on('open-file', (event: IpcMainEvent, fileName: string) => {
@@ -46,8 +62,11 @@ export default {
         });
 
         // 配置文件CRUD
-        ipcMain.handle('db-get', (event: IpcMainEvent, key: string) => {
+        ipcMain.handle('db-read', (event: IpcMainEvent, key: string) => {
             return db.read();
+        });
+        ipcMain.handle('db-get', (event: IpcMainEvent, key: string) => {
+            return db.get(key);
         })
         ipcMain.on('db-set', (event: IpcMainEvent, args: {key: string, value: string}) => {
             db.set(args.key, args.value)

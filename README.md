@@ -8,7 +8,7 @@
 # install dependencies
 yarn
 
-# serve with hot reload at localhost:9080
+# serve with hot reload
 yarn run dev
 
 # build
@@ -18,8 +18,8 @@ yarn run build
 ### TODO:
 基础功能：
 - [x] 全局状态管理\持久化
-- [ ] 本地数据库（持久化）（重启的时候读取到配置信息）
-  - [ ] 本地文件系统配置文件的操作接口
+- [x] 本地数据库（持久化）（重启的时候读取到配置信息）
+  - [x] 本地文件系统配置文件的操作接口
 - [x] main线程与renderer线程通信
 - [x] 动态快捷键监听与绑定、解绑
 - [x] 系统文件夹路径获取

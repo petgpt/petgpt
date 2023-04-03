@@ -4,6 +4,7 @@ import {IWindowList} from "../types/enum";
 import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
 import {Change_Image, Change_Image_Replay, Set_Main_Window_Pos} from "../../../src/utils/events/constants";
+import db from "../data/db";
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -107,6 +108,12 @@ windowList.set(IWindowList.PET_WINDOW, {
             petWindow.loadFile(join(process.env.DIST, 'index.html'))
         }
 
+        // 初始化的时候获取屏幕宽高，写入配置
+        let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
+        let screenW = screenWorkAreaSize.width
+        let screenH = screenWorkAreaSize.height
+        db.set("screenW", screenW);
+        db.set("screenH", screenH);
         // Test actively push message to the Electron-Renderer
         // window.webContents.on('did-finish-load', () => {
         //     window?.webContents.send('main-process-message', new Date().toLocaleString())

@@ -1,6 +1,7 @@
 <template>
   <div style="background-color: red">功能演示, 平台{{platform}}</div>
   <el-row>
+    <el-button type="primary" size="small" @click="pushRouter">跳转到Chatgpt页面</el-button>
     <el-divider></el-divider>
     <el-col>
       获取全局状态title: {{computedStoreTitle}}
@@ -46,8 +47,10 @@
   <el-divider>↓↓ 配置文件的CRUD ↓↓</el-divider>
   <el-row>
     <el-col>
-      <el-button type="primary" size="small" @click="dbGetKey">db-get</el-button>
-      read: {{dbGetContent}}
+      <el-input style="width: 70px" placeholder="key" v-model="dbKey">db-getByKey</el-input>
+      <el-button type="primary" size="small" @click="dbGetKey">db-getByKey</el-button>
+      <el-button type="primary" size="small" @click="dbRead">db-readAll</el-button>
+      获取到的内容： {{dbGetContent}}
     </el-col>
     <el-col>
 
@@ -58,7 +61,7 @@
       <el-button type="primary" size="small" @click="dbSet">db-set</el-button>
     </el-col>
     <el-col>
-      <el-button type="primary" size="small" @click="dbWrite">db-write</el-button>
+      <el-button type="primary" size="small" @click="dbFlush">db-flush</el-button>
     </el-col>
     <el-col>
       <el-input style="width: 70px" placeholder="value" v-model="keyToDelete">value</el-input>
@@ -81,6 +84,7 @@ import {
   Sys_Notification
 } from "../utils/events/constants";
 import {getRawData} from "../utils/common";
+import {IWindowList} from "../../electron/main/types/enum";
 
 const platform = computed(() => process.platform) // 获取当前的操作系统
 
@@ -246,8 +250,15 @@ function openConfigFile() {
 
 // 【start】----------- 配置文件的CRUD -----------【start】
 let dbGetContent = ref('')
+let dbKey = ref('');// 要获取的db key对应的内容
 function dbGetKey() {
-  ipcRenderer.invoke('db-get', 'user').then(res => {
+  ipcRenderer.invoke('db-get', dbKey.value).then(res => {
+    dbGetContent.value = JSON.stringify(res)
+  })
+}
+
+function dbRead() {
+  ipcRenderer.invoke('db-read').then(res => {
     dbGetContent.value = JSON.stringify(res)
   })
 }
@@ -258,7 +269,7 @@ function dbSet() {
   ipcRenderer.send('db-set', {key: key.value, value: value.value})
 }
 
-function dbWrite() {
+function dbFlush() {
   ipcRenderer.send('db-write')
 }
 
@@ -268,6 +279,11 @@ function dbDelete() {
   ipcRenderer.send('db-delete', keyToDelete.value)
 }
 // 【end】----------- 配置文件的CRUD -----------【end】
+
+// 【start】
+function pushRouter() {
+  ipcRenderer.send('router', {window: IWindowList.PET_DETAIL_WINDOW, hash: 'chatgpt'})
+}
 </script>
 
 <style scoped lang="less">
