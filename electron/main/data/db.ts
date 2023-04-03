@@ -21,7 +21,7 @@ const configFilePath = path.join(STORE_PATH, 'data.json')
 
 class DB{
     private db: LowWithLodash<Data>
-    public constructor() {
+    public constructor(STORE_PATH: string, configFilePath: string){
         // In production mode, during the first open application
         // APP.getPath('userData') gets the path nested and the datastore.js is loaded.
         // if it doesn't exist, create it.
@@ -89,4 +89,7 @@ class DB{
 // db.get('posts').filter({name:'xxxx'}).orderBy('id','desc').value()
 
 
-export default new DB()
+const message = new DB(STORE_PATH, path.join(STORE_PATH, 'message.json'));
+let db = new DB(STORE_PATH, configFilePath);
+export const config = db;
+export const messageDB = message;

@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv'
 import 'isomorphic-fetch'
 import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
 import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
+// import { ChatGPTAPI } from "./chatgpt-api";
 import axios from 'axios'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
@@ -21,25 +22,43 @@ const ErrorCodeMessage: Record<string, string> = {
 }
 
 dotenv.config()
-const timeoutMs: number = !isNaN(+import.meta.env.TIMEOUT_MS) ? +import.meta.env.TIMEOUT_MS : 30 * 1000
+const timeoutMs: number = !isNaN(+import.meta.env.VITE_TIMEOUT_MS) ? +import.meta.env.VITE_TIMEOUT_MS : 30 * 1000
 
 let apiModel: ApiModel
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
-if (!isNotEmptyString(import.meta.env.OPENAI_API_KEY) && !isNotEmptyString(import.meta.env.OPENAI_ACCESS_TOKEN)){
-    throw new Error('Missing OPENAI_API_KEY or OPENAI_ACCESS_TOKEN environment variable')
+if (!isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY) && !isNotEmptyString(import.meta.env.VITE_OPENAI_ACCESS_TOKEN)){
+    throw new Error('Missing VITE_OPENAI_API_KEY or VITE_OPENAI_ACCESS_TOKEN environment variable')
 }
 
-(async () => {
-    // More Info: https://github.com/transitive-bullshit/chatgpt-api
+function getMessageById(id:string): Promise<ChatMessage>{
+    return new Promise((resolve, reject) => {
+        resolve({
+            id: '1',
+            text: 'hello world',
+            role: 'system'
+        })
+        // resolve(
+        //     store.get(id)
+        // )
+    });
+}
 
-    if (isNotEmptyString(import.meta.env.OPENAI_API_KEY)) {
-        const OPENAI_API_BASE_URL = import.meta.env.OPENAI_API_BASE_URL
-        const OPENAI_API_MODEL = import.meta.env.OPENAI_API_MODEL
-        const model = isNotEmptyString(OPENAI_API_MODEL) ? OPENAI_API_MODEL : 'gpt-3.5-turbo'
+function upsertMessage(message: ChatMessage): Promise<void>{
+    return new Promise((resolve, reject) => {
+        // store.set(message.id, message)
+    });
+}
+
+export async function initApi() {
+    // More Info: https://github.com/transitive-bullshit/chatgpt-api
+    if (isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY)) {
+        const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
+        const VITE_OPENAI_API_MODEL = import.meta.env.VITE_OPENAI_API_MODEL
+        const model = isNotEmptyString(VITE_OPENAI_API_MODEL) ? VITE_OPENAI_API_MODEL : 'gpt-3.5-turbo'
 
         const options: ChatGPTAPIOptions = {
-            apiKey: import.meta.env.OPENAI_API_KEY,
+            apiKey: import.meta.env.VITE_OPENAI_API_KEY,
             completionParams: {model},
             debug: true,
         }
@@ -56,31 +75,33 @@ if (!isNotEmptyString(import.meta.env.OPENAI_API_KEY) && !isNotEmptyString(impor
             }
         }
 
-        if (isNotEmptyString(OPENAI_API_BASE_URL))
-            options.apiBaseUrl = `${OPENAI_API_BASE_URL}/v1`
+        if (isNotEmptyString(VITE_OPENAI_API_BASE_URL))
+            options.apiBaseUrl = `${VITE_OPENAI_API_BASE_URL}/v1`
 
+        console.log(`api options:`, options)
         setupProxy(options)
 
-        api = new ChatGPTAPI({...options})
+        api = new ChatGPTAPI({...options, getMessageById, upsertMessage})
         apiModel = 'ChatGPTAPI'
     } else {
-        const OPENAI_API_MODEL = import.meta.env.OPENAI_API_MODEL
+        const VITE_OPENAI_API_MODEL = import.meta.env.VITE_OPENAI_API_MODEL
         const options: ChatGPTUnofficialProxyAPIOptions = {
-            accessToken: import.meta.env.OPENAI_ACCESS_TOKEN,
+            accessToken: import.meta.env.VITE_OPENAI_ACCESS_TOKEN,
             debug: true,
         }
-        if (isNotEmptyString(OPENAI_API_MODEL))
-            options.model = OPENAI_API_MODEL
+        if (isNotEmptyString(VITE_OPENAI_API_MODEL))
+            options.model = VITE_OPENAI_API_MODEL
 
-        if (isNotEmptyString(import.meta.env.API_REVERSE_PROXY))
-            options.apiReverseProxyUrl = import.meta.env.API_REVERSE_PROXY
+        if (isNotEmptyString(import.meta.env.VITE_API_REVERSE_PROXY))
+            options.apiReverseProxyUrl = import.meta.env.VITE_API_REVERSE_PROXY
 
         setupProxy(options)
 
         api = new ChatGPTUnofficialProxyAPI({...options})
         apiModel = 'ChatGPTUnofficialProxyAPI'
     }
-})();
+    return api;
+}
 
 
 /**
@@ -126,18 +147,18 @@ async function chatReplyProcess(options: RequestOptions) {
  * 查询账号可用余额及有效期等信息
  */
 async function fetchBalance() {
-    const OPENAI_API_KEY = import.meta.env.OPENAI_API_KEY
-    const OPENAI_API_BASE_URL = import.meta.env.OPENAI_API_BASE_URL
+    const VITE_OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
+    const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
 
-    if (!isNotEmptyString(OPENAI_API_KEY))
+    if (!isNotEmptyString(VITE_OPENAI_API_KEY))
         return Promise.resolve('-')
 
-    const API_BASE_URL = isNotEmptyString(OPENAI_API_BASE_URL)
-        ? OPENAI_API_BASE_URL
+    const API_BASE_URL = isNotEmptyString(VITE_OPENAI_API_BASE_URL)
+        ? VITE_OPENAI_API_BASE_URL
         : 'https://api.openai.com'
 
     try {
-        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` }
+        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${VITE_OPENAI_API_KEY}` }
         const response = await axios.get(`${API_BASE_URL}/dashboard/billing/credit_grants`, { headers })
         const balance = response.data.total_available ?? 0
         return Promise.resolve(balance.toFixed(3))
@@ -152,10 +173,10 @@ async function fetchBalance() {
  */
 async function chatConfig() {
     const balance = await fetchBalance()
-    const reverseProxy = import.meta.env.API_REVERSE_PROXY ?? '-'
-    const httpsProxy = (import.meta.env.HTTPS_PROXY || import.meta.env.ALL_PROXY) ?? '-'
-    const socksProxy = (import.meta.env.SOCKS_PROXY_HOST && import.meta.env.SOCKS_PROXY_PORT)
-        ? (`${import.meta.env.SOCKS_PROXY_HOST}:${import.meta.env.SOCKS_PROXY_PORT}`)
+    const reverseProxy = import.meta.env.VITE_API_REVERSE_PROXY ?? '-'
+    const httpsProxy = (import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY) ?? '-'
+    const socksProxy = (import.meta.env.VITE_SOCKS_PROXY_HOST && import.meta.env.VITE_SOCKS_PROXY_PORT)
+        ? (`${import.meta.env.VITE_SOCKS_PROXY_HOST}:${import.meta.env.VITE_SOCKS_PROXY_PORT}`)
         : '-'
     return sendResponse<ModelConfig>({
         type: 'Success',
@@ -167,18 +188,18 @@ async function chatConfig() {
  * 根据.env文件中配置的代理信息，设置代理为socks或http
  */
 function setupProxy(options: ChatGPTAPIOptions | ChatGPTUnofficialProxyAPIOptions) {
-    if (import.meta.env.SOCKS_PROXY_HOST && import.meta.env.SOCKS_PROXY_PORT) {
+    if (import.meta.env.VITE_SOCKS_PROXY_HOST && import.meta.env.VITE_SOCKS_PROXY_PORT) {
         const agent = new SocksProxyAgent({
-            hostname: import.meta.env.SOCKS_PROXY_HOST,
-            port: import.meta.env.SOCKS_PROXY_PORT,
+            hostname: import.meta.env.VITE_SOCKS_PROXY_HOST,
+            port: import.meta.env.VITE_SOCKS_PROXY_PORT,
         })
         options.fetch = (url: string, options: any) => {// 这里options的类型是什么？？暂时用的any
             return fetch(url, { agent, ...options })
         }
     }
     else {
-        if (import.meta.env.HTTPS_PROXY || import.meta.env.ALL_PROXY) {
-            const httpsProxy = import.meta.env.HTTPS_PROXY || import.meta.env.ALL_PROXY
+        if (import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY) {
+            const httpsProxy = import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY
             if (httpsProxy) {
                 const agent = new HttpsProxyAgent(httpsProxy)
                 options.fetch = (url: string, options: any) => {// 这里options的类型是什么？？暂时用的any
