@@ -1,14 +1,15 @@
 import * as dotenv from 'dotenv'
 import 'isomorphic-fetch'
-import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
-import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
-// import { ChatGPTAPI } from "./chatgpt-api";
+import { ChatGPTAPI } from "./chatgpt-api";
+import {ChatGPTUnofficialProxyAPI} from "./chatgpt-unofficial-proxy-api";
 import axios from 'axios'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
 // import fetch from 'node-fetch'
 import {ApiModel, ChatGPTUnofficialProxyAPIOptions, ModelConfig, RequestOptions, ChatContext} from "../types/types";
 import {isNotEmptyString, sendResponse} from "../common";
+import * as types from "./types";
+import {ChatGPTAPIOptions, ChatMessage, openai, SendMessageOptions} from "./types";
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
@@ -24,6 +25,7 @@ const ErrorCodeMessage: Record<string, string> = {
 dotenv.config()
 const timeoutMs: number = !isNaN(+import.meta.env.VITE_TIMEOUT_MS) ? +import.meta.env.VITE_TIMEOUT_MS : 30 * 1000
 
+let isInit = false
 let apiModel: ApiModel
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
@@ -50,23 +52,27 @@ function upsertMessage(message: ChatMessage): Promise<void>{
     });
 }
 
-export async function initApi() {
+export async function initApi(completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>>) {
+    if(isInit) return
     // More Info: https://github.com/transitive-bullshit/chatgpt-api
     if (isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY)) {
         const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
         const VITE_OPENAI_API_MODEL = import.meta.env.VITE_OPENAI_API_MODEL
-        const model = isNotEmptyString(VITE_OPENAI_API_MODEL) ? VITE_OPENAI_API_MODEL : 'gpt-3.5-turbo'
+        // 添加自定义model的支持
+        if (!completionParams.model) {
+            completionParams.model = isNotEmptyString(VITE_OPENAI_API_MODEL) ? VITE_OPENAI_API_MODEL : 'gpt-3.5-turbo'
+        }
 
         const options: ChatGPTAPIOptions = {
             apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-            completionParams: {model},
+            completionParams,
             debug: true,
-        }
+        };
 
         // increase max token limit if use gpt-4
-        if (model.toLowerCase().includes('gpt-4')) {
+        if (completionParams.model.toLowerCase().includes('gpt-4')) {
             // if use 32k model
-            if (model.toLowerCase().includes('32k')) {
+            if (completionParams.model.toLowerCase().includes('32k')) {
                 options.maxModelTokens = 32768
                 options.maxResponseTokens = 8192
             } else {
@@ -78,10 +84,9 @@ export async function initApi() {
         if (isNotEmptyString(VITE_OPENAI_API_BASE_URL))
             options.apiBaseUrl = `${VITE_OPENAI_API_BASE_URL}/v1`
 
-        console.log(`api options:`, options)
         setupProxy(options)
 
-        api = new ChatGPTAPI({...options, getMessageById, upsertMessage})
+        api = new ChatGPTAPI({...options})
         apiModel = 'ChatGPTAPI'
     } else {
         const VITE_OPENAI_API_MODEL = import.meta.env.VITE_OPENAI_API_MODEL
@@ -100,6 +105,7 @@ export async function initApi() {
         api = new ChatGPTUnofficialProxyAPI({...options})
         apiModel = 'ChatGPTUnofficialProxyAPI'
     }
+    isInit = true
     return api;
 }
 
@@ -125,12 +131,13 @@ async function chatReplyProcess(options: RequestOptions) {
                 options = { ...lastContext }
         }
 
-        const response = await api.sendMessage(message, {
+        let apiOptions: types.SendMessageOptions | types.SendMessageBrowserOptions = {
             ...options,
             onProgress: (partialResponse) => {
                 process?.(partialResponse)
             },
-        })
+        };
+        const response = await api.sendMessage(message, apiOptions)
 
         return sendResponse({ type: 'Success', data: response })
     }

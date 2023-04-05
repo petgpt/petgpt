@@ -1,5 +1,5 @@
 // global
-import type { ChatMessage } from 'chatgpt'
+import type { ChatMessage } from '../chatgpt/types'
 
 interface INotification {
     title: string
