@@ -65,7 +65,7 @@
     </el-col>
     <el-col>
       <el-input style="width: 70px" placeholder="value" v-model="keyToDelete">value</el-input>
-      <el-button type="primary" size="small" @click="dbDelete">db-set</el-button>
+      <el-button type="primary" size="small" @click="dbDelete">db-delete</el-button>
     </el-col>
   </el-row>
 </template>
@@ -74,7 +74,7 @@
 import {useTitleStore, usePersistStoreTest} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
-import {computed, reactive, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {
   Change_Image, Execute_Cmd,
   Get_ClipBoard_Type,
@@ -83,10 +83,8 @@ import {
   Set_Short_Keys,
   Sys_Notification
 } from "../utils/events/constants";
-import {getRawData} from "../utils/common";
 import {IWindowList} from "../../electron/main/types/enum";
-
-const platform = computed(() => process.platform) // 获取当前的操作系统
+const platform = computed(() => process.platform); // 获取当前的操作系统
 
 
 // 【start】----------- 全局状态获取 -----------【start】

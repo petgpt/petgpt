@@ -1,14 +1,22 @@
 import * as dotenv from 'dotenv'
 import 'isomorphic-fetch'
-import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt'
-import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
-// import { ChatGPTAPI } from "./chatgpt-api";
-import axios from 'axios'
+import { ChatGPTAPI } from "./chatgpt-api";
+import {ChatGPTUnofficialProxyAPI} from "./chatgpt-unofficial-proxy-api";
+// import axios from 'axios'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
-// import fetch from 'node-fetch'
-import {ApiModel, ChatGPTUnofficialProxyAPIOptions, ModelConfig, RequestOptions, ChatContext} from "../types/types";
+import fetch from 'node-fetch'
+import {
+    ApiModel,
+    ChatGPTUnofficialProxyAPIOptions,
+    ModelConfig,
+    RequestOptions,
+    ChatContext,
+    BalanceResponse
+} from "../types/types";
 import {isNotEmptyString, sendResponse} from "../common";
+import * as types from "./types";
+import {ChatGPTAPIOptions, ChatMessage, openai, SendMessageOptions} from "./types";
 
 const { HttpsProxyAgent } = httpsProxyAgent
 
@@ -27,46 +35,35 @@ const timeoutMs: number = !isNaN(+import.meta.env.VITE_TIMEOUT_MS) ? +import.met
 let apiModel: ApiModel
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
-if (!isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY) && !isNotEmptyString(import.meta.env.VITE_OPENAI_ACCESS_TOKEN)){
-    throw new Error('Missing VITE_OPENAI_API_KEY or VITE_OPENAI_ACCESS_TOKEN environment variable')
-}
 
-function getMessageById(id:string): Promise<ChatMessage>{
-    return new Promise((resolve, reject) => {
-        resolve({
-            id: '1',
-            text: 'hello world',
-            role: 'system'
-        })
-        // resolve(
-        //     store.get(id)
-        // )
-    });
-}
 
-function upsertMessage(message: ChatMessage): Promise<void>{
-    return new Promise((resolve, reject) => {
-        // store.set(message.id, message)
-    });
-}
+export async function initApi(completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>>) {
+    if (!isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY) && !isNotEmptyString(import.meta.env.VITE_OPENAI_ACCESS_TOKEN)){
+        alert('缺少VITE_OPENAI_API_KEY或VITE_OPENAI_ACCESS_TOKEN环境变量')
+        console.error('缺少VITE_OPENAI_API_KEY或VITE_OPENAI_ACCESS_TOKEN环境变量')
+        return
+        // throw new Error('Missing VITE_OPENAI_API_KEY or VITE_OPENAI_ACCESS_TOKEN environment variable')
+    }
 
-export async function initApi() {
     // More Info: https://github.com/transitive-bullshit/chatgpt-api
     if (isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY)) {
         const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
         const VITE_OPENAI_API_MODEL = import.meta.env.VITE_OPENAI_API_MODEL
-        const model = isNotEmptyString(VITE_OPENAI_API_MODEL) ? VITE_OPENAI_API_MODEL : 'gpt-3.5-turbo'
+        // 添加自定义model的支持
+        if (!completionParams.model) {
+            completionParams.model = isNotEmptyString(VITE_OPENAI_API_MODEL) ? VITE_OPENAI_API_MODEL : 'gpt-3.5-turbo'
+        }
 
         const options: ChatGPTAPIOptions = {
             apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-            completionParams: {model},
+            completionParams,
             debug: true,
-        }
+        };
 
         // increase max token limit if use gpt-4
-        if (model.toLowerCase().includes('gpt-4')) {
+        if (completionParams.model.toLowerCase().includes('gpt-4')) {
             // if use 32k model
-            if (model.toLowerCase().includes('32k')) {
+            if (completionParams.model.toLowerCase().includes('32k')) {
                 options.maxModelTokens = 32768
                 options.maxResponseTokens = 8192
             } else {
@@ -78,10 +75,9 @@ export async function initApi() {
         if (isNotEmptyString(VITE_OPENAI_API_BASE_URL))
             options.apiBaseUrl = `${VITE_OPENAI_API_BASE_URL}/v1`
 
-        console.log(`api options:`, options)
         setupProxy(options)
 
-        api = new ChatGPTAPI({...options, getMessageById, upsertMessage})
+        api = new ChatGPTAPI({...options})
         apiModel = 'ChatGPTAPI'
     } else {
         const VITE_OPENAI_API_MODEL = import.meta.env.VITE_OPENAI_API_MODEL
@@ -100,7 +96,6 @@ export async function initApi() {
         api = new ChatGPTUnofficialProxyAPI({...options})
         apiModel = 'ChatGPTUnofficialProxyAPI'
     }
-    return api;
 }
 
 
@@ -120,22 +115,25 @@ async function chatReplyProcess(options: RequestOptions) {
 
         if (lastContext != null) {
             if (apiModel === 'ChatGPTAPI')
-                options.parentMessageId = lastContext.parentMessageId
+                options.parentMessageId = isNotEmptyString(lastContext.parentMessageId) ? lastContext.parentMessageId : undefined
             else
                 options = { ...lastContext }
         }
 
-        const response = await api.sendMessage(message, {
+        let apiOptions: types.SendMessageOptions | types.SendMessageBrowserOptions = {
             ...options,
             onProgress: (partialResponse) => {
                 process?.(partialResponse)
             },
-        })
+        };
+        const response = await api.sendMessage(message, apiOptions)
 
         return sendResponse({ type: 'Success', data: response })
     }
     catch (error: any) {
         const code = error.statusCode
+        // TimeoutError: OpenAI timed out waiting for response at pTimeout (chatgpt-api:349)
+        // :5173/#/chatgpt:1 Uncaught (in promise) {message: 'OpenAI timed out waiting for response', data: null, status: 'Fail'}
         global.console.log(error)
         if (Reflect.has(ErrorCodeMessage, code))
             return sendResponse({ type: 'Fail', message: ErrorCodeMessage[code] })
@@ -146,7 +144,8 @@ async function chatReplyProcess(options: RequestOptions) {
 /**
  * 查询账号可用余额及有效期等信息
  */
-async function fetchBalance() {
+async function fetchBalance(enableProxy: boolean = false) {
+    // 计算起始日期和结束日期
     const VITE_OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
     const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
 
@@ -157,22 +156,53 @@ async function fetchBalance() {
         ? VITE_OPENAI_API_BASE_URL
         : 'https://api.openai.com'
 
-    try {
-        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${VITE_OPENAI_API_KEY}` }
-        const response = await axios.get(`${API_BASE_URL}/dashboard/billing/credit_grants`, { headers })
-        const balance = response.data.total_available ?? 0
-        return Promise.resolve(balance.toFixed(3))
+    const [startDate, endDate] = formatDate()
+
+    // 每月使用量
+    const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
+    // const urlUsage = `${API_BASE_URL}/dashboard/billing/credit_grants`
+
+    const headers = {
+        'Authorization': `Bearer ${VITE_OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
     }
-    catch {
+    let httpsProxy = import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY;
+    let agent
+    if (httpsProxy) {
+        agent = new HttpsProxyAgent(httpsProxy);
+    }
+    try {
+        // 获取已使用量
+        console.log(`开始fetch balance`)
+        const useResponse = (enableProxy && httpsProxy) ? await fetch(urlUsage, { headers, agent }) : await fetch(urlUsage, { headers })
+        console.log(`结束fetch`)
+        let useRes = await useResponse.json();
+        console.log(`结束useResponse.json(), useRes:`, useRes)
+        const usageData = useRes as BalanceResponse
+        const usage = Math.round(usageData.total_usage) / 100
+        return Promise.resolve(usage || 0 ? `$${usage}` : '-')
+    }
+    catch(e) {
+        console.log(`fetch balance error:`, e)
         return Promise.resolve('-')
     }
+}
+
+function formatDate(): string[] {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = today.getMonth() + 1
+    const lastDay = new Date(year, month, 0)
+    const formattedFirstDay = `${year}-${month.toString().padStart(2, '0')}-01`
+    const formattedLastDay = `${year}-${month.toString().padStart(2, '0')}-${lastDay.getDate().toString().padStart(2, '0')}`
+    return [formattedFirstDay, formattedLastDay]
 }
 
 /**
  * 获取配置信息对象
  */
-async function chatConfig() {
-    const balance = await fetchBalance()
+async function chatConfig(enableProxy: boolean = false) {
+    const balance = await fetchBalance(enableProxy)
     const reverseProxy = import.meta.env.VITE_API_REVERSE_PROXY ?? '-'
     const httpsProxy = (import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY) ?? '-'
     const socksProxy = (import.meta.env.VITE_SOCKS_PROXY_HOST && import.meta.env.VITE_SOCKS_PROXY_PORT)
@@ -215,6 +245,12 @@ function setupProxy(options: ChatGPTAPIOptions | ChatGPTUnofficialProxyAPIOption
  */
 function currentModel(): ApiModel {
     return apiModel
+}
+
+export function getMessageIds() {
+    if (api instanceof ChatGPTAPI) {
+        return api.getIds()
+    }
 }
 
 export type { ChatContext, ChatMessage }

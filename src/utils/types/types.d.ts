@@ -1,11 +1,15 @@
 // global
-import type { ChatMessage } from 'chatgpt'
+import type { ChatMessage } from '../chatgpt/types'
 
 interface INotification {
     title: string
     body: string
     icon?: string
     clickFn?: () => void
+}
+
+interface BalanceResponse {
+  total_usage: number
 }
 
 interface IStringKeyMap {

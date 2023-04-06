@@ -5,6 +5,7 @@ import electron from 'vite-plugin-electron'
 import renderer from 'vite-plugin-electron-renderer'
 import pkg from './package.json'
 import { resolve } from 'path'
+import wasm from 'vite-plugin-wasm'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
@@ -16,6 +17,7 @@ export default defineConfig(({ command }) => {
 
   return {
     plugins: [
+      wasm(),
       vue(),
       electron([
         {

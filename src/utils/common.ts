@@ -1,6 +1,5 @@
 import { isReactive, isRef, toRaw, unref } from 'vue'
 import {IStringKeyMap, SendResponseOptions} from "./types/types";
-import type { FetchFn } from 'chatgpt'
 
 export const getRawData = (args: any): any => {
     if (Array.isArray(args)) {
