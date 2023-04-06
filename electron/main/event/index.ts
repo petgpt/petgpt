@@ -25,7 +25,7 @@ import windowManger from "../window/windowManger";
 import {IWindowList} from "../types/enum";
 import path from "path";
 import fs from "fs";
-import { config } from "../data/db";
+import { configDB } from "../data/db";
 import {join} from "node:path";
 
 const clipboardEx = require('electron-clipboard-ex');
@@ -63,19 +63,19 @@ export default {
 
         // 配置文件CRUD
         ipcMain.handle('db-read', (event: IpcMainEvent, key: string) => {
-            return config.read();
+            return configDB.read();
         });
         ipcMain.handle('db-get', (event: IpcMainEvent, key: string) => {
-            return config.get(key);
+            return configDB.get(key);
         })
         ipcMain.on('db-set', (event: IpcMainEvent, args: {key: string, value: string}) => {
-            config.set(args.key, args.value)
+            configDB.set(args.key, args.value)
         })
         ipcMain.on('db-write', (event: IpcMainEvent, key: string) => {
-            config.flush()
+            configDB.flush()
         })
         ipcMain.on('db-delete', (event: IpcMainEvent, key: string) => {
-            config.remove(key)
+            configDB.remove(key)
         })
 
         // 监听鼠标点击事件 -> 窗口PetDetail页面

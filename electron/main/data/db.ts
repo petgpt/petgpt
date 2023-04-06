@@ -90,6 +90,10 @@ class DB{
 
 
 const message = new DB(STORE_PATH, path.join(STORE_PATH, 'message.json'));
-let db = new DB(STORE_PATH, configFilePath);
-export const config = db;
+const config = new DB(STORE_PATH, configFilePath); // 配置文件
+const prompt = new DB(STORE_PATH, path.join(STORE_PATH, 'prompt.json')); // 本地prompt
+const history = new DB(STORE_PATH, path.join(STORE_PATH, 'history.json')); // 历史对话
 export const messageDB = message;
+export const configDB = config;
+export const promptDB = prompt;
+export const historyDB = history;

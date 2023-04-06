@@ -67,6 +67,8 @@
       <el-input style="width: 70px" placeholder="value" v-model="keyToDelete">value</el-input>
       <el-button type="primary" size="small" @click="dbDelete">db-delete</el-button>
     </el-col>
+    <el-col>
+    </el-col>
   </el-row>
 </template>
 

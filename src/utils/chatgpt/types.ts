@@ -25,6 +25,7 @@ export class MessageStore {
     }
 
     public set(id: string, message: ChatMessage) {
+        // TODO: 如果需要持久化的话，改用historyDB，main与renderer通过事件进行读写
         return this.store.set(id, message)
     }
 }

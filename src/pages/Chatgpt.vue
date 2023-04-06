@@ -208,10 +208,10 @@ onMounted(async () => {
 const ipInfoFromCip = ref('')
 const ipInfoFromIpInfo = ref('')
 async function proxyTest() {
-  await getProxyIpInfoFromCip().then(res => {
+  getProxyIpInfoFromCip().then(res => {
     ipInfoFromCip.value = res
   })
-  await getProxyIpInfoFromIpInfo().then(res => {
+  getProxyIpInfoFromIpInfo().then(res => {
     ipInfoFromIpInfo.value = JSON.stringify(res, null, 2)
   })
 }
