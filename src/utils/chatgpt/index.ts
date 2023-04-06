@@ -5,8 +5,15 @@ import {ChatGPTUnofficialProxyAPI} from "./chatgpt-unofficial-proxy-api";
 import axios from 'axios'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
-// import fetch from 'node-fetch'
-import {ApiModel, ChatGPTUnofficialProxyAPIOptions, ModelConfig, RequestOptions, ChatContext} from "../types/types";
+import fetch from 'node-fetch'
+import {
+    ApiModel,
+    ChatGPTUnofficialProxyAPIOptions,
+    ModelConfig,
+    RequestOptions,
+    ChatContext,
+    BalanceResponse
+} from "../types/types";
 import {isNotEmptyString, sendResponse} from "../common";
 import * as types from "./types";
 import {ChatGPTAPIOptions, ChatMessage, openai, SendMessageOptions} from "./types";
@@ -53,7 +60,6 @@ function upsertMessage(message: ChatMessage): Promise<void>{
 }
 
 export async function initApi(completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>>) {
-    if(isInit) return
     // More Info: https://github.com/transitive-bullshit/chatgpt-api
     if (isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY)) {
         const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
@@ -105,8 +111,6 @@ export async function initApi(completionParams: Partial<Omit<openai.CreateChatCo
         api = new ChatGPTUnofficialProxyAPI({...options})
         apiModel = 'ChatGPTUnofficialProxyAPI'
     }
-    isInit = true
-    return api;
 }
 
 
@@ -143,6 +147,8 @@ async function chatReplyProcess(options: RequestOptions) {
     }
     catch (error: any) {
         const code = error.statusCode
+        // TimeoutError: OpenAI timed out waiting for response at pTimeout (chatgpt-api:349)
+        // :5173/#/chatgpt:1 Uncaught (in promise) {message: 'OpenAI timed out waiting for response', data: null, status: 'Fail'}
         global.console.log(error)
         if (Reflect.has(ErrorCodeMessage, code))
             return sendResponse({ type: 'Fail', message: ErrorCodeMessage[code] })
@@ -153,7 +159,8 @@ async function chatReplyProcess(options: RequestOptions) {
 /**
  * 查询账号可用余额及有效期等信息
  */
-async function fetchBalance() {
+async function fetchBalance(enableProxy: boolean = false) {
+    // 计算起始日期和结束日期
     const VITE_OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
     const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
 
@@ -164,22 +171,53 @@ async function fetchBalance() {
         ? VITE_OPENAI_API_BASE_URL
         : 'https://api.openai.com'
 
-    try {
-        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${VITE_OPENAI_API_KEY}` }
-        const response = await axios.get(`${API_BASE_URL}/dashboard/billing/credit_grants`, { headers })
-        const balance = response.data.total_available ?? 0
-        return Promise.resolve(balance.toFixed(3))
+    const [startDate, endDate] = formatDate()
+
+    // 每月使用量
+    const urlUsage = `${API_BASE_URL}/v1/dashboard/billing/usage?start_date=${startDate}&end_date=${endDate}`
+    // const urlUsage = `${API_BASE_URL}/dashboard/billing/credit_grants`
+
+    const headers = {
+        'Authorization': `Bearer ${VITE_OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
     }
-    catch {
+    let httpsProxy = import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY;
+    let agent
+    if (httpsProxy) {
+        agent = new HttpsProxyAgent(httpsProxy);
+    }
+    try {
+        // 获取已使用量
+        console.log(`开始fetch balance`)
+        const useResponse = (enableProxy && httpsProxy) ? await fetch(urlUsage, { headers, agent }) : await fetch(urlUsage, { headers })
+        console.log(`结束fetch`)
+        let useRes = await useResponse.json();
+        console.log(`结束useResponse.json(), useRes:`, useRes)
+        const usageData = useRes as BalanceResponse
+        const usage = Math.round(usageData.total_usage) / 100
+        return Promise.resolve(usage || 0 ? `$${usage}` : '-')
+    }
+    catch(e) {
+        console.log(`fetch balance error:`, e)
         return Promise.resolve('-')
     }
+}
+
+function formatDate(): string[] {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = today.getMonth() + 1
+    const lastDay = new Date(year, month, 0)
+    const formattedFirstDay = `${year}-${month.toString().padStart(2, '0')}-01`
+    const formattedLastDay = `${year}-${month.toString().padStart(2, '0')}-${lastDay.getDate().toString().padStart(2, '0')}`
+    return [formattedFirstDay, formattedLastDay]
 }
 
 /**
  * 获取配置信息对象
  */
-async function chatConfig() {
-    const balance = await fetchBalance()
+async function chatConfig(enableProxy: boolean = false) {
+    const balance = await fetchBalance(enableProxy)
     const reverseProxy = import.meta.env.VITE_API_REVERSE_PROXY ?? '-'
     const httpsProxy = (import.meta.env.VITE_HTTPS_PROXY || import.meta.env.ALL_PROXY) ?? '-'
     const socksProxy = (import.meta.env.VITE_SOCKS_PROXY_HOST && import.meta.env.VITE_SOCKS_PROXY_PORT)

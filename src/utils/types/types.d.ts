@@ -8,6 +8,10 @@ interface INotification {
     clickFn?: () => void
 }
 
+interface BalanceResponse {
+  total_usage: number
+}
+
 interface IStringKeyMap {
   [propName: string]: any
 }
