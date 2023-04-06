@@ -170,6 +170,7 @@ export class ChatGPTAPI {
             text
         }
 
+        // latestQuestion其实就是最新一次问的问题
         const latestQuestion = message
 
         const { messages, maxTokens, numTokens } = await this._buildMessages(
@@ -331,6 +332,9 @@ export class ChatGPTAPI {
                 }
             }
 
+            // 这里只触发一次，所有的消息progress都完毕后，运行这里
+            // 这里的message其实就是api返回的最新的回复，下一次想要继续对话，把message.id作为parentMessageId传入即可，代表是在这个message下继续对话
+            if(this._debug) console.log(`latestQuestion: `, latestQuestion, ` message: `, message)
             return Promise.all([
                 this._upsertMessage(latestQuestion),
                 this._upsertMessage(message)
@@ -472,14 +476,22 @@ export class ChatGPTAPI {
     protected async _defaultGetMessageById(
         id: string
     ): Promise<types.ChatMessage> {
-        const res = await this._messageStore.get(id)
+        // const res = await this._messageStore.get(id)
         // @ts-ignore
-        return res
+        return new Promise((resolve, reject) => {
+            let chatMessage = this._messageStore.get(id);
+            if(chatMessage) resolve(chatMessage)
+            else reject('No message found')
+        });
+    }
+
+    public getIds() {
+        return this._messageStore.getIds()
     }
 
     protected async _defaultUpsertMessage(
         message: types.ChatMessage
     ): Promise<void> {
-        await this._messageStore.set(message.id, message)
+        this._messageStore.set(message.id, message)
     }
 }

@@ -13,8 +13,15 @@ export class MessageStore {
         this.store = new LRUCache<string, ChatMessage>(options)
     }
 
-    public get(id: string): ChatMessage | undefined {
+    public get(id: string): ChatMessage | undefined{
         return this.store.get(id)
+    }
+
+    public getIds() {
+        this.store.forEach((value, key) => {
+            console.log(`key:`, key, ` value:`, value)
+        });
+        return this.store.entries()
     }
 
     public set(id: string, message: ChatMessage) {

@@ -91,8 +91,28 @@
         <el-slider v-model="completionParams.frequency_penalty" :step="0.1" :max="2" :min="-2" />
       </div>
     </el-dialog>
-    <el-input :placeholder="'请输入聊天内容'" v-model="userInput"></el-input>
+    <span>
+      <el-popover
+          placement="top-start"
+          title="开启连续对话"
+          :width="120"
+          trigger="hover"
+      >
+          <template #reference>
+            <el-switch v-model="enableChatContext" @change="switchChatContext" />
+          </template>
+        </el-popover>
+
+    </span>
     <el-button type="primary" size="small" @click="chatTest">send</el-button>
+    <el-button type="primary" size="small" @click="getMessageStoreIds">getMessageStoreIds</el-button>
+    <div>
+      <el-input :placeholder="'请输入聊天内容'" style="width:400px;" v-model="userInput" @keydown.enter="chatTest"></el-input>
+      <el-input :placeholder="'parentMessageId'" style="width:200px;" v-model="options.parentMessageId" disabled></el-input>
+    </div>
+    <div>
+      接口返回：{{chatGptResText}}
+    </div>
   </div>
 </template>
 
@@ -100,7 +120,7 @@
 import {ipcRenderer} from "electron";
 import {IWindowList} from "../../electron/main/types/enum";
 import {onMounted, reactive, ref} from "vue";
-import {chatConfig, chatReplyProcess, initApi} from "../utils/chatgpt";
+import {chatConfig, chatReplyProcess, getMessageIds, initApi} from "../utils/chatgpt";
 import {ChatMessage, openai} from "../utils/chatgpt/types";
 import HttpsProxyAgent from 'https-proxy-agent'
 // import HttpProxyAgent from 'http-proxy-agent'
@@ -115,12 +135,25 @@ function pushRouter() {
 // 【start】----------- chatgpt api 测试 -----------【start】
 const centerDialogVisible = ref(false)
 const userInput = ref('');
-
+const chatGptResText = ref('')
 const currentDate = new Date().toISOString().split('T')[0]
 const systemMessage = ref(`You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${currentDate}`);
 let firstChunk = true // 是否是第一次返回数据，如果是的话，不需要换行
-let options = {}
+let options = reactive({
+  parentMessageId: ''
+})
+const enableChatContext = ref(false) // 是否启用对话上下文
+const latestParentMessageId = ref<string | undefined>('')
 
+function switchChatContext(enable: boolean) {
+  if (enable) {
+    options.parentMessageId = latestParentMessageId.value || ''
+  } else {
+    latestParentMessageId.value = options.parentMessageId
+    options.parentMessageId = ''
+  }
+  console.log(`携带的parentMessageId：`, options.parentMessageId, ` , 记录的latestParentMessageId：`, latestParentMessageId.value)
+}
 // 其他的自定义参加见：https://platform.openai.com/docs/api-reference/completions/create
 // 或者：https://github.com/transitive-bullshit/chatgpt-api/blob/main/docs/interfaces/openai.CreateChatCompletionRequest.md#properties
 let completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>> = reactive({// 忽略了 message、n、stream 参数
@@ -133,18 +166,33 @@ let completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages
 })
 
 function chatTest() {
+  if (!import.meta.env.VITE_OPENAI_API_KEY) {
+    alert("请先配置VITE_OPENAI_API_KEY")
+    return
+  }
+  chatGptResText.value = 'waiting...'
   chatReplyProcess({
     message: userInput.value,
     lastContext: options,
     systemMessage: systemMessage.value,
     process: (chat: ChatMessage) => {
-      let resMessage = JSON.stringify(chat, null, 2);
-      console.log(firstChunk ? resMessage : `\n${resMessage}`)
+      chatGptResText.value = chat.text
+      latestParentMessageId.value = chat.id; // 记录下最新的parentMessageId
+      if (enableChatContext.value) {
+        options.parentMessageId = chat.id // 如果开启着的，就把最新的parentMessageId携带上去
+      }
+      // let resMessage = JSON.stringify(chat, null, 2);
+      // console.log(firstChunk ? resMessage : `\n${resMessage}`)
       firstChunk = false
     }}
   );
 }
 
+const ids = ref('')
+function getMessageStoreIds() {
+  let messageIds = getMessageIds();
+  console.log(`messageIds: `, messageIds)
+}
 const handleClose = async (done: () => void) => {
   console.log(`initApi, completionParams:`, completionParams)
   await initApi(completionParams);

@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 import 'isomorphic-fetch'
 import { ChatGPTAPI } from "./chatgpt-api";
 import {ChatGPTUnofficialProxyAPI} from "./chatgpt-unofficial-proxy-api";
-import axios from 'axios'
+// import axios from 'axios'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
 import fetch from 'node-fetch'
@@ -32,34 +32,19 @@ const ErrorCodeMessage: Record<string, string> = {
 dotenv.config()
 const timeoutMs: number = !isNaN(+import.meta.env.VITE_TIMEOUT_MS) ? +import.meta.env.VITE_TIMEOUT_MS : 30 * 1000
 
-let isInit = false
 let apiModel: ApiModel
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
-if (!isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY) && !isNotEmptyString(import.meta.env.VITE_OPENAI_ACCESS_TOKEN)){
-    throw new Error('Missing VITE_OPENAI_API_KEY or VITE_OPENAI_ACCESS_TOKEN environment variable')
-}
 
-function getMessageById(id:string): Promise<ChatMessage>{
-    return new Promise((resolve, reject) => {
-        resolve({
-            id: '1',
-            text: 'hello world',
-            role: 'system'
-        })
-        // resolve(
-        //     store.get(id)
-        // )
-    });
-}
-
-function upsertMessage(message: ChatMessage): Promise<void>{
-    return new Promise((resolve, reject) => {
-        // store.set(message.id, message)
-    });
-}
 
 export async function initApi(completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>>) {
+    if (!isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY) && !isNotEmptyString(import.meta.env.VITE_OPENAI_ACCESS_TOKEN)){
+        alert('缺少VITE_OPENAI_API_KEY或VITE_OPENAI_ACCESS_TOKEN环境变量')
+        console.error('缺少VITE_OPENAI_API_KEY或VITE_OPENAI_ACCESS_TOKEN环境变量')
+        return
+        // throw new Error('Missing VITE_OPENAI_API_KEY or VITE_OPENAI_ACCESS_TOKEN environment variable')
+    }
+
     // More Info: https://github.com/transitive-bullshit/chatgpt-api
     if (isNotEmptyString(import.meta.env.VITE_OPENAI_API_KEY)) {
         const VITE_OPENAI_API_BASE_URL = import.meta.env.VITE_OPENAI_API_BASE_URL
@@ -130,7 +115,7 @@ async function chatReplyProcess(options: RequestOptions) {
 
         if (lastContext != null) {
             if (apiModel === 'ChatGPTAPI')
-                options.parentMessageId = lastContext.parentMessageId
+                options.parentMessageId = isNotEmptyString(lastContext.parentMessageId) ? lastContext.parentMessageId : undefined
             else
                 options = { ...lastContext }
         }
@@ -260,6 +245,12 @@ function setupProxy(options: ChatGPTAPIOptions | ChatGPTUnofficialProxyAPIOption
  */
 function currentModel(): ApiModel {
     return apiModel
+}
+
+export function getMessageIds() {
+    if (api instanceof ChatGPTAPI) {
+        return api.getIds()
+    }
 }
 
 export type { ChatContext, ChatMessage }
