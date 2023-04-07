@@ -111,7 +111,8 @@
       <el-input :placeholder="'parentMessageId'" style="width:200px;" v-model="options.parentMessageId" disabled></el-input>
     </div>
     <div>
-      接口返回：{{chatGptResText}}
+      <el-divider>↓ 返回结果markdown渲染 ↓</el-divider>
+      <div class="hljs" v-html="markdownToHtml"></div>
     </div>
   </div>
 </template>
@@ -119,7 +120,7 @@
 <script setup lang="ts">
 import {ipcRenderer} from "electron";
 import {IWindowList} from "../../electron/main/types/enum";
-import {onMounted, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import {chatConfig, chatReplyProcess, getMessageIds, initApi} from "../utils/chatgpt";
 import {ChatMessage, openai} from "../utils/chatgpt/types";
 import HttpsProxyAgent from 'https-proxy-agent'
@@ -272,6 +273,38 @@ const config = (enableProxy: boolean) => {
   })
 }
 // 【end】----------- 配置信息获取 -----------【end】
+
+// 【start】----------- mardown  -----------【start】
+import { marked } from 'marked';
+import hljs from "highlight.js";
+import 'highlight.js/styles/base16/gruvbox-light-medium.css';
+
+// set highlighting
+let mdOptions = {
+  renderer: new marked.Renderer(),
+  highlight: function(code: string) {
+    return hljs.highlightAuto(code).value;
+  },
+  pedantic: false,
+  gfm: true,
+  tables: true,
+  breaks: false,
+  sanitize: false,
+  smartLists: true,
+  smartypants: false,
+  xhtml: false
+};
+marked.setOptions(mdOptions);
+let testMd = '"Sure, here\'s an example of a short Python code:\n' +
+    '\n' +
+    '```python\n' +
+    'print("Hello, World!")\n' +
+    '```\n' +
+    '\n' +
+    'This code simply prints the string "Hello, World!" to the console when executed."';
+let markdownToHtml = computed(() => marked(chatGptResText.value))
+
+// 【end】----------- mardown  -----------【end】
 </script>
 
 <style scoped lang="less">

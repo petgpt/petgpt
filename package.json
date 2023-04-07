@@ -23,6 +23,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/highlight.js": "^10.1.0",
+    "@types/marked": "^4.0.8",
     "@types/uuid": "^9.0.1",
     "@vitejs/plugin-vue": "^4.0.0",
     "electron": "^23.1.1",
@@ -46,9 +48,11 @@
     "element-plus": "^2.3.1",
     "eventsource-parser": "^1.0.0",
     "fs-extra": "^11.1.1",
+    "highlight.js": "^11.7.0",
     "https-proxy-agent": "^5.0.1",
     "isomorphic-fetch": "^3.0.0",
     "lru-cache": "^8.0.4",
+    "marked": "^4.3.0",
     "node-fetch": "^3.3.1",
     "p-timeout": "^6.1.1",
     "pinia": "^2.0.33",

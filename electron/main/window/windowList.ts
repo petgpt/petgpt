@@ -171,7 +171,7 @@ windowList.set(IWindowList.PET_DETAIL_WINDOW, {
     multiple: false,
     options () {
         const options: IBrowserWindowOptions = {
-            width: 800,
+            width: 1000,
             height: 600,
             show: true,
             fullscreenable: true,
@@ -208,7 +208,7 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
     multiple: false,
     options () {
         const options: IBrowserWindowOptions = {
-            width: 800,
+            width: 1000,
             height: 600,
             show: true,
             fullscreenable: true,

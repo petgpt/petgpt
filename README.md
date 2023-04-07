@@ -39,6 +39,8 @@ yarn run build
   - [x] proxy设置
   - [x] 单次对话、连续对话
   - [x] 自定义temperature等参数
+  - [x] markdown\表格
+  - [ ] latex
   - [ ] 其他接口（模型操作、图片操作、语音转文字接口）
 - [ ] 本地配置文件（json）设计
   - [x] 提供操作接口 => db.ts
