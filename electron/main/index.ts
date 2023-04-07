@@ -4,6 +4,8 @@ import { join } from 'node:path'
 import ipcList from './event/index'
 import windowManger from "./window/windowManger";
 import {IWindowList} from "./types/enum";
+import {configDB} from "./data/db";
+import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
 
 // The built directory structure
 //
@@ -28,6 +30,9 @@ class LifeCycle {
 
   private onReady () {
     app.whenReady().then(() => {
+      configDB.set(Main_Window_Width, 260)
+      configDB.set(Main_Window_Height, 220)
+
       windowManger.create(IWindowList.PET_WINDOW)
       globalShortcut.register('Control+shift+c', () => {
         if (windowManger.has(IWindowList.PET_WINDOW)) {
@@ -35,7 +40,7 @@ class LifeCycle {
           let isDevToolsOpen = petWindow.webContents.isDevToolsOpened();
           if (isDevToolsOpen) {
             petWindow.webContents.closeDevTools();
-            petWindow.setSize(220, 220)
+            petWindow.setSize(configDB.get(Main_Window_Width), configDB.get(Main_Window_Height))
           } else {
             petWindow.webContents.openDevTools()
             petWindow.setSize(800, 600)

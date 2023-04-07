@@ -1,6 +1,8 @@
 <template>
-  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>
-  <router-view />
+<!--  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>-->
+  <div class="app">
+    <router-view />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -76,5 +78,8 @@ console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}
 <style lang="less">
 .test{
   background-color: @red;// less测试代码
+}
+.app{
+  //border: 1px solid green;
 }
 </style>

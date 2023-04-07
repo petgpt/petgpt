@@ -47,10 +47,10 @@
   <el-divider>↓↓ 配置文件的CRUD ↓↓</el-divider>
   <el-row>
     <el-col>
+      <div>获取到的内容： {{dbGetContent}}</div>
       <el-input style="width: 70px" placeholder="key" v-model="dbKey">db-getByKey</el-input>
       <el-button type="primary" size="small" @click="dbGetKey">db-getByKey</el-button>
       <el-button type="primary" size="small" @click="dbRead">db-readAll</el-button>
-      获取到的内容： {{dbGetContent}}
     </el-col>
     <el-col>
 

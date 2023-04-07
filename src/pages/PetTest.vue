@@ -1,15 +1,30 @@
 <template>
-  <div class="gif" :style="{ background: 'transparent ' + 'url(' + imageUrl + ')' + ' no-repeat'}"></div>
+  <div @mouseenter="toolsVisible = true" @mouseleave="toolsVisible = false">
+    <div class="pet-actions" v-if="toolsVisible">
+      <el-button type="primary" size="small" @click="openDetailWindow">details</el-button>
+      <el-button type="primary" size="small" @click="openChatWindow">chat</el-button>
+    </div>
+    <div class="pet-container">
+      <div class="gif" :style="{ background: 'transparent ' + 'url(' + imageUrl + ')' + ' no-repeat'}"></div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {onBeforeMount, onBeforeUnmount, onMounted, ref} from 'vue'
-import {Change_Image_Replay, Mouse_Event_Click, Set_Main_Window_Pos} from "../utils/events/constants";
+import {
+  Change_Image_Replay, Main_Window_Height,
+  Main_Window_Width,
+  Create_Window,
+  Set_Main_Window_Pos
+} from "../utils/events/constants";
 import {sendToMain} from "../utils/dataSender";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
 import {ipcRenderer, IpcRendererEvent} from "electron";
+import {IWindowList} from "../../electron/main/types/enum";
 
+const toolsVisible = ref(false)
 const dragging = ref(false)
 const wX = ref(-1)
 const wY = ref(-1)
@@ -39,7 +54,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('mouseup', handleMouseUp)
 })
 
-onMounted(() => {})
+const mainW = ref<number>()
+const mainH = ref<number>()
+onMounted(() => {
+  ipcRenderer.invoke('db-get', Main_Window_Width).then(res => mainW.value = res)
+  ipcRenderer.invoke('db-get', Main_Window_Height).then(res => mainH.value = res)
+})
 
 function handleMouseDown (e: MouseEvent) {
   dragging.value = true
@@ -59,8 +79,8 @@ function handleMouseMove (e: MouseEvent) {
     sendToMain(Set_Main_Window_Pos, {
       x: xLoc,
       y: yLoc,
-      width: 220,
-      height: 220,
+      width: mainW.value, // 移动的时候可以改变窗口大小的
+      height: mainH.value,
     })
     // remote.BrowserWindow.getFocusedWindow()!.setBounds({
     //   x: xLoc,
@@ -75,23 +95,46 @@ function handleMouseUp (e: MouseEvent) {
   dragging.value = false
   if (screenX.value === e.screenX && screenY.value === e.screenY) {
     if (e.button === 0) { // left mouse
-      // console.log("click", e)
-      sendToMain(Mouse_Event_Click, {
-        test: 1
-      })
+      console.log("click", e)
+      // sendToMain(Mouse_Event_Click, {
+      //   test: 1
+      // })
     } else {
       // openContextMenu()
     }
   }
 }
 
+const openDetailWindow = () => sendToMain(Create_Window, {window: IWindowList.PET_DETAIL_WINDOW, hash: 'petDetail'})
+
+const openChatWindow = () => sendToMain(Create_Window, {window: IWindowList.PET_CHAT_WINDOW, hash: 'chatgpt'})
+
 </script>
 
 <style scoped>
 .gif {
-  height: 150px;
-  width: 180px;
+  height: 100px;
+  width: 170px;
   /*background: transparent url("../assets/gif/1.gif") no-repeat;*/
-  background-size: contain;
+  /*background-size: contain;*/
+  /*position: absolute;*/
+  /*top: 90px;*/
+  /*left: 18px;*/
+  /*border: 3px solid red;*/
+}
+.pet-actions{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.pet-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  margin-top: 10px;
 }
 </style>

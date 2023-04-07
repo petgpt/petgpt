@@ -1,7 +1,7 @@
 import {
     Execute_Cmd, Get_ClipBoard_Type,
     Get_System_File_Path,
-    Mouse_Event_Click,
+    Create_Window,
     Reset_Short_Key,
     Set_Short_Keys, Sys_Notification
 }
@@ -62,6 +62,7 @@ export default {
         });
 
         // 配置文件CRUD
+        // TODO: 修改这里的param，可以实现多个配置文件的读写，现在只能读configDB
         ipcMain.handle('db-read', (event: IpcMainEvent, key: string) => {
             return configDB.read();
         });
@@ -78,13 +79,12 @@ export default {
             configDB.remove(key)
         })
 
-        // 监听鼠标点击事件 -> 窗口PetDetail页面
-        ipcMain.on(Mouse_Event_Click, (evt, arg) => {
-            console.log(`[${Mouse_Event_Click}] arg:`, arg)
-            if (!windowManger.has(IWindowList.PET_DETAIL_WINDOW)) {
-                windowManger.create(IWindowList.PET_DETAIL_WINDOW)
+        // 监听Create_Window事件 -> 创建窗口
+        ipcMain.on(Create_Window, (evt, arg: {window: IWindowList, hash: string}) => {
+            if (!windowManger.has(arg.window)) {
+                windowManger.create(arg.window);
             } else {
-                windowManger.get(IWindowList.PET_DETAIL_WINDOW).show()
+                windowManger.get(arg.window).show();
             }
         })
 

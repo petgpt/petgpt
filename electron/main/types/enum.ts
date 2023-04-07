@@ -1,4 +1,5 @@
 export enum IWindowList {
     PET_WINDOW = 'PET_WINDOW',
     PET_DETAIL_WINDOW = 'PET_DETAIL_WINDOW',
+    PET_CHAT_WINDOW = 'PET_CHAT_WINDOW',
 }

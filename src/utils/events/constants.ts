@@ -1,6 +1,6 @@
 export const Set_Main_Window_Pos = 'Set_Main_Window_Pos'
 
-export const Mouse_Event_Click = 'Mouse_Event_Click'
+export const Create_Window = 'Create_Window'
 
 export const Set_Short_Keys = 'Set_Short_Keys'
 export const Reset_Short_Key = 'Reset_Short_Key'
@@ -15,3 +15,6 @@ export const Get_ClipBoard_Type = 'Get_ClipBoard_Type'
 
 export const Change_Image = 'Change_Image'
 export const Change_Image_Replay = 'Change_Image_Replay'
+
+export const Main_Window_Width = 'Main_Window_Width'
+export const Main_Window_Height = 'Main_Window_Height'

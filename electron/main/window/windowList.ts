@@ -3,7 +3,12 @@ import {app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, screen, Tray} f
 import {IWindowList} from "../types/enum";
 import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
-import {Change_Image, Change_Image_Replay, Set_Main_Window_Pos} from "../../../src/utils/events/constants";
+import {
+    Change_Image,
+    Change_Image_Replay, Main_Window_Height,
+    Main_Window_Width,
+    Set_Main_Window_Pos
+} from "../../../src/utils/events/constants";
 import { configDB } from "../data/db";
 
 const windowList = new Map<IWindowList, IWindowListItem>()
@@ -33,8 +38,8 @@ windowList.set(IWindowList.PET_WINDOW, {
             title: 'Main window',
             skipTaskbar: true,
             icon: join(process.env.PUBLIC, iconFile),
-            width: 220,
-            height: 220,
+            width: configDB.get(Main_Window_Width),
+            height: configDB.get(Main_Window_Height),
             show: true,
             useContentSize: true,
             alwaysOnTop: true,
@@ -195,6 +200,43 @@ windowList.set(IWindowList.PET_DETAIL_WINDOW, {
         })
     },
     listen(petDetailWindow){
+    }
+});
+
+windowList.set(IWindowList.PET_CHAT_WINDOW, {
+    isValid: process.platform !== 'linux',
+    multiple: false,
+    options () {
+        const options: IBrowserWindowOptions = {
+            width: 800,
+            height: 600,
+            show: true,
+            fullscreenable: true,
+            useContentSize: true,
+            resizable: true,
+            webPreferences: {
+                nodeIntegration: true, // 启用Node integration
+                contextIsolation: false, // 禁用上下文隔离, 如果不设置这个新建的窗口里process信息获取不到
+            }
+        }
+        return options;
+    },
+    callback (chatWindow) {
+        if (process.env.VITE_DEV_SERVER_URL) {
+            let winUrl = `http://localhost:5173` + `#/chatgpt`;
+
+            chatWindow.loadURL(winUrl);
+            chatWindow.webContents.openDevTools()
+        } else {
+            chatWindow.loadFile(join(process.env.DIST, 'index.html'), { hash: 'chatgpt' });
+        }
+
+        // 在窗口关闭时清除window对象
+        chatWindow.on('closed', () => {
+            chatWindow = null
+        })
+    },
+    listen(chatWindow){
     }
 });
 
