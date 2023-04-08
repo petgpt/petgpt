@@ -27,11 +27,39 @@ import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
 import {computed, reactive, ref} from "vue";
 import {sleep} from "../../utils/common";
 import {ChatItem} from "../../utils/types/types";
+import katex from "katex";
 
+// "marked-katex-extension": "^1.0.2" latex支持还可以用前面的这个marked插件，https://github.com/UziTech/marked-katex-extension
+let marked_render = new marked.Renderer()
+// @ts-ignore
+marked_render.old_paragraph = marked_render.paragraph
 
-// set highlighting
+marked_render.paragraph = function(text) {
+  let isTeXInline = /\$(.*)\$/g.test(text) // isTeXInline - 该文本是否有行内公式
+  let isTeXLine = /^\$\$(\s*.*\s*)\$\$$/.test(text) // isTeXLine - 该文本是否有行间公式
+
+  if (!isTeXLine && isTeXInline) {
+    // 如果不是行间公式，但是行内公式，则使用<span class="marked_inline_tex">包裹公式内容，消除$定界符
+    text = text.replace(/(\$([^\$]*)\$)+/g, function($1, $2) {
+      if ($2.indexOf('<code>') >= 0 || $2.indexOf('</code>') >= 0) {// 避免和行内代码冲突
+        return $2
+      } else {
+        return "<span class=\"marked_inline_tex\">" + $2.replace(/\$/g, "") + "</span>"
+      }
+    })
+  } else {
+    // 如果是行间公式，则使用<div class='marked_tex'>包裹公式内容，消除$$定界符
+    // 如果不是LaTex公式，则直接返回原文本
+    text = (isTeXLine) ? "<div class=\"marked_tex\">" + text.replace(/\$/g, "") +"</div>": text
+  }
+  // 使用渲染器原有的`paragraph()`方法渲染整段文本
+  // @ts-ignore
+  text = marked_render.old_paragraph(text)
+  return text
+}
+
 let mdOptions = {
-  renderer: new marked.Renderer(),
+  renderer: marked_render,
   highlight: function(code: string) {
     return hljs.highlightAuto(code).value;
   },
@@ -45,6 +73,12 @@ let mdOptions = {
   xhtml: false
 };
 marked.setOptions(mdOptions);
+let testLatex = '$$f(x)=\\frac{P(x)}{Q(x)}$$\n' +
+    '\ntest两个dollar包裹的内联无法渲染: \n' +
+    '\n$$f(x)=\\frac{P(x)}{Q(x)}$$\n' +
+    '\n$2x - 5y =  8$  \n' + // 如果少了这行最前面的\n那么，前面的$$ $$中的内联就会渲染失败！！！！
+    '$3x + 9y =  -12$\n' +
+    '$7x \\times 2y \\neq 3z$\n'
 let testMd = '"Sure, here\'s an example of a short Python code:\n' +
     '\n' +
     '```python\n' +
@@ -72,12 +106,50 @@ const chatList = reactive<ChatItem[]>([
 // }, {
 //   id: '',
 //   type: 'system',
-//   text: testMd,
+//   text: testLatex,
 //   // time: getCurrentTime()
 // }
 ])
 
-const textToHtml = (text: string) => marked(text)
+const textToHtml = (text: string) => {
+  let html = marked(text);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  let markedInlineTexElList = doc.getElementsByClassName('marked_inline_tex');
+  let markedTexElList = doc.getElementsByClassName('marked_tex');
+  // 在这里处理HTML中<span class='marked_inline_tex'>和<span class='marked_tex'>中的文本，使用KaTex来渲染，最后显示为渲染后的LaTex公式（HTML）
+  if (markedInlineTexElList) {
+    for (let i = 0; i < markedInlineTexElList.length; i++) {
+      let tex = markedInlineTexElList[i].innerHTML;
+      tex = tex.replace(/[^\\](%)/g, (match) => {
+        return match[0] + '\\' + '%'
+      })
+      // 如果在`%`字符前没有`\`字符，则在`%`前添加`\`后再渲染
+      let res = katex.renderToString(tex, {
+        output: 'mathml', // 特别注意，这里的output如果不指定，会生成两个两个，一个mathml，一个html！！！！
+        // 取消对中文内容渲染的警告
+        strict: false
+      });
+      markedInlineTexElList[i].innerHTML = res;
+    }
+  }
+  if (markedTexElList) {
+    for (let i = 0; i < markedTexElList.length; i++) {
+      let tex = markedTexElList[i].innerHTML;
+      tex = tex.replace(/[^\\](%)/g, (match) => {
+        return match[0] + '\\' + '%'
+      })
+      // 如果在`%`字符前没有`\`字符，则在`%`前添加`\`后再渲染
+      let res = katex.renderToString(tex, {
+        output: 'mathml', // 特别注意，这里的output如果不指定，会生成两个两个，一个mathml，一个html！！！！
+        // 取消对中文内容渲染的警告
+        strict: false
+      });
+      markedTexElList[i].innerHTML = res;
+    }
+  }
+  return doc.body.innerHTML
+}
 
 function deleteLastText() {
   chatList.pop()

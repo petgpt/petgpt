@@ -36,7 +36,7 @@ async function getProxyIpInfoFromIpInfo() {
     method: 'GET',
     agent: HttpsProxyAgent(import.meta.env.VITE_HTTPS_PROXY) // 短时间ip不会变，只能用HTTPS的Agent
   }
-  const res = await fetch('https://ipinfo.io/json', fetchParam);
+  const res = await fetch('https://ipinfo.io/json?token=8f23f289c49bac', fetchParam);
   if (!res.ok) {
     const reason = await res.text()
     const msg = `error ${

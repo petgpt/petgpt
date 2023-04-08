@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",
+    "@types/katex": "^0.16.0",
     "@types/marked": "^4.0.8",
     "@types/uuid": "^9.0.1",
     "@vitejs/plugin-vue": "^4.0.0",
@@ -51,6 +52,7 @@
     "highlight.js": "^11.7.0",
     "https-proxy-agent": "^5.0.1",
     "isomorphic-fetch": "^3.0.0",
+    "katex": "^0.16.4",
     "lru-cache": "^8.0.4",
     "marked": "^4.3.0",
     "node-fetch": "^3.3.1",
