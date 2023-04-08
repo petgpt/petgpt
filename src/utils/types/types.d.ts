@@ -1,6 +1,13 @@
 // global
 import type { ChatMessage } from '../chatgpt/types'
 
+interface ChatItem {
+  id: string,
+  type: 'user' | 'system',
+  text: string,
+  time?: string
+}
+
 interface INotification {
     title: string
     body: string
@@ -21,6 +28,7 @@ interface RequestOptions {
   lastContext?: { conversationId?: string; parentMessageId?: string }
   process?: (chat: ChatMessage) => void
   systemMessage?: string
+  abortSignal?: AbortSignal
 }
 
 interface SendResponseOptions<T = any> {

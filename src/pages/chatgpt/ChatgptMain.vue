@@ -84,16 +84,19 @@
     <div>
       <el-input :placeholder="'请输入聊天内容'" style="width:400px;" v-model="userInput" @keydown.enter="chatTest"></el-input>
       <el-button type="primary" size="small" @click="chatTest">send</el-button>
+<!--      <el-button type="primary" size="small" @click="stopHandler">stopGenerate</el-button>-->
 <!--      <el-input :placeholder="'parentMessageId'" style="width:200px;" v-model="options.parentMessageId" disabled></el-input>-->
     </div>
     <div>
       <el-divider>↓ 返回结果markdown渲染 ↓</el-divider>
-      <div v-html="markdownToHtml"></div>
+      <chat-text ref="chatText"></chat-text>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import IpInfo from "../example/IpInfo.vue";
+import ChatText from "./ChatText.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import {ChatMessage, openai} from "../../utils/chatgpt/types";
 import {chatReplyProcess, getMessageIds, initApi} from "../../utils/chatgpt";
@@ -131,18 +134,40 @@ let completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages
   frequency_penalty: 0 // [-2.0, 2.0], 默认0, 数值越大，降低生成的文本的重复率，更容易生成新的东西
 })
 
+const controller = new AbortController();
+const signal = controller.signal;
+function stopHandler() {// TODO: 暂时不行，后面fix
+  controller.abort("stop generate manually")
+}
+
+import { v4 as uuidv4 } from 'uuid'
+const chatText = ref()
+
 function chatTest() {
   if (!import.meta.env.VITE_OPENAI_API_KEY) {
     alert("请先配置VITE_OPENAI_API_KEY")
     return
   }
+  chatText.value.upsertLatestText({
+    id: uuidv4(),
+    type: 'user',
+    text: userInput.value
+  })
+
   chatGptResText.value = 'waiting...'
+
   chatReplyProcess({
     message: userInput.value,
     lastContext: options,
     systemMessage: systemMessage.value,
+    abortSignal: signal,
     process: (chat: ChatMessage) => {
       chatGptResText.value = chat.text
+      chatText.value.upsertLatestText({
+        id: chat.id,
+        type: 'system',
+        text: chat.text
+      })
       latestParentMessageId.value = chat.id; // 记录下最新的parentMessageId
       if (enableChatContext.value) {
         options.parentMessageId = chat.id // 如果开启着的，就把最新的parentMessageId携带上去
@@ -170,48 +195,7 @@ onMounted(async () => {
 })
 // 【end】----------- chatgpt api 测试 -----------【end】
 
-// 【start】----------- mardown  -----------【start】
-import { marked } from 'marked';
-import hljs from "highlight.js";
-import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
-import ChatgptHeader from "./ChatgptHeader.vue";
-import ChatgptFooter from "./ChatgptFooter.vue";
-import IpInfo from "../example/IpInfo.vue";
-import ChatgptConfig from "../example/ChatgptConfig.vue";
-import ChatgptAside from "./ChatgptAside.vue";
 
-// set highlighting
-let mdOptions = {
-  renderer: new marked.Renderer(),
-  highlight: function(code: string) {
-    return hljs.highlightAuto(code).value;
-  },
-  pedantic: false,
-  gfm: true,
-  tables: true,
-  breaks: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false,
-  xhtml: false
-};
-marked.setOptions(mdOptions);
-let testMd = '"Sure, here\'s an example of a short Python code:\n' +
-    '\n' +
-    '```python\n' +
-    'print("Hello, World!")\n' +
-    '```\n' +
-    '\n' +
-    'This code simply prints the string "Hello, World!" to the console when executed."';
-let testTable = '| Fruit  | Color | Taste     |\n' +
-    '|--------|-------|-----------|\n' +
-    '| Apple  | Red   | Sweet     |\n' +
-    '| Orange | Orange| Citrusy   |\n' +
-    '| Lemon  | Yellow| Sour      |\n' +
-    '| Banana | Yellow| Sweetish  |\n' +
-    '| Grape  | Purple| Sweet/Sour| \n';
-let markdownToHtml = computed(() => marked(chatGptResText.value))
-// 【end】----------- mardown  -----------【end】
 </script>
 
 <style scoped lang="less">
