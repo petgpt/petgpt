@@ -83,6 +83,7 @@ html,
 body,
 .top {
   height: 100%;
+  width: 100%;
   /* 撑满整个空间 */
   margin: 0;
   overflow: hidden;

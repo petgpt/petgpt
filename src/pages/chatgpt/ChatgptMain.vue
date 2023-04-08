@@ -79,11 +79,12 @@
           </template>
         </el-popover>
     </span>
-    <el-button type="primary" size="small" @click="chatTest">send</el-button>
-    <el-button type="primary" size="small" @click="getMessageStoreIds">getMessageStoreIds</el-button>
+
+<!--    <el-button type="primary" size="small" @click="getMessageStoreIds">getMessageStoreIds</el-button>-->
     <div>
       <el-input :placeholder="'请输入聊天内容'" style="width:400px;" v-model="userInput" @keydown.enter="chatTest"></el-input>
-      <el-input :placeholder="'parentMessageId'" style="width:200px;" v-model="options.parentMessageId" disabled></el-input>
+      <el-button type="primary" size="small" @click="chatTest">send</el-button>
+<!--      <el-input :placeholder="'parentMessageId'" style="width:200px;" v-model="options.parentMessageId" disabled></el-input>-->
     </div>
     <div>
       <el-divider>↓ 返回结果markdown渲染 ↓</el-divider>

@@ -20,8 +20,8 @@ import HttpsProxyAgent from "https-proxy-agent";
 import fetch from "node-fetch";
 
 const visible = ref(false)
-const ipInfoFromCip = ref('')
-const ipInfoFromIpInfo = ref('')
+const ipInfoFromCip = ref('fetching...')
+const ipInfoFromIpInfo = ref('fetching...')
 async function proxyTest() {
   visible.value = true
   getProxyIpInfoFromCip().then(res => {
