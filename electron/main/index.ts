@@ -6,7 +6,7 @@ import windowManger from "./window/windowManger";
 import {DBList, IWindowList} from "./types/enum";
 import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
 import dbMap from "./data/db";
-
+import config from '../main/data/config'
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -30,8 +30,7 @@ class LifeCycle {
 
   private onReady () {
     app.whenReady().then(() => {
-      if(!dbMap.get(DBList.Config_DB).has(Main_Window_Width)) dbMap.get(DBList.Config_DB).set(Main_Window_Width, 260)
-      if(!dbMap.get(DBList.Config_DB).has(Main_Window_Height)) dbMap.get(DBList.Config_DB).set(Main_Window_Height, 220)
+      config.setConfig()
 
       windowManger.create(IWindowList.PET_WINDOW)
       globalShortcut.register('Control+shift+c', () => {

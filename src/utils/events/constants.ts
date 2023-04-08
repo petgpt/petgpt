@@ -18,3 +18,5 @@ export const Change_Image_Replay = 'Change_Image_Replay'
 
 export const Main_Window_Width = 'Main_Window_Width'
 export const Main_Window_Height = 'Main_Window_Height'
+export const Detail_Window_Width = 'Detail_Window_Width'
+export const Detail_Window_Height = 'Detail_Window_Height'

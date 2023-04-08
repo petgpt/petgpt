@@ -5,7 +5,7 @@ import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
 import {
     Change_Image,
-    Change_Image_Replay,
+    Change_Image_Replay, Detail_Window_Height, Detail_Window_Width,
     Main_Window_Height,
     Main_Window_Width,
     Set_Main_Window_Pos
@@ -172,8 +172,8 @@ windowList.set(IWindowList.PET_DETAIL_WINDOW, {
     multiple: false,
     options () {
         const options: IBrowserWindowOptions = {
-            width: 1000,
-            height: 600,
+            width: dbMap.get(DBList.Config_DB).get(Detail_Window_Width),
+            height: dbMap.get(DBList.Config_DB).get(Detail_Window_Height),
             show: true,
             fullscreenable: true,
             useContentSize: true,
@@ -209,8 +209,8 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
     multiple: false,
     options () {
         const options: IBrowserWindowOptions = {
-            width: 1000,
-            height: 600,
+            width: dbMap.get(DBList.Config_DB).get(Detail_Window_Width),
+            height: dbMap.get(DBList.Config_DB).get(Detail_Window_Height),
             show: true,
             fullscreenable: true,
             useContentSize: true,
