@@ -3,6 +3,7 @@ import { app } from 'electron'
 import path from "path";
 import {Low, JSONFile} from '@commonify/lowdb'
 import lodash from 'lodash'
+import {DBList} from "../types/enum";
 
 type Data = {
     posts: string[]
@@ -93,7 +94,11 @@ const message = new DB(STORE_PATH, path.join(STORE_PATH, 'message.json'));
 const config = new DB(STORE_PATH, configFilePath); // 配置文件
 const prompt = new DB(STORE_PATH, path.join(STORE_PATH, 'prompt.json')); // 本地prompt
 const history = new DB(STORE_PATH, path.join(STORE_PATH, 'history.json')); // 历史对话
-export const messageDB = message;
-export const configDB = config;
-export const promptDB = prompt;
-export const historyDB = history;
+
+const dbMap = new Map<DBList, DB>();
+dbMap.set(DBList.Message_DB, message);
+dbMap.set(DBList.Config_DB, config);
+dbMap.set(DBList.Prompt_DB, prompt);
+dbMap.set(DBList.History_DB, history);
+
+export default dbMap

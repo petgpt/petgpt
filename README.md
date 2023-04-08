@@ -39,7 +39,7 @@ yarn run build
   - [x] proxy设置
   - [x] 单次对话、连续对话
   - [x] 自定义temperature等参数
-  - [x] markdown\表格
+  - [x] markdown\表格\code
   - [ ] latex
   - [ ] 其他接口（模型操作、图片操作、语音转文字接口）
 - [ ] 本地配置文件（json）设计
@@ -54,7 +54,7 @@ yarn run build
 - [ ] OCR 功能
 - [ ] 翻译接口
 - [ ] prompt页面 
-  - [ ] 提供prompt的本地CRUD
+  - [x] 提供prompt的本地CRUD
 - [ ] pdf内容获取
   - pdf内容无关清洗
 - [ ] 语音 => 文字，文字 => 微调模型 => cmd命令

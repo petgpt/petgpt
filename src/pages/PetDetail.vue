@@ -61,9 +61,6 @@
       <el-button type="primary" size="small" @click="dbSet">db-set</el-button>
     </el-col>
     <el-col>
-      <el-button type="primary" size="small" @click="dbFlush">db-flush</el-button>
-    </el-col>
-    <el-col>
       <el-input style="width: 70px" placeholder="value" v-model="keyToDelete">value</el-input>
       <el-button type="primary" size="small" @click="dbDelete">db-delete</el-button>
     </el-col>
@@ -85,7 +82,7 @@ import {
   Set_Short_Keys,
   Sys_Notification
 } from "../utils/events/constants";
-import {IWindowList} from "../../electron/main/types/enum";
+import {DBList, IWindowList} from "../../electron/main/types/enum";
 const platform = computed(() => process.platform); // 获取当前的操作系统
 
 
@@ -252,13 +249,13 @@ function openConfigFile() {
 let dbGetContent = ref('')
 let dbKey = ref('');// 要获取的db key对应的内容
 function dbGetKey() {
-  ipcRenderer.invoke('db-get', dbKey.value).then(res => {
+  ipcRenderer.invoke('db-get', {db: DBList.Config_DB, key: dbKey.value}).then(res => {
     dbGetContent.value = JSON.stringify(res)
   })
 }
 
 function dbRead() {
-  ipcRenderer.invoke('db-read').then(res => {
+  ipcRenderer.invoke('db-read', {db: DBList.Config_DB}).then(res => {
     dbGetContent.value = JSON.stringify(res)
   })
 }
@@ -266,17 +263,12 @@ function dbRead() {
 let key = ref('')
 let value = ref('')
 function dbSet() {
-  ipcRenderer.send('db-set', {key: key.value, value: value.value})
-}
-
-function dbFlush() {
-  ipcRenderer.send('db-write')
+  ipcRenderer.send('db-set', {db: DBList.Config_DB, key: key.value, value: value.value})
 }
 
 let keyToDelete = ref('')
-
 function dbDelete() {
-  ipcRenderer.send('db-delete', keyToDelete.value)
+  ipcRenderer.send('db-delete', {db: DBList.Config_DB, key: keyToDelete.value})
 }
 // 【end】----------- 配置文件的CRUD -----------【end】
 

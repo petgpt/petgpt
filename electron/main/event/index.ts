@@ -22,10 +22,10 @@ import {INotification} from "../../../src/utils/types/types";
 import {getFileType, isDirectory, showNotification} from "../utils";
 import * as child_process from "child_process";
 import windowManger from "../window/windowManger";
-import {IWindowList} from "../types/enum";
+import {DBList, IWindowList} from "../types/enum";
 import path from "path";
 import fs from "fs";
-import { configDB } from "../data/db";
+import dbMap from "../data/db";
 import {join} from "node:path";
 
 const clipboardEx = require('electron-clipboard-ex');
@@ -62,21 +62,18 @@ export default {
         });
 
         // 配置文件CRUD
-        // TODO: 修改这里的param，可以实现多个配置文件的读写，现在只能读configDB
-        ipcMain.handle('db-read', (event: IpcMainEvent, key: string) => {
-            return configDB.read();
+        ipcMain.handle('db-read', (event: IpcMainEvent, args: {db: DBList, key: string}) => {
+            return dbMap.get(args.db).read();
         });
-        ipcMain.handle('db-get', (event: IpcMainEvent, key: string) => {
-            return configDB.get(key);
+        ipcMain.handle('db-get', (event: IpcMainEvent, args: {db: DBList, key: string}) => {
+            console.log(`args:`, args)
+            return dbMap.get(args.db).get(args.key);
         })
-        ipcMain.on('db-set', (event: IpcMainEvent, args: {key: string, value: string}) => {
-            configDB.set(args.key, args.value)
+        ipcMain.on('db-set', (event: IpcMainEvent, args: {db: DBList, key: string, value: string}) => {
+            dbMap.get(args.db).set(args.key, args.value)
         })
-        ipcMain.on('db-write', (event: IpcMainEvent, key: string) => {
-            configDB.flush()
-        })
-        ipcMain.on('db-delete', (event: IpcMainEvent, key: string) => {
-            configDB.remove(key)
+        ipcMain.on('db-delete', (event: IpcMainEvent, args: {db: DBList, key: string}) => {
+            dbMap.get(args.db).remove(args.key)
         })
 
         // 监听Create_Window事件 -> 创建窗口

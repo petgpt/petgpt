@@ -1,15 +1,16 @@
 import {join} from "node:path";
 import {app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, screen, Tray} from "electron";
-import {IWindowList} from "../types/enum";
+import {DBList, IWindowList} from "../types/enum";
 import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
 import {
     Change_Image,
-    Change_Image_Replay, Main_Window_Height,
+    Change_Image_Replay,
+    Main_Window_Height,
     Main_Window_Width,
     Set_Main_Window_Pos
 } from "../../../src/utils/events/constants";
-import { configDB } from "../data/db";
+import dbMap from "../data/db";
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -38,8 +39,8 @@ windowList.set(IWindowList.PET_WINDOW, {
             title: 'Main window',
             skipTaskbar: true,
             icon: join(process.env.PUBLIC, iconFile),
-            width: configDB.get(Main_Window_Width),
-            height: configDB.get(Main_Window_Height),
+            width: dbMap.get(DBList.Config_DB).get(Main_Window_Width),
+            height: dbMap.get(DBList.Config_DB).get(Main_Window_Height),
             show: true,
             useContentSize: true,
             alwaysOnTop: true,
@@ -117,8 +118,8 @@ windowList.set(IWindowList.PET_WINDOW, {
         let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
         let screenW = screenWorkAreaSize.width
         let screenH = screenWorkAreaSize.height
-        configDB.set("screenW", screenW);
-        configDB.set("screenH", screenH);
+        dbMap.get(DBList.Config_DB).set("screenW", screenW);
+        dbMap.get(DBList.Config_DB).set("screenH", screenH);
         // Test actively push message to the Electron-Renderer
         // window.webContents.on('did-finish-load', () => {
         //     window?.webContents.send('main-process-message', new Date().toLocaleString())

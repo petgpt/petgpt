@@ -22,7 +22,7 @@ import {sendToMain} from "../utils/dataSender";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
 import {ipcRenderer, IpcRendererEvent} from "electron";
-import {IWindowList} from "../../electron/main/types/enum";
+import {DBList, IWindowList} from "../../electron/main/types/enum";
 
 const toolsVisible = ref(false)
 const dragging = ref(false)
@@ -57,8 +57,8 @@ onBeforeUnmount(() => {
 const mainW = ref<number>()
 const mainH = ref<number>()
 onMounted(() => {
-  ipcRenderer.invoke('db-get', Main_Window_Width).then(res => mainW.value = res)
-  ipcRenderer.invoke('db-get', Main_Window_Height).then(res => mainH.value = res)
+  ipcRenderer.invoke('db-get', {db: DBList.Config_DB, key: Main_Window_Width}).then(res => mainW.value = res)
+  ipcRenderer.invoke('db-get', {db: DBList.Config_DB, key: Main_Window_Height}).then(res => mainH.value = res)
 })
 
 function handleMouseDown (e: MouseEvent) {
