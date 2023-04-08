@@ -1,6 +1,6 @@
 <template>
 <!--  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>-->
-  <div class="app">
+  <div class="top">
     <router-view />
   </div>
 </template>
@@ -79,7 +79,14 @@ console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}
 .test{
   background-color: @red;// less测试代码
 }
-.app{
-  //border: 1px solid green;
+html,
+body,
+.top {
+  height: 100%;
+  /* 撑满整个空间 */
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+  font-size: 100%;
 }
 </style>

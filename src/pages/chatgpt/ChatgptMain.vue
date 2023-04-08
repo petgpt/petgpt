@@ -1,34 +1,10 @@
 <template>
   <div>
-    <h3>chatgpt功能测试<el-button type="primary" size="small" @click="pushRouter">跳转回detail页面</el-button></h3>
     <el-divider></el-divider>
-    <div>
-      <div style="background-color: aquamarine">ip info from cip.cc :</div>
-      {{ipInfoFromCip}}
-    </div>
-    <div>
-      <div style="background-color: aquamarine">ip info from ipinfo : </div>
-      {{ipInfoFromIpInfo}}
-    </div>
-    <el-button type="primary" size="small" @click="proxyTest">click to get ip info</el-button>
+    <IpInfo></IpInfo>
     <el-divider></el-divider>
-    <div style="background-color: aquamarine">config: {{configRes}}</div>
-
-    <div style="background-color: darkseagreen">
-      通过代理获取：
-      <div>clash配置：TUN+global+env里配置ip2world原生ip => 可以的</div>
-      <div>clash配置：系统代理+rule/global+env里配置127.0.0.1:1080 => 可以的</div>
-      <el-button type="primary" size="small" @click="config(true)">getChatConfig(with proxy) | 最常用的就是系统代理+rule</el-button>
-    </div>
-
-    <div style="background-color: antiquewhite">
-      <div>
-        不通过代理获取：
-        <div>clash配置：系统代理+rule+env里配置127.0.0.1:1080 => 获取不到</div>
-      </div>
-      <el-button type="primary" size="small" @click="config(false)">getChatConfig(no proxy)</el-button>
-    </div>
-    <el-divider></el-divider>
+<!--    <chatgpt-config></chatgpt-config>-->
+<!--    <el-divider></el-divider>-->
     <el-button type="primary" size="small" text :bg="true" @click="centerDialogVisible = true">
       Click to set chatgpt config
     </el-button>
@@ -102,7 +78,6 @@
             <el-switch v-model="enableChatContext" @change="switchChatContext" />
           </template>
         </el-popover>
-
     </span>
     <el-button type="primary" size="small" @click="chatTest">send</el-button>
     <el-button type="primary" size="small" @click="getMessageStoreIds">getMessageStoreIds</el-button>
@@ -118,20 +93,9 @@
 </template>
 
 <script setup lang="ts">
-import {ipcRenderer} from "electron";
-import {IWindowList} from "../../electron/main/types/enum";
 import {computed, onMounted, reactive, ref} from "vue";
-import {chatConfig, chatReplyProcess, getMessageIds, initApi} from "../utils/chatgpt";
-import {ChatMessage, openai} from "../utils/chatgpt/types";
-import HttpsProxyAgent from 'https-proxy-agent'
-// import HttpProxyAgent from 'http-proxy-agent'
-import 'isomorphic-fetch'
-import fetch from 'node-fetch'
-// import * as types from "../utils/chatgpt/types";  // isomorphic-fetch 也是相同的设置
-
-function pushRouter() {
-  ipcRenderer.send('router', {window: IWindowList.PET_DETAIL_WINDOW, hash: 'petDetail'})
-}
+import {ChatMessage, openai} from "../../utils/chatgpt/types";
+import {chatReplyProcess, getMessageIds, initApi} from "../../utils/chatgpt";
 
 // 【start】----------- chatgpt api 测试 -----------【start】
 const centerDialogVisible = ref(false)
@@ -205,79 +169,15 @@ onMounted(async () => {
 })
 // 【end】----------- chatgpt api 测试 -----------【end】
 
-// 【start】----------- ip信息获取 -----------【start】
-const ipInfoFromCip = ref('')
-const ipInfoFromIpInfo = ref('')
-async function proxyTest() {
-  getProxyIpInfoFromCip().then(res => {
-    ipInfoFromCip.value = res
-  })
-  getProxyIpInfoFromIpInfo().then(res => {
-    ipInfoFromIpInfo.value = JSON.stringify(res, null, 2)
-  })
-}
-async function getProxyIpInfoFromIpInfo() {
-  const fetchParam = {
-    method: 'GET',
-    agent: HttpsProxyAgent(import.meta.env.VITE_HTTPS_PROXY) // 短时间ip不会变，只能用HTTPS的Agent
-  }
-  const res = await fetch('https://ipinfo.io/json', fetchParam);
-  if (!res.ok) {
-    const reason = await res.text()
-    const msg = `error ${
-        res.status || res.statusText
-    }: ${reason}`
-    throw new Error(msg)
-  }
-
-  let response = await res.json();
-
-  console.log(`response: `, response)
-  return response
-}
-/**
- * 这个受clash规则的影响，也就是说rule模式，查出来是国内的ip。global就是和前面的ipinfo查出来一样
- */
-async function getProxyIpInfoFromCip () {
-  const fetchParam = {
-    method: 'GET',
-    agent: HttpsProxyAgent(import.meta.env.VITE_HTTPS_PROXY) // 短时间ip不会变，只能用HTTPS的Agent
-  }
-  const res = await fetch('http://cip.cc', fetchParam);
-  if (!res.ok) {
-    const reason = await res.text()
-    const msg = `error ${
-        res.status || res.statusText
-    }: ${reason}`
-    throw new Error(msg)
-  }
-
-  let response = await res.text();
-
-  let first = response.indexOf("<pre>IP\t: ");
-  let second = response.indexOf("</pre>");
-  let ip = response.substring(first + 5, second);
-  console.log(ip)
-  return ip
-}
-// 【end】----------- ip信息获取 -----------【end】
-
-// 【start】----------- 配置信息获取 -----------【start】
-let configRes = ref('')
-const config = (enableProxy: boolean) => {
-  configRes.value = ''
-  chatConfig(enableProxy).then((res) => {
-    configRes.value = JSON.stringify(res.data, null, 2)
-  }).catch((err) => {
-    console.log(`chatConfig err: `, err)
-  })
-}
-// 【end】----------- 配置信息获取 -----------【end】
-
 // 【start】----------- mardown  -----------【start】
 import { marked } from 'marked';
 import hljs from "highlight.js";
 import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
+import ChatgptHeader from "./ChatgptHeader.vue";
+import ChatgptFooter from "./ChatgptFooter.vue";
+import IpInfo from "../example/IpInfo.vue";
+import ChatgptConfig from "../example/ChatgptConfig.vue";
+import ChatgptAside from "./ChatgptAside.vue";
 
 // set highlighting
 let mdOptions = {
@@ -310,7 +210,6 @@ let testTable = '| Fruit  | Color | Taste     |\n' +
     '| Banana | Yellow| Sweetish  |\n' +
     '| Grape  | Purple| Sweet/Sour| \n';
 let markdownToHtml = computed(() => marked(chatGptResText.value))
-
 // 【end】----------- mardown  -----------【end】
 </script>
 
