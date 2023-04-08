@@ -118,3 +118,26 @@ code {
   color:#4f4f4f;
   margin: 0px 3px;
 }
+
+table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+tr {
+  border-bottom: solid 1px black;
+}
+tbody td {
+  text-align: center;
+}
+
+tfoot th {
+  text-align: right;
+}
+th, td {
+  padding: 5px;
+}
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}

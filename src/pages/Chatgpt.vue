@@ -302,6 +302,13 @@ let testMd = '"Sure, here\'s an example of a short Python code:\n' +
     '```\n' +
     '\n' +
     'This code simply prints the string "Hello, World!" to the console when executed."';
+let testTable = '| Fruit  | Color | Taste     |\n' +
+    '|--------|-------|-----------|\n' +
+    '| Apple  | Red   | Sweet     |\n' +
+    '| Orange | Orange| Citrusy   |\n' +
+    '| Lemon  | Yellow| Sour      |\n' +
+    '| Banana | Yellow| Sweetish  |\n' +
+    '| Grape  | Purple| Sweet/Sour| \n';
 let markdownToHtml = computed(() => marked(chatGptResText.value))
 
 // 【end】----------- mardown  -----------【end】
