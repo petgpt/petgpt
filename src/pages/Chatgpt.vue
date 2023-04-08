@@ -112,7 +112,7 @@
     </div>
     <div>
       <el-divider>↓ 返回结果markdown渲染 ↓</el-divider>
-      <div class="hljs" v-html="markdownToHtml"></div>
+      <div v-html="markdownToHtml"></div>
     </div>
   </div>
 </template>
@@ -277,7 +277,7 @@ const config = (enableProxy: boolean) => {
 // 【start】----------- mardown  -----------【start】
 import { marked } from 'marked';
 import hljs from "highlight.js";
-import 'highlight.js/styles/base16/gruvbox-light-medium.css';
+import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
 
 // set highlighting
 let mdOptions = {
