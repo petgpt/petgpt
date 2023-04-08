@@ -70,12 +70,13 @@
 </template>
 
 <script setup lang="ts">
-import {useTitleStore, usePersistStoreTest} from "../store";
+import {usePersistStoreTest, useTitleStore} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
-import {computed, onMounted, ref} from "vue";
+import {computed, ref} from "vue";
 import {
-  Change_Image, Execute_Cmd,
+  Change_Image,
+  Execute_Cmd,
   Get_ClipBoard_Type,
   Get_System_File_Path,
   Reset_Short_Key,
@@ -83,6 +84,7 @@ import {
   Sys_Notification
 } from "../utils/events/constants";
 import {DBList, IWindowList} from "../../electron/main/types/enum";
+
 const platform = computed(() => process.platform); // 获取当前的操作系统
 
 

@@ -1,7 +1,9 @@
 <template>
-  <el-button @click="addOneMessageTest('123', true)">addOneUserMessageTest</el-button>
-  <el-button @click="addOneMessageTest('456', false)">addOneSysMessageTest</el-button>
-  <el-button @click="deleteLastText">deleteLastText</el-button>
+  <div>
+    <el-button @click="addOneMessageTest('123', true)">addOneUserMessageTest</el-button>
+    <el-button @click="addOneMessageTest('456', false)">addOneSysMessageTest</el-button>
+    <el-button @click="deleteLastText">deleteLastText</el-button>
+  </div>
   <div class="chat">
     <el-row v-for="(item, index) in chatList" :key="index" :class="`chat-${item.type} chat-item`">
       <el-col :span="20">
@@ -21,10 +23,10 @@
 
 <script setup lang="ts">
 // 【start】----------- mardown  -----------【start】
-import { marked } from 'marked';
+import {marked} from 'marked';
 import hljs from "highlight.js";
 import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
-import {computed, reactive, ref} from "vue";
+import {reactive} from "vue";
 import {sleep} from "../../utils/common";
 import {ChatItem} from "../../utils/types/types";
 import katex from "katex";

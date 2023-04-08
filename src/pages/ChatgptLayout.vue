@@ -8,10 +8,10 @@
         <chatgpt-header></chatgpt-header>
       </el-header>
       <el-main class="chatgpt-main">
-        <chatgpt-main></chatgpt-main>
+        <chat-text ref="chatText"></chat-text>
       </el-main>
       <el-footer class="chatgpt-footer">
-        <chatgpt-footer></chatgpt-footer>
+        <chatgpt-footer @sendMsg="sendMsg"></chatgpt-footer>
       </el-footer>
     </el-container>
   </el-container>
@@ -20,8 +20,14 @@
 <script setup lang="ts">
 import ChatgptAside from "./chatgpt/ChatgptAside.vue";
 import ChatgptHeader from "./chatgpt/ChatgptHeader.vue";
-import ChatgptMain from "./chatgpt/ChatgptMain.vue";
 import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
+import ChatText from "./chatgpt/ChatText.vue";
+import {ref} from "vue";
+
+const chatText = ref();
+function sendMsg(arg: any) {
+  chatText.value.upsertLatestText(arg)
+}
 </script>
 
 <style scoped lang="less">
@@ -50,11 +56,14 @@ import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
   }
   &-footer{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-content: center;
     justify-content: center;
-    align-items: center;
-    border-top: 1px solid black;
+    //align-items: flex-start;
+    //border-top: 1px solid black;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    --el-footer-height: 70px;
   }
   &-aside{
     width: 100px;

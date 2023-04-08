@@ -13,9 +13,10 @@
 <script setup lang="ts">
 import {onBeforeMount, onBeforeUnmount, onMounted, ref} from 'vue'
 import {
-  Change_Image_Replay, Main_Window_Height,
-  Main_Window_Width,
+  Change_Image_Replay,
   Create_Window,
+  Main_Window_Height,
+  Main_Window_Width,
   Set_Main_Window_Pos
 } from "../utils/events/constants";
 import {sendToMain} from "../utils/dataSender";
