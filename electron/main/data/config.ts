@@ -6,6 +6,7 @@ import {
     Main_Window_Height,
     Main_Window_Width
 } from "../../../src/utils/events/constants";
+import {app} from "electron";
 
 function dbSetIfNotPresent(db:DBList, key: string, value) {
     if(dbMap.has(db) && !dbMap.get(db).has(key)) dbMap.get(db).set(key, value)
@@ -17,5 +18,6 @@ export default {
         dbSetIfNotPresent(DBList.Config_DB, Main_Window_Height, 220)
         dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Width, 1200)
         dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Height, 600)
+        dbSetIfNotPresent(DBList.Config_DB, 'baseDir', app.getPath('userData'))
     },
 }

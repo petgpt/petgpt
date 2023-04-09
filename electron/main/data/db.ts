@@ -19,8 +19,15 @@ class LowWithLodash<T> extends Low<T> {
 const APP: Electron.App = app
 const STORE_PATH: string = APP.getPath('userData')
 const configFilePath = path.join(STORE_PATH, 'data.json')
-
-class DB{
+export interface IDB{
+    read(): Data
+    get(key: string): any
+    has(key: string): boolean
+    set(key:string, value): void
+    flush(): void
+    remove(key: string): void
+}
+class DB implements IDB{
     private db: LowWithLodash<Data>
     public constructor(STORE_PATH: string, configFilePath: string){
         // In production mode, during the first open application

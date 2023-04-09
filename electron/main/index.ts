@@ -7,6 +7,8 @@ import {DBList, IWindowList} from "./types/enum";
 import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
 import dbMap from "./data/db";
 import config from '../main/data/config'
+import PluginLoader from "./core/PluginLoader";
+import {DataType} from "./core/types";
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -24,6 +26,7 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   : process.env.DIST
 
 class LifeCycle {
+  private pluginLoader: PluginLoader;
   private async beforeReady () {
     ipcList.listen()
   }
@@ -31,6 +34,24 @@ class LifeCycle {
   private onReady () {
     app.whenReady().then(() => {
       config.setConfig()
+
+      // ------------ plugin 测试 ------------
+      this.pluginLoader = new PluginLoader({
+        db: dbMap.get(DBList.Config_DB),
+        baseDir: app.getPath('userData') // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
+      });
+
+      this.pluginLoader.load()
+      let fullList = this.pluginLoader.getFullList();
+      fullList.forEach(async (pluginName) => {
+        let plugin = await this.pluginLoader.getPlugin(pluginName);
+        console.log(`pluginName: `, pluginName, ` plugin: `, plugin)
+        plugin.config();
+        plugin.handle(DataType.Image).then(res => console.log(`handle res: `, res))
+        plugin.decode().then(res => console.log(`decode res: `, res))
+        await plugin.stop()
+      });
+      // ------------ plugin 测试 ------------
 
       windowManger.create(IWindowList.PET_WINDOW)
       globalShortcut.register('Control+shift+c', () => {
