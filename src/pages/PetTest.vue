@@ -3,6 +3,7 @@
     <div class="pet-actions" v-if="toolsVisible">
       <el-button type="primary" size="small" @click="openDetailWindow">details</el-button>
       <el-button type="primary" size="small" @click="openChatWindow">chat</el-button>
+      <el-button type="primary" size="small" @click="openSettingWindow">setting</el-button>
     </div>
     <div class="pet-container">
       <div class="gif" :style="{ background: 'transparent ' + 'url(' + imageUrl + ')' + ' no-repeat'}"></div>
@@ -109,6 +110,8 @@ function handleMouseUp (e: MouseEvent) {
 const openDetailWindow = () => sendToMain(Create_Window, {window: IWindowList.PET_DETAIL_WINDOW, hash: 'petDetail'})
 
 const openChatWindow = () => sendToMain(Create_Window, {window: IWindowList.PET_CHAT_WINDOW, hash: 'chatgpt'})
+
+const openSettingWindow = () => sendToMain(Create_Window, {window: IWindowList.PET_SETTING_WINDOW, hash: 'setting'})
 
 </script>
 

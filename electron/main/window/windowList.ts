@@ -241,4 +241,41 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
     }
 });
 
+windowList.set(IWindowList.PET_SETTING_WINDOW, {
+    isValid: process.platform !== 'linux',
+    multiple: false,
+    options () {
+        const options: IBrowserWindowOptions = {
+            width: dbMap.get(DBList.Config_DB).get(Detail_Window_Width),
+            height: dbMap.get(DBList.Config_DB).get(Detail_Window_Height),
+            show: true,
+            fullscreenable: true,
+            useContentSize: true,
+            resizable: true,
+            webPreferences: {
+                nodeIntegration: true, // 启用Node integration
+                contextIsolation: false, // 禁用上下文隔离, 如果不设置这个新建的窗口里process信息获取不到
+            }
+        }
+        return options;
+    },
+    callback (chatWindow) {
+        if (process.env.VITE_DEV_SERVER_URL) {
+            let winUrl = `http://localhost:5173` + `#/setting`;
+
+            chatWindow.loadURL(winUrl);
+            chatWindow.webContents.openDevTools()
+        } else {
+            chatWindow.loadFile(join(process.env.DIST, 'index.html'), { hash: 'setting' });
+        }
+
+        // 在窗口关闭时清除window对象
+        chatWindow.on('closed', () => {
+            chatWindow = null
+        })
+    },
+    listen(chatWindow){
+    }
+});
+
 export default windowList
