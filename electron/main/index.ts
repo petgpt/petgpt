@@ -2,6 +2,7 @@ import {app, BrowserWindow, globalShortcut} from 'electron'
 import {release} from 'node:os'
 import {join} from 'node:path'
 import ipcList from './event/index'
+import pluginIPC from "./event/pluginIPC";
 import windowManger from "./window/windowManger";
 import {DBList, IWindowList} from "./types/enum";
 import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
@@ -32,33 +33,31 @@ class LifeCycle {
   private ctx: PetExpose;
   private async beforeReady () {
     ipcList.listen()
+
+    this.emitter = new EventEmitter()
+    this.ctx = {
+      db: dbMap.get(DBList.Config_DB),
+      baseDir: app.getPath('userData'), // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
+      emitter: this.emitter
+    };
+    this.pluginLoader = new PluginLoader(this.ctx);
+    this.pluginLoader.load() // 加载本地的插件
+  }
+  public getPluginLoader () {
+    return this.pluginLoader
+  }
+
+  public getEmitter () {
+    return this.emitter
+  }
+
+  public getCtx () {
+    return this.ctx
   }
 
   private onReady () {
     app.whenReady().then(() => {
       config.setConfig()
-
-      // ------------ plugin 测试 ------------
-      this.emitter = new EventEmitter()
-      this.ctx = {
-        db: dbMap.get(DBList.Config_DB),
-        baseDir: app.getPath('userData'), // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
-        emitter: this.emitter
-      };
-      this.pluginLoader = new PluginLoader(this.ctx);
-      setTimeout(() => this.ctx.emitter.emit("eventFromElectron", 'data from electron main!!!!'), 1000)
-      this.ctx.emitter.once('eventFromPlugin', (data) => console.log(`[electron main] ${data}`))
-
-      this.pluginLoader.load()
-      let fullList = this.pluginLoader.getFullList();
-      fullList.forEach(async (pluginName) => {
-        let plugin = await this.pluginLoader.getPlugin(pluginName);
-        console.log(`pluginName: `, pluginName, ` plugin: `, plugin)
-        // plugin.config();
-        // plugin.handle(DataType.Image).then(res => console.log(`handle res: `, res))
-        // await plugin.stop()
-      });
-      // ------------ plugin 测试 ------------
 
       windowManger.create(IWindowList.PET_WINDOW)
       globalShortcut.register('Control+shift+c', () => {
@@ -75,8 +74,8 @@ class LifeCycle {
           }
         }
       })
-      console.log(globalShortcut.isRegistered('CommandOrControl+d'));
     })
+    pluginIPC.listen(this.pluginLoader)
   }
 
   private onRunning () {

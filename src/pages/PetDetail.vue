@@ -281,7 +281,5 @@ function pushRouter() {
 </script>
 
 <style scoped lang="less">
-.el-divider--horizontal{
-  margin: 10px;
-}
+
 </style>

@@ -79,7 +79,7 @@ export class PluginLoader implements IPluginLoader {
         if (this.ctx.db.get(`petPlugins.${name}`) === true || (this.ctx.db.get(`petPlugins.${name}`) === undefined)) {
           this.enabledPluginList.push(name)
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          // this.getPlugin(name)!.register(this.ctx)
+          this.getPlugin(name).then(p => p.register());
           const plugin = `petPlugins[${name}]`
           this.ctx.db.set(plugin, true) // config中这样的："petPlugins": {"petgpt-plugin-test": true },
         }
@@ -127,7 +127,7 @@ export class PluginLoader implements IPluginLoader {
   /**
    * Get the list of enabled plugins
    */
-  getList (): string[] {
+  getEnabledPluginList (): string[] {
     return this.enabledPluginList
   }
 
@@ -138,7 +138,7 @@ export class PluginLoader implements IPluginLoader {
   /**
    * Get the full list of plugins, whether it is enabled or not
    */
-  getFullList (): string[] {
+  getAllPluginsNameList (): string[] {
     return Array.from(this.allPluginsNameSet)
   }
 }
