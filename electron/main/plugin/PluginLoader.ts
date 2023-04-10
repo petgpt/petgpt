@@ -89,7 +89,7 @@ export class PluginLoader implements IPluginLoader {
         this.enabledPluginList.push(name)
         const pluginInterface = plugin(this.ctx)
         this.pluginMap.set(name, pluginInterface)
-        pluginInterface.register(this.ctx)
+        pluginInterface.register()
       }
     } catch (e) {
       this.pluginMap.delete(name)
@@ -100,10 +100,10 @@ export class PluginLoader implements IPluginLoader {
   }
 
   unregisterPlugin (name: string): void {
+    this.pluginMap.get(name).unregister()
     this.enabledPluginList = this.enabledPluginList.filter((item: string) => item !== name)
     this.allPluginsNameSet.delete(name)
     this.pluginMap.delete(name)
-    // xxx.unregister(name)
     this.ctx.db.remove(`petPlugins[${name}]`)
   }
 

@@ -144,7 +144,7 @@ function stopHandler() {// TODO: 暂时不行，后面fix
   controller.abort("stop generate manually")
 }
 
-const emits = defineEmits(['sendMsg'])
+const emits = defineEmits(['upsertLatestText'])
 
 function chatTest() {
   if (!import.meta.env.VITE_OPENAI_API_KEY) {
@@ -152,18 +152,11 @@ function chatTest() {
     return
   }
 
-  emits('sendMsg', {
+  emits('upsertLatestText', {
     id: uuidv4(),
     type: 'user',
     text: userInput.value
   })
-  // chatText.value.upsertLatestText({
-  //   id: uuidv4(),
-  //   type: 'user',
-  //   text: userInput.value
-  // })
-
-  // chatGptResText.value = 'waiting...'
 
   chatReplyProcess({
     message: userInput.value,
@@ -172,12 +165,7 @@ function chatTest() {
     abortSignal: signal,
     process: (chat: ChatMessage) => {
       chatGptResText.value = chat.text
-      // chatText.value.upsertLatestText({
-      //   id: chat.id,
-      //   type: 'system',
-      //   text: chat.text
-      // })
-      emits('sendMsg', {
+      emits('upsertLatestText', {
         id: chat.id,
         type: 'system',
         text: chat.text
@@ -188,7 +176,7 @@ function chatTest() {
       }
       // let resMessage = JSON.stringify(chat, null, 2);
       // console.log(firstChunk ? resMessage : `\n${resMessage}`)
-      firstChunk = false
+      // firstChunk = false
     }});
 }
 

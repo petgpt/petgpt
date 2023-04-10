@@ -11,7 +11,7 @@
         <chat-text ref="chatText"></chat-text>
       </el-main>
       <el-footer class="chatgpt-footer">
-        <chatgpt-footer @sendMsg="sendMsg"></chatgpt-footer>
+        <chatgpt-footer @upsertLatestText="upsertLatestText"></chatgpt-footer>
       </el-footer>
     </el-container>
   </el-container>
@@ -25,7 +25,7 @@ import ChatText from "./chatgpt/ChatText.vue";
 import {ref} from "vue";
 
 const chatText = ref();
-function sendMsg(arg: any) {
+function upsertLatestText(arg: any) {
   chatText.value.upsertLatestText(arg)
 }
 </script>

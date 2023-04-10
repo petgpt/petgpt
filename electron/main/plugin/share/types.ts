@@ -5,6 +5,8 @@ export interface IPetPluginInterface {
     name: string
     version: string
     description: string
+    register: () => void
+    unregister: () => void
     config?: () => IPluginConfig[]
     slotMenu?: SlotMenu[]
     handle: (data: PluginData) => Promise<IPluginHandlerResult> // 核心交互函数
