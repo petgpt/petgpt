@@ -15,6 +15,15 @@ yarn run dev
 yarn run build
 ```
 
+### 插件开发
+https://www.npmjs.com/package/petgpt-plugin-template
+- 这个是模板
+- 目前是手动安装到 => app.getPath('userData')/node_modules/ 目录下，例如名字叫petgpt-plugin-test
+- 进入app.getPath('userData')/node_modules/petgpt-plugin-test，修改代码，执行yarn build
+- app.getPath('userData')/package.json中添加 '"petgpt-plugin-template": "0.0.x"' 到dependencies中
+- petgpt启动的时候，会从app.getPath('userData')/package.json中读取依赖
+- electron暴露给插件的能力，见lib/types.ts里的定义
+
 ### TODO:
 基础功能：
 - [x] 全局状态管理\持久化
