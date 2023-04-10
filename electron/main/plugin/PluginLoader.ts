@@ -1,7 +1,8 @@
 import fs from 'fs-extra'
 import path from 'path'
 import resolve from 'resolve'
-import {IPetPlugin, IPetPluginInterface, IPluginLoader, PetExpose} from "./types";
+import {IPetPlugin, IPluginLoader} from "./types";
+import {IEventBus, IPetPluginInterface, PetExpose} from "./share/types";
 
 /**
  * Local plugin loader, file system is required
@@ -11,10 +12,12 @@ export class PluginLoader implements IPluginLoader {
   private readonly baseDir: string
   private enabledPluginList: string[] = []
   private readonly allPluginsNameSet: Set<string> = new Set()
+  private emitter: IEventBus
   private readonly pluginMap: Map<string, IPetPluginInterface> = new Map()
   constructor (ctx: PetExpose) {
     this.ctx = ctx
     this.baseDir = ctx.baseDir
+    this.emitter = ctx.emitter
     this.init()
   }
 
@@ -110,12 +113,15 @@ export class PluginLoader implements IPluginLoader {
       return this.pluginMap.get(name)
     }
     let winPluginAbsolutePath = 'file://' + this.resolvePlugin(name);
+    // 动态加载 ==> export default的东西
     const {default: pluginFunction} = await import(winPluginAbsolutePath)
         .then((m) => m)
         .catch((e) => {console.log(`error: `, e)});
-    const plugin = pluginFunction(this.ctx) // 动态引入后调用函数，返回IPetPluginInterface对象
+    const plugin: IPetPluginInterface = pluginFunction(this.ctx); // 动态引入后调用函数，返回IPetPluginInterface对象
     this.pluginMap.set(name, plugin)
     return plugin
+    // console.log(`plugin: `, plugin)
+    // return undefined
   }
 
   /**

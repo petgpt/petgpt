@@ -4,6 +4,7 @@ import path from "path";
 import {Low, JSONFile} from '@commonify/lowdb'
 import lodash from 'lodash'
 import {DBList} from "../types/enum";
+import {IDB} from "../plugin/share/types";
 
 type Data = {
     posts: string[]
@@ -19,14 +20,6 @@ class LowWithLodash<T> extends Low<T> {
 const APP: Electron.App = app
 const STORE_PATH: string = APP.getPath('userData')
 const configFilePath = path.join(STORE_PATH, 'data.json')
-export interface IDB{
-    read(): Data
-    get(key: string): any
-    has(key: string): boolean
-    set(key:string, value): void
-    flush(): void
-    remove(key: string): void
-}
 class DB implements IDB{
     private db: LowWithLodash<Data>
     public constructor(STORE_PATH: string, configFilePath: string){

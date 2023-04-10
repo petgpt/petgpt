@@ -7,8 +7,9 @@ import {DBList, IWindowList} from "./types/enum";
 import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
 import dbMap from "./data/db";
 import config from '../main/data/config'
-import PluginLoader from "./core/PluginLoader";
-import {DataType} from "./core/types";
+import PluginLoader from "./plugin/PluginLoader";
+import {PetExpose} from "./plugin/share/types";
+import {EventEmitter} from "events";
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -27,6 +28,8 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
 
 class LifeCycle {
   private pluginLoader: PluginLoader;
+  private emitter: EventEmitter;
+  private ctx: PetExpose;
   private async beforeReady () {
     ipcList.listen()
   }
@@ -36,20 +39,24 @@ class LifeCycle {
       config.setConfig()
 
       // ------------ plugin 测试 ------------
-      this.pluginLoader = new PluginLoader({
+      this.emitter = new EventEmitter()
+      this.ctx = {
         db: dbMap.get(DBList.Config_DB),
-        baseDir: app.getPath('userData') // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
-      });
+        baseDir: app.getPath('userData'), // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
+        emitter: this.emitter
+      };
+      this.pluginLoader = new PluginLoader(this.ctx);
+      setTimeout(() => this.ctx.emitter.emit("eventFromElectron", 'data from electron main!!!!'), 1000)
+      this.ctx.emitter.once('eventFromPlugin', (data) => console.log(`[electron main] ${data}`))
 
       this.pluginLoader.load()
       let fullList = this.pluginLoader.getFullList();
       fullList.forEach(async (pluginName) => {
         let plugin = await this.pluginLoader.getPlugin(pluginName);
         console.log(`pluginName: `, pluginName, ` plugin: `, plugin)
-        plugin.config();
-        plugin.handle(DataType.Image).then(res => console.log(`handle res: `, res))
-        plugin.decode().then(res => console.log(`decode res: `, res))
-        await plugin.stop()
+        // plugin.config();
+        // plugin.handle(DataType.Image).then(res => console.log(`handle res: `, res))
+        // await plugin.stop()
       });
       // ------------ plugin 测试 ------------
 

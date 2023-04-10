@@ -1,5 +1,5 @@
 import spawn from 'cross-spawn'
-import {IPluginHandlerOptions, IPluginHandlerResult, IProcessEnv, IResult, Undefinable} from "./types";
+import {IPluginHandlerOptions, IProcessEnv, IResult, Undefinable} from "./types";
 import dbMap from "../data/db";
 import {DBList} from "../types/enum";
 
