@@ -13,20 +13,24 @@
           </el-card>
         </el-col>
       </el-row>
-      <el-dialog v-model="centerDialogVisible" title="参数设置" width="60%" top="5vh"
-                 :close-on-click-modal="false" :before-close="handleClose" center>
-        <el-row v-for="(configItem, index) in dialogConfigList">
-          <el-col :span="1" style="margin-top: 5px">
-            <span v-show="configItem.required" style="color: red">*</span>
+      <el-dialog v-model="centerDialogVisible" title="参数设置" width="60%" top="5vh" :show-close="false"
+                 :close-on-click-modal="false" center>
+          <el-row v-for="(configItem, index) in dialogConfigList">
+            <el-col :span="1" style="margin-top: 5px">
+              <span v-show="configItem.required" style="color: red">*</span>
+            </el-col>
+            <el-col :span="23" style="margin-bottom: 10px">
+              <el-row style="display: flex; align-items: center; flex-wrap: nowrap">
+                {{configItem.name}}:&nbsp
+                <el-input v-if="configItem.type === 'input'" :placeholder=configItem.name v-model="dialogModelData[configItem.name]"></el-input>
+              </el-row>
+              <span v-show="configItem.required && !dialogModelData[configItem.name]" style="color: red; font-size: 10px;">{{currentRules[currentConfigIndex].message}}</span>
+            </el-col>
+          </el-row>
+          <el-col style="display: flex; flex-direction: row; justify-content: space-evenly">
+            <el-button type="primary" @click="closeHandler">close</el-button>
+            <el-button type="primary" @click="confirmHandler">confirm</el-button>
           </el-col>
-          <el-col :span="23" style="margin-bottom: 10px">
-            <el-row style="display: flex; align-items: center; flex-wrap: nowrap">
-              {{configItem.name}}:&nbsp
-              <el-input v-if="configItem.type === 'input'" :placeholder=configItem.name v-model="dialogModelData[configItem.name]"></el-input>
-            </el-row>
-            <span v-show="configItem.required && !dialogModelData[configItem.name]" style="color: red; font-size: 10px;">{{currentRules[currentConfigIndex].message}}</span>
-          </el-col>
-        </el-row>
       </el-dialog>
     </div>
   </div>
@@ -76,7 +80,10 @@ async function configClickHandler(index: number) {
   })
 }
 
-const handleClose = async (done: () => void) => {
+function closeHandler() {
+  centerDialogVisible.value = false;
+}
+const confirmHandler = async (done: () => void) => {
   centerDialogVisible.value = false;
   let configByIndex = getConfigByIndex(currentConfigIndex.value);
   let purePluginName = configByIndex.name.slice(14);
@@ -85,7 +92,6 @@ const handleClose = async (done: () => void) => {
 
   pluginsConfigList.value = []
   getPluginsNameList()
-  done()
 }
 
 function getPluginsNameList() {

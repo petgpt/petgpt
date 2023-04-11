@@ -41,7 +41,7 @@ function onPluginClick(index: number) {
 onMounted(() => {
   getPluginsNameList().then(() => {
     let purePluginNameList = pluginsConfigList.value.map(info => info.name.slice(14));
-    console.log(`purePluginNameList:`, purePluginNameList)
+    // console.log(`purePluginNameList:`, purePluginNameList)
     chatStore.setActivePluginNameList(purePluginNameList)
   })
 })

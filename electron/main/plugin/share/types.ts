@@ -79,6 +79,7 @@ export interface SlotMenu {
     slot: number // 在哪个位置
     name: string // 名称
     menu: SlotType // 类型
+    description?: string // 描述 ==> 渲染为popover
     event?: SlotEvent
 }
 
@@ -86,7 +87,10 @@ export interface SlotMenu {
  * 当前这个slot的类型
  */
 export interface SlotType {
-    type: 'switch' | 'select' | 'popover', // 类型，例如switch、select、popover
+    type: 'switch' | 'select' | 'dialog', // 类型，例如switch、select、dialog
+    // 'switch'的时候，boolean 默认是否开启 |
+    // 'select'：[{label: "", value: ""}]，是一个数组label为展示的文字，value是选中的文字 |
+    // 'dialog'：使用child来指定dialog的内容，和config里的一样
     value?: any,
     child?: IPluginConfig[]
 }
@@ -95,7 +99,7 @@ export interface SlotType {
  * 当前这个slot的事件定义
  */
 export interface SlotEvent {
-    name: string // switch切换的时候，触发的事件 | select关闭的时候触发的事件 | popover关闭的时候触发的事件
+    name: string // switch切换的时候，触发的事件 | select关闭的时候触发的事件 | dialog关闭的时候触发的事件
 }
 
 /**
@@ -108,7 +112,7 @@ export interface IPluginConfig {
     value?: string // 用于config调用的时候，由插件返回最新的配置值，如果有的话
     default?: any
     alias?: string
-    message?: string
+    message?: string // TODO:用于popover的时候，显示的提示信息？
     [propName: string]: any
 }
 

@@ -51,6 +51,19 @@ export default {
             return plugin.config(ctx);
         })
 
+        ipcMain.handle('plugin.getSlotMenu', async (event: IpcMainEvent, args) => {
+            let pluginSlotMenuList = []
+            let allPluginsNameList = pluginLoader.getAllPluginsNameList();
+            for (const name of allPluginsNameList) {
+                let plugin: IPetPluginInterface = await pluginLoader.getPlugin(name);
+                pluginSlotMenuList.push({
+                    name: name, // pluginName
+                    slotMenu: plugin.slotMenu
+                })
+            }
+            return pluginSlotMenuList;
+        });
+
         let pluginListenList = [
             {
                 type: 'config',
