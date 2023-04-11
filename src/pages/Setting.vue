@@ -81,8 +81,7 @@ const handleClose = async (done: () => void) => {
   let configByIndex = getConfigByIndex(currentConfigIndex.value);
   let purePluginName = configByIndex.name.slice(14);
   // console.log(`name:${purePluginName}, configData: `, dialogModelData)
-  sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, type: 'config',
-    action: 'update', data: dialogModelData})
+  sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, data: dialogModelData})
 
   pluginsConfigList.value = []
   getPluginsNameList()

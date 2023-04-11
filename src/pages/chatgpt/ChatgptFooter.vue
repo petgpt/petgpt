@@ -165,6 +165,7 @@ function chatTest() {
   let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
   let channel = `plugin.${pluginPureName}.func.handle`;
   // console.log(`[renderer] plugin channel:`, channel, ` userInput:`, userInput.value)
+  // 发往main线程，调用插件的handle函数
   sendToMain(channel, {
     pluginName: pluginPureName,
     input: userInput.value

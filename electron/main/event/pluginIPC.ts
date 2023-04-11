@@ -63,18 +63,22 @@ export default {
         ]
         let pluginsNameList = pluginLoader.getAllPluginsNameList();
         pluginsNameList.forEach((name) => {
-            let pureName = name.slice(14)
-            pluginListenList.forEach((listenInfo: {type: string, action: string}) => {
-                ipcMain.on(`plugin.${pureName}.${listenInfo.type}.${listenInfo.action}`, (event: IpcMainEvent, args: {pluginName: string, input: any}) => {
-                    console.log(`[ipcMain] plugin.${pureName}.${listenInfo.type}.${listenInfo.action}`, ` args:`, args)
-                    if(listenInfo.type === 'config') ctx.emitter.emit(`plugin.${pureName}.${listenInfo.type}.${listenInfo.action}`, args)
-                    if(listenInfo.type === 'func') {
-                        pluginLoader.getPlugin("petgpt-plugin-"+args.pluginName).then((plugin) => {
-                            plugin.handle({type: DataType.Text, data: args.input})
-                        })
-                    }
+            let purePluginName = name.slice(14)
+            // 监听插件的config的update事件
+            ipcMain.on(`plugin.${purePluginName}.config.update`, (event: IpcMainEvent, args: {name: string, data: any}) => {
+                console.log(`[ipcMain] plugin.${purePluginName}.config.update`, ` args:`, args)
+                // 只用发送核心的config数据，不用发name
+                ctx.emitter.emit(`plugin.${purePluginName}.config.update`, args.data)
+            })
+
+            // 监听插件的核心handle事件，调用插件的核心方法
+            ipcMain.on(`plugin.${purePluginName}.func.handle`, (event: IpcMainEvent, args: {pluginName: string, input: any}) => {
+                console.log(`[ipcMain] plugin.${purePluginName}.func.handle`, ` args:`, args)
+                pluginLoader.getPlugin("petgpt-plugin-" + args.pluginName).then((plugin) => {
+                    // 调用插件的handle方法
+                    plugin.handle({type: DataType.Text, data: args.input})
                 })
-            });
+            })
         })
 
         ctx.emitter.on('upsertLatestText', (args: any) => {
