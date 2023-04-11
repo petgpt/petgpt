@@ -75,7 +75,7 @@ class LifeCycle {
         }
       })
     })
-    pluginIPC.listen(this.pluginLoader)
+    pluginIPC.listen(this.pluginLoader, this.ctx)
   }
 
   private onRunning () {

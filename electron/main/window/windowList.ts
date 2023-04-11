@@ -156,12 +156,16 @@ windowList.set(IWindowList.PET_WINDOW, {
             let isOverlappingScreen = x < 0 || y < 0 || x + winW > screenW || y + winH > screenH;
             // console.log(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
 
-            if (isOverlappingScreen) {
-                pos.x = x < 0 ? 0 : (x + winW > screenW ? screenW - winW : x);
-                pos.y = y < 0 ? 0 : (y + winH > screenH ? screenH - winH : y);
-                window.setBounds(pos);// TODO：后面改，现在会出现窗口闪一下的情况，Pet组件里如果能获取到屏幕的宽高，就不会出现这种情况了，传来的坐标就是正确的
-            } else {
-                window.setBounds(pos);
+            try {
+                if (isOverlappingScreen) {
+                    pos.x = x < 0 ? 0 : (x + winW > screenW ? screenW - winW : x);
+                    pos.y = y < 0 ? 0 : (y + winH > screenH ? screenH - winH : y);
+                    window.setBounds(pos);// TODO：后面改，现在会出现窗口闪一下的情况，Pet组件里如果能获取到屏幕的宽高，就不会出现这种情况了，传来的坐标就是正确的
+                } else {
+                    window.setBounds(pos);
+                }
+            } catch (e){
+                console.log(`setBounds error:`, e)
             }
         })
     }

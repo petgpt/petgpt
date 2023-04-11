@@ -1,38 +1,99 @@
 <template>
   <div>
     Setting！！
-    <el-divider></el-divider>
-    <div v-for="(info, index) in pluginsConfigList">
-      <div style="background-color: #fdb9cc">
-        name: {{info.name}}
-      </div>
-      <div>
-        config: {{info.config}}
-      </div>
-      <el-divider></el-divider>
+    <el-divider>↓ Plugins ↓</el-divider>
+    <div style="display: flex; flex-direction: row;">
+      <el-row v-for="(info, index) in pluginsConfigList">
+        <el-col :span="24">
+          <el-card :body-style="{ padding: '8px', width: '300px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}">
+            <div>name: {{info.name}}</div>
+            <div>version: {{info.version}}</div>
+            <div>description: {{info.description}}</div>
+            <el-icon @click="configClickHandler(index)" style="cursor: pointer" :size="17"><Setting/></el-icon>
+          </el-card>
+        </el-col>
+      </el-row>
+      <el-dialog v-model="centerDialogVisible" title="参数设置" width="50%"
+                 :close-on-click-modal="false" :before-close="handleClose" center>
+        <el-row v-for="(configItem, index) in dialogConfigList">
+          <el-col :span="1" style="margin-top: 5px">
+            <span v-show="configItem.required" style="color: red">*</span>
+          </el-col>
+          <el-col :span="23" style="margin-bottom: 10px">
+            <el-input v-if="configItem.type === 'input'" :placeholder=configItem.name v-model="dialogModelData[configItem.name]"></el-input>
+            <span v-show="configItem.required && !dialogModelData[configItem.name]" style="color: red; font-size: 10px;">{{currentRules[currentConfigIndex].message}}</span>
+          </el-col>
+        </el-row>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import { ipcRenderer } from  "electron";
 import {IPluginConfig} from "../../electron/main/plugin/share/types";
+import {sendToMain} from "../utils/dataSender";
 
+interface Rule{
+  required: boolean,
+  message: string,
+  trigger: string
+}
 interface PluginInfo{
   name: string,
+  version:string,
+  description: string,
   config: IPluginConfig[]
 }
-const pluginsConfigList = reactive<PluginInfo[]>([])
+
+let currentRules = reactive<Rule[]>([])
+let currentConfigIndex = ref(0)
+const centerDialogVisible = ref(false)
+let pluginsConfigList = reactive<PluginInfo[]>([])
+const getConfigByIndex = (index: number) => pluginsConfigList[index]
+let dialogConfigList = reactive<IPluginConfig[]>([])
+let dialogModelData = reactive({})
+async function configClickHandler(index: number) {
+  dialogModelData = reactive({})
+  currentRules = []
+  currentConfigIndex.value = index
+  centerDialogVisible.value = true
+  dialogConfigList = getConfigByIndex(index).config // 根据下标获取到某个插件的config信息
+  dialogConfigList.forEach(config => {
+    currentRules.push({
+      required: config.required,
+      message: config.required ? config.name + '不能为空' : '',
+      trigger: config.required ? 'blur' : 'none'
+    });
+  })
+}
+
+const handleClose = async (done: () => void) => {
+  centerDialogVisible.value = false;
+  let configByIndex = getConfigByIndex(currentConfigIndex.value);
+  let purePluginName = configByIndex.name.slice(14);
+  console.log(`name:${purePluginName}, configData: `, dialogModelData)
+  sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, type: 'config',
+    action: 'update', data: dialogModelData})
+  done()
+}
+
 function getPluginsNameList() {
-  ipcRenderer.invoke('plugin.getAllPluginName').then(nameList => {
-    nameList.forEach((name: string) => {
-      ipcRenderer.invoke('plugin.getConfig', name).then(config => {
-        pluginsConfigList.push({
-          name,
-          config
-        })
-      })
+  ipcRenderer.invoke('plugin.getAllPluginName').then(pluginInfoList => {
+    pluginInfoList.forEach((pluginInfo: {name:string, version: string, description: string}) => {
+      getPluginInfoByName(pluginInfo)
+    })
+  })
+}
+
+function getPluginInfoByName(pluginInfo: {name:string, version: string, description: string}) {
+  ipcRenderer.invoke('plugin.getConfig', pluginInfo.name).then(config => {
+    pluginsConfigList.push({
+      name: pluginInfo.name,
+      version: pluginInfo.version,
+      description: pluginInfo.description,
+      config
     })
   })
 }
