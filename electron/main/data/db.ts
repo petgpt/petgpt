@@ -43,7 +43,7 @@ class DB implements IDB{
         const adapter = new JSONFile<Data>(configFilePath);
         this.db = new LowWithLodash(adapter)
         let jsonStr = new TextFileSync(configFilePath).read() || '{count: 0}';
-        console.log(`this.db:`, JSON.stringify(this.db), ` jsonStr:`, jsonStr)
+        // console.log(`this.db:`, JSON.stringify(this.db), ` jsonStr:`, jsonStr)
         this.db.data ||= JSON.parse(jsonStr)
     }
     public read() {

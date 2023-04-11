@@ -97,6 +97,8 @@ import {onMounted, reactive, ref} from "vue";
 import {ChatMessage, chatReplyProcess, initApi} from "../../utils/chatgpt";
 import {openai} from "../../utils/chatgpt/types";
 import {v4 as uuidv4} from "uuid";
+import {sendToMain} from "../../utils/dataSender";
+import {useChatStore} from "../../store";
 
 let completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>> = reactive({// 忽略了 message、n、stream 参数
   model: 'gpt-3.5-turbo',
@@ -145,39 +147,50 @@ function stopHandler() {// TODO: 暂时不行，后面fix
 }
 
 const emits = defineEmits(['upsertLatestText'])
-
+const chatStore = useChatStore()
 function chatTest() {
   if (!import.meta.env.VITE_OPENAI_API_KEY) {
     alert("请先配置VITE_OPENAI_API_KEY")
     return
   }
 
+  // 添加用户输入的文本
   emits('upsertLatestText', {
     id: uuidv4(),
     type: 'user',
     text: userInput.value
   })
 
-  chatReplyProcess({
-    message: userInput.value,
-    lastContext: options,
-    systemMessage: systemMessage.value,
-    abortSignal: signal,
-    process: (chat: ChatMessage) => {
-      chatGptResText.value = chat.text
-      emits('upsertLatestText', {
-        id: chat.id,
-        type: 'system',
-        text: chat.text
-      })
-      latestParentMessageId.value = chat.id; // 记录下最新的parentMessageId
-      if (enableChatContext.value) {
-        options.parentMessageId = chat.id // 如果开启着的，就把最新的parentMessageId携带上去
-      }
-      // let resMessage = JSON.stringify(chat, null, 2);
-      // console.log(firstChunk ? resMessage : `\n${resMessage}`)
-      // firstChunk = false
-    }});
+  // 发送消息给插件
+  let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
+  let channel = `plugin.${pluginPureName}.func.handle`;
+  // console.log(`[renderer] plugin channel:`, channel, ` userInput:`, userInput.value)
+  sendToMain(channel, {
+    pluginName: pluginPureName,
+    input: userInput.value
+  })
+
+  // 禁用最早hard code的chatgpt调用
+  // chatReplyProcess({
+  //   message: userInput.value,
+  //   lastContext: options,
+  //   systemMessage: systemMessage.value,
+  //   abortSignal: signal,
+  //   process: (chat: ChatMessage) => {
+  //     chatGptResText.value = chat.text
+  //     emits('upsertLatestText', {
+  //       id: chat.id,
+  //       type: 'system',
+  //       text: chat.text
+  //     })
+  //     latestParentMessageId.value = chat.id; // 记录下最新的parentMessageId
+  //     if (enableChatContext.value) {
+  //       options.parentMessageId = chat.id // 如果开启着的，就把最新的parentMessageId携带上去
+  //     }
+  //     // let resMessage = JSON.stringify(chat, null, 2);
+  //     // console.log(firstChunk ? resMessage : `\n${resMessage}`)
+  //     // firstChunk = false
+  //   }});
 }
 
 </script>

@@ -69,3 +69,28 @@ export const usePersistStoreTest = defineStore('persistTest',
         }
     }
 );
+
+export const useChatStore = defineStore('chat', () => {
+    const state = reactive<{
+        activePluginIndex: string,
+        activePluginNameList: string[],
+    }>({
+        activePluginIndex: '',
+        activePluginNameList: [],
+    })
+
+    const getActivePluginIndex = computed(() => state.activePluginIndex)
+    const getActivePluginNameList = computed(() => state.activePluginNameList)
+    const setActivePlugin = (active: string): void => {
+        state.activePluginIndex = active
+    }
+    const setActivePluginNameList = (name: string[]): void => {
+        state.activePluginNameList = name
+    }
+    return {
+        getActivePluginIndex,
+        getActivePluginNameList,
+        setActivePlugin,
+        setActivePluginNameList
+    }
+})

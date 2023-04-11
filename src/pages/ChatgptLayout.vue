@@ -1,7 +1,7 @@
 <template>
   <el-container class="chatgpt">
     <el-aside class="chatgpt-aside">
-      <chatgpt-aside></chatgpt-aside>
+      <chatgpt-aside @changePlugin="changePluginHandler"></chatgpt-aside>
     </el-aside>
     <el-container>
       <el-header class="chatgpt-header">
@@ -27,6 +27,10 @@ import {ref} from "vue";
 const chatText = ref();
 function upsertLatestText(arg: any) {
   chatText.value.upsertLatestText(arg)
+}
+
+function changePluginHandler(isClearContext: boolean) {
+  chatText.value.clearChatContext(isClearContext)
 }
 </script>
 

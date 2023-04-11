@@ -1,9 +1,8 @@
 import PluginLoader from "../plugin/PluginLoader";
-import {
-    ipcMain,
-    IpcMainEvent,
-} from "electron";
-import {IPetPluginInterface, PetExpose} from "../plugin/share/types";
+import {ipcMain, IpcMainEvent,} from "electron";
+import {DataType, IPetPluginInterface, PetExpose} from "../plugin/share/types";
+import windowManger from "../window/windowManger";
+import {IWindowList} from "../types/enum";
 
 export default {
     listen(pluginLoader: PluginLoader, ctx: PetExpose) {
@@ -21,15 +20,15 @@ export default {
         let allPluginsNameList = pluginLoader.getAllPluginsNameList();
         allPluginsNameList.forEach((pluginName) => {
             pluginLoader.getPlugin(pluginName).then(plugin => {
-                console.log(`\n======================== ${plugin.name} ${plugin.version} ========================`)
-                console.log(`plugin: `, plugin)
-
-                // 获取需要渲染的配置页面
-                let iPluginConfigs = plugin.config(ctx);
-                console.log(`plugin needed config: `, iPluginConfigs)
-
-                console.log(`slotMenu: `, plugin.slotMenu)
-                console.log(`======================== ${plugin.name} ${plugin.version} ========================\n`)
+                // console.log(`\n======================== ${plugin.name} ${plugin.version} ========================`)
+                // console.log(`plugin: `, plugin)
+                //
+                // // 获取需要渲染的配置页面
+                // let iPluginConfigs = plugin.config(ctx);
+                // console.log(`plugin needed config: `, iPluginConfigs)
+                //
+                // console.log(`slotMenu: `, plugin.slotMenu)
+                // console.log(`======================== ${plugin.name} ${plugin.version} ========================\n`)
             })
         })
 
@@ -52,19 +51,35 @@ export default {
             return plugin.config(ctx);
         })
 
-        let listenPluginTypes = ['config']
-        let listenPluginActions = ['update']
+        let pluginListenList = [
+            {
+                type: 'config',
+                action: 'update'
+            },
+            {
+                type: 'func',
+                action: 'handle'
+            }
+        ]
         let pluginsNameList = pluginLoader.getAllPluginsNameList();
         pluginsNameList.forEach((name) => {
             let pureName = name.slice(14)
-            listenPluginTypes.forEach((type) => {
-                listenPluginActions.forEach((action) => {
-                    ipcMain.on(`plugin.${pureName}.${type}.${action}`, (event: IpcMainEvent, args: {name: string, data: any}) => {
-                        console.log(`[ipcMain] plugin.${pureName}.${type}.${action}`, `, data:`, args.data)
-                        ctx.emitter.emit(`plugin.${pureName}.${type}.${action}`, args.data)
-                    })
+            pluginListenList.forEach((listenInfo: {type: string, action: string}) => {
+                ipcMain.on(`plugin.${pureName}.${listenInfo.type}.${listenInfo.action}`, (event: IpcMainEvent, args: {pluginName: string, input: any}) => {
+                    console.log(`[ipcMain] plugin.${pureName}.${listenInfo.type}.${listenInfo.action}`, ` args:`, args)
+                    if(listenInfo.type === 'config') ctx.emitter.emit(`plugin.${pureName}.${listenInfo.type}.${listenInfo.action}`, args)
+                    if(listenInfo.type === 'func') {
+                        pluginLoader.getPlugin("petgpt-plugin-"+args.pluginName).then((plugin) => {
+                            plugin.handle({type: DataType.Text, data: args.input})
+                        })
+                    }
                 })
             });
         })
+
+        ctx.emitter.on('upsertLatestText', (args: any) => {
+            console.log(`[ipMain] from plugin upsertLatestText`, ` args:`, args)
+            windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.send('upsertLatestText', args)
+        });
     },
 }

@@ -43,7 +43,7 @@ interface Rule{
   message: string,
   trigger: string
 }
-interface PluginInfo{ // plugin的基本信息
+export interface PluginInfo{ // plugin的基本信息
   name: string,
   version:string,
   description: string,
@@ -83,6 +83,8 @@ const handleClose = async (done: () => void) => {
   // console.log(`name:${purePluginName}, configData: `, dialogModelData)
   sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, type: 'config',
     action: 'update', data: dialogModelData})
+
+  pluginsConfigList.value = []
   getPluginsNameList()
   done()
 }
@@ -96,7 +98,6 @@ function getPluginsNameList() {
 }
 
 function getPluginInfoByName(pluginInfo: { name: string, version: string, description: string}) {
-  pluginsConfigList.value = []
   ipcRenderer.invoke('plugin.getConfig', pluginInfo.name).then(config => {
     // console.log(`pluginInfo return config: `, config)
     pluginsConfigList.value.push({
