@@ -1,17 +1,22 @@
 import fs from 'fs-extra'
 import { app } from 'electron'
 import path from "path";
-import {Low, JSONFile} from '@commonify/lowdb'
+import {Low, JSONFile, TextFileSync} from '@commonify/lowdb'
 import lodash from 'lodash'
 import {DBList} from "../types/enum";
 import {IDB} from "../plugin/share/types";
 
 type Data = {
-    posts: string[]
-    user: {
-        name: number
-    }
-    count: number
+    count: number,
+    [propName: string]: any
+    // petPlugins?: {},
+    // Main_Window_Width?: number,
+    // Main_Window_Height?: number,
+    // Detail_Window_Width?: number,
+    // Detail_Window_Height?: number,
+    // baseDir?: string,
+    // screenW?: number,
+    // screenH?: number
 }
 // Extend Low class with a new `chain` field
 class LowWithLodash<T> extends Low<T> {
@@ -32,9 +37,14 @@ class DB implements IDB{
             }
         }
 
-        const adapter = new JSONFile<Data>(configFilePath)
+        if (!fs.pathExistsSync(configFilePath)) {
+            fs.writeFileSync(configFilePath, '{}')
+        }
+        const adapter = new JSONFile<Data>(configFilePath);
         this.db = new LowWithLodash(adapter)
-        this.db.data ||= { posts: [], user: {name:111}, count: 0 }
+        let jsonStr = new TextFileSync(configFilePath).read() || '{count: 0}';
+        console.log(`this.db:`, JSON.stringify(this.db), ` jsonStr:`, jsonStr)
+        this.db.data ||= JSON.parse(jsonStr)
     }
     public read() {
         return this.db.chain.value()
