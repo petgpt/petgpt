@@ -7,7 +7,7 @@ export interface IPetPluginInterface {
     description: string
     register: () => void
     unregister: () => void
-    config?: () => IPluginConfig[]
+    config?: (ctx: PetExpose) => IPluginConfig[]
     slotMenu?: SlotMenu[]
     handle: (data: PluginData) => Promise<IPluginHandlerResult> // 核心交互函数
     stop: () => Promise<void> // 停止handle的执行
@@ -105,6 +105,7 @@ export interface IPluginConfig {
     name: string
     type: string
     required: boolean
+    value?: string // 用于config调用的时候，由插件返回最新的配置值，如果有的话
     default?: any
     alias?: string
     message?: string

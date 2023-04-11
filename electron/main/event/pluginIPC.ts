@@ -25,7 +25,7 @@ export default {
                 console.log(`plugin: `, plugin)
 
                 // 获取需要渲染的配置页面
-                let iPluginConfigs = plugin.config();
+                let iPluginConfigs = plugin.config(ctx);
                 console.log(`plugin needed config: `, iPluginConfigs)
 
                 console.log(`slotMenu: `, plugin.slotMenu)
@@ -49,7 +49,7 @@ export default {
 
         ipcMain.handle('plugin.getConfig', async (event: IpcMainEvent, pluginName: string) => {
             let plugin = await pluginLoader.getPlugin(pluginName);
-            return plugin.config();
+            return plugin.config(ctx);
         })
 
         let listenPluginTypes = ['config']
