@@ -9,6 +9,10 @@ interface TitleState {
 interface PersistTestState {
     count: number
 }
+interface ChatState {
+    activePluginIndex: string,
+    activePluginNameList: string[],
+}
 
 export const useTitleStore = defineStore('title', {
     state: (): TitleState => ({
@@ -71,26 +75,35 @@ export const usePersistStoreTest = defineStore('persistTest',
 );
 
 export const useChatStore = defineStore('chat', () => {
-    const state = reactive<{
-        activePluginIndex: string,
-        activePluginNameList: string[],
-    }>({
-        activePluginIndex: '',
+    const state = reactive<ChatState>({
+        activePluginIndex: '0',
         activePluginNameList: [],
     })
 
-    const getActivePluginIndex = computed(() => state.activePluginIndex)
+    const getActivePluginIndex = computed(() => {
+        return state.activePluginIndex
+    })
     const getActivePluginNameList = computed(() => state.activePluginNameList)
-    const setActivePlugin = (active: string): void => {
+    const setActivePluginIndex = (active: string): void => {
         state.activePluginIndex = active
     }
     const setActivePluginNameList = (name: string[]): void => {
         state.activePluginNameList = name
     }
     return {
+        state,
         getActivePluginIndex,
         getActivePluginNameList,
-        setActivePlugin,
+        setActivePluginIndex,
         setActivePluginNameList
     }
+},
+    {
+        persist: {
+            enabled: true,
+            strategies: [{
+                key: 'activePluginIndex',// 要持久化的属性
+                storage: localStorage, // localStorage / sessionStorage
+            }]
+        }
 })

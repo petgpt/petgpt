@@ -92,11 +92,23 @@ export default {
                     plugin.handle({type: DataType.Text, data: args.input})
                 })
             })
+
+            // 监听renderer的插件的slot的push事件，推送到插件中，提醒插件slot的数据更新了
+            ipcMain.on(`plugin.${purePluginName}.slot.push`, (event: IpcMainEvent, newSlotData) => {
+                console.log(`[ipcMain] plugin.${purePluginName}.slot.push`, ` newSlotData:`, newSlotData)
+                ctx.emitter.emit(`plugin.${purePluginName}.slot.push`, newSlotData)
+            })
         })
 
+        // 监听插件返回的应答数据
         ctx.emitter.on('upsertLatestText', (args: any) => {
             console.log(`[ipMain] from plugin upsertLatestText`, ` args:`, args)
             windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.send('upsertLatestText', args)
         });
+
+        // 监听插件返回的更新slotMenu事件
+        ctx.emitter.on('updateSlotMenu', (args: any) => {
+            windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.send('updateSlotMenu', args)
+        })
     },
 }

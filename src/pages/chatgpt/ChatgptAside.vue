@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import {ipcRenderer} from "electron";
-import {onMounted, ref} from "vue";
+import {nextTick, onMounted, ref} from "vue";
 import {PluginInfo} from "../Setting.vue";
 import {useChatStore} from "../../store";
 
@@ -34,15 +34,18 @@ async function getPluginsNameList() {
 const emits = defineEmits(['changePlugin'])
 function onPluginClick(index: number) {
   console.log(`click: `, index)
-  chatStore.setActivePlugin(index+'')
+  chatStore.state.activePluginIndex = index+""
   emits('changePlugin', true)
 }
 
 onMounted(() => {
+  defaultActiveMenu.value = chatStore.getActivePluginIndex
+  // console.log(`defaultActiveMenu:`, defaultActiveMenu.value)
   getPluginsNameList().then(() => {
     let purePluginNameList = pluginsConfigList.value.map(info => info.name.slice(14));
-    // console.log(`purePluginNameList:`, purePluginNameList)
-    chatStore.setActivePluginNameList(purePluginNameList)
+    nextTick(() => {
+      chatStore.state.activePluginNameList = purePluginNameList
+    })
   })
 })
 </script>

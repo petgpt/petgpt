@@ -1,92 +1,6 @@
 <template>
   <div class="footer-first">
-    <el-col :span="2" class="footer-first-slot">
-      <el-popover
-          placement="top-start"
-          title="chatgpt对话参数设置"
-          :width="190"
-          trigger="hover"
-      >
-        <template #reference>
-          <span class="footer-first-slot">
-            <el-icon @click="centerDialogVisible = true" style="cursor: pointer" :size="17"><Setting/></el-icon>
-          </span>
-        </template>
-      </el-popover>
-    </el-col>
-    <el-dialog v-model="centerDialogVisible" title="Chatgpt对话参数设置" width="60%"
-               :close-on-click-modal="false" :before-close="handleClose" center>
-      <div>
-        <el-popover
-            placement="top-start"
-            title="systemMessage"
-            :width="300"
-            trigger="hover"
-            content="The system message helps set the behavior of the assistant. 例如：You are a helpful assistant."
-        >
-          <template #reference>
-            systemMessage:
-          </template>
-        </el-popover>
-        <el-input :placeholder="'systemMessage'" v-model="systemMessage"></el-input>
-      </div>
-      <div>
-        <el-popover
-            placement="top-start"
-            title="temperature"
-            :width="300"
-            trigger="hover"
-            content="[0, 2], 默认1, 更低更精确，更高随机性增加."
-        >
-          <template #reference>
-            temperature: {{completionParams.temperature}}
-          </template>
-        </el-popover>
-        <el-slider v-model="completionParams.temperature" :step="0.1" :max="2" />
-      </div>
-      <div>
-        <el-popover
-            placement="top-start"
-            title="presence_penalty"
-            :width="300"
-            trigger="hover"
-            content="[-2.0, 2.0], 默认0, 数值越大，越鼓励生成input中没有的文本."
-        >
-          <template #reference>
-            presence_penalty: {{completionParams.presence_penalty}}
-          </template>
-        </el-popover>
-        <el-slider v-model="completionParams.presence_penalty" :step="0.1" :max="2" :min="-2" />
-      </div>
-      <div>
-        <el-popover
-            placement="top-start"
-            title="frequency_penalty"
-            :width="300"
-            trigger="hover"
-            content="[-2.0, 2.0], 默认0, 数值越大，降低生成的文本的重复率，更容易生成新的东西"
-        >
-          <template #reference>
-            frequency_penalty: {{completionParams.frequency_penalty}}
-          </template>
-        </el-popover>
-        <el-slider v-model="completionParams.frequency_penalty" :step="0.1" :max="2" :min="-2" />
-      </div>
-    </el-dialog>
-    <el-col :span="2" class="footer-first-slot">
-      <span>
-      <el-popover
-          placement="top-start"
-          title="开启连续对话"
-          :width="120"
-          trigger="hover"
-      >
-          <template #reference>
-            <el-switch v-model="enableChatContext" @change="switchChatContext" />
-          </template>
-        </el-popover>
-    </span>
-    </el-col>
+    <slot v-for="(slot, index) in slotChildData" :name="slot.name" :data="slotChildData[index]" class="footer-first-slot"></slot>
   </div>
   <div class="footer-second">
     <el-input :placeholder="'请输入聊天内容'"
@@ -105,7 +19,15 @@ import {openai} from "../../utils/chatgpt/types";
 import {v4 as uuidv4} from "uuid";
 import {sendToMain} from "../../utils/dataSender";
 import {useChatStore} from "../../store";
-import {ipcRenderer} from "electron";
+
+// 可以通过这样的方式，把子组件的数据传递给父组件
+const slotChildData = reactive([
+  {name: 'slot1'},
+  {name: 'slot2'},
+  {name: 'slot3'},
+  {name: 'slot4'},
+  {name: 'slot5'}
+])
 
 let completionParams: Partial<Omit<openai.CreateChatCompletionRequest, 'messages' | 'n' | 'stream'>> = reactive({// 忽略了 message、n、stream 参数
   model: 'gpt-3.5-turbo',
@@ -138,7 +60,6 @@ const handleClose = async (done: () => void) => {
 
 onMounted(async () => {
   // await initApi(completionParams); // 初始化api，如果修改了completionParams，需要重新初始化
-  getPluginSlotMenu()
 })
 
 function switchChatContext(enable: boolean) {
@@ -202,11 +123,6 @@ function chatTest() {
   //   }});
 }
 
-function getPluginSlotMenu() {
-  ipcRenderer.invoke("plugin.getSlotMenu").then((pluginSlotInfo: {name: string, slotMenu: []}) => {
-    console.log(`pluginSlotInfo:`, pluginSlotInfo)
-  })
-}
 </script>
 
 <style scoped lang="less">
