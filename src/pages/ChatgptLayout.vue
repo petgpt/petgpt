@@ -46,8 +46,8 @@
                 <el-col v-if="slotInfo.menu.type === 'switch'" :span="2" style="display: flex;flex-direction: column;align-items: center;">
                   <el-switch v-if="slotInfo.menu.type === 'switch'" v-model="slotData[index].value" />
                 </el-col>
-                <el-col v-if="slotInfo.menu.type === 'select'" :span="4" style="display: flex;flex-direction: column;align-items: center;">
-                  <el-select v-model="slotData[index].value">
+                <el-col v-if="slotInfo.menu.type === 'select'" :span="4" style="display: flex;flex-direction: column;align-items: center; margin-left: 10px">
+                  <el-select v-model="slotData[index].value" :size="'small'">
                     <el-option
                         v-for="item in slotData[index].options"
                         :key="item.value"
@@ -113,6 +113,7 @@ const slotData = reactive([
 watch(slotData, (newSlotData, oldSlotData) => {
   let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
   let channel = `plugin.${pluginPureName}.slot.push`;
+  console.log(`sendToMain:`, channel, ` data:`, newSlotData, ` oldData:`, oldSlotData)
   sendToMain(channel, newSlotData)
 })
 
@@ -137,15 +138,25 @@ function buildSlotData(currentPluginSlotMenuList: SlotMenu[] | undefined) {
   currentPluginSlotMenuList?.forEach((slotMenu, index) => {
     // console.log(`当前的slotMenu:`, slotMenu, `, index:${index}`)
     if (slotMenu.menu.type === 'switch') {
-      slotData[index] = {value: slotMenu.menu.value || false}
+      slotData[index] = {
+        type: 'switch',
+        value: slotMenu.menu.value || false
+      }
     } else if (slotMenu.menu.type === 'select') {
-      slotData[index] = {options: slotMenu.menu.child?.map((child) => {// options是渲染select的数据
-        return {label: child.name, value: child.value}
-      }), value: slotMenu.menu.child?.[0].value || ''} // value就是第一个label对应的value，也是select默认选中的值
+      slotData[index] = {
+        type: 'select',
+        options: slotMenu.menu.child?.map((child) => {// options是渲染select的数据
+          return {label: child.name, value: child.value}
+        }),
+        value: slotMenu.menu.value || slotMenu.menu.child?.[0].value // 如果传来的value有东西，那么就是select默认选中的值，否则就是第一个
+      }
     } else if (slotMenu.menu.type === 'dialog') {
-      slotData[index] = {value: slotMenu.menu.child?.map((child) => {
-        return {name: child.name, value: child.default, message: child.message}
-      })}
+      slotData[index] = {
+        type: 'dialog',
+        value: slotMenu.menu.child?.map((child) => {
+          return {name: child.name, value: child.default, message: child.message}
+        })
+      };
     } else if (slotMenu.menu.type === 'upload') {
       // slotData[index] = {value: slotMenu.menu.value}
     }
@@ -155,7 +166,7 @@ function buildSlotData(currentPluginSlotMenuList: SlotMenu[] | undefined) {
 async function getPluginSlotMenu() {
   await ipcRenderer.invoke("plugin.getSlotMenu").then((infoList) => {
     pluginSlotInfoList.value = infoList
-    currentPluginSlotInfo.value = infoList[chatStore.state.activePluginIndex].slotMenu
+    currentPluginSlotInfo.value = infoList[chatStore.state.activePluginIndex].menu
   })
 }
 
@@ -166,7 +177,7 @@ function closeHandler() {
 }
 
 function confirmHandler(data: any) {
-  console.log(`data:`, data)
+  console.log(`click slot confirm, data:`, data)
   centerDialogVisible.value = false;
 }
 

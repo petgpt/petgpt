@@ -58,7 +58,7 @@ export default {
                 let plugin: IPetPluginInterface = await pluginLoader.getPlugin(name);
                 pluginSlotMenuList.push({
                     name: name, // pluginName
-                    slotMenu: plugin.slotMenu
+                    menu: plugin.slotMenu(ctx)
                 })
             }
             return pluginSlotMenuList;
@@ -95,8 +95,8 @@ export default {
 
             // 监听renderer的插件的slot的push事件，推送到插件中，提醒插件slot的数据更新了
             ipcMain.on(`plugin.${purePluginName}.slot.push`, (event: IpcMainEvent, newSlotData) => {
-                console.log(`[ipcMain] plugin.${purePluginName}.slot.push`, ` newSlotData:`, newSlotData)
-                ctx.emitter.emit(`plugin.${purePluginName}.slot.push`, newSlotData)
+                // console.log(`[ipcMain] plugin.${purePluginName}.slot.push`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
+                ctx.emitter.emit(`plugin.${purePluginName}.slot.push`, JSON.stringify(newSlotData))
             })
         })
 
