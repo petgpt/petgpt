@@ -1,20 +1,47 @@
 <template>
   <div>
-    Setting！！
     <el-divider>↓ Plugins ↓</el-divider>
-    <div style="display: flex; flex-direction: row;">
-      <el-row v-for="(info, index) in pluginsConfigList">
-        <el-col :span="24">
-          <el-card :body-style="{ padding: '8px', width: '300px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}">
-            <div>name: {{info.name}}</div>
-            <div>version: {{info.version}}</div>
-            <div>description: {{info.description}}</div>
-            <el-icon @click="configClickHandler(index)" style="cursor: pointer" :size="17"><Setting/></el-icon>
-          </el-card>
-        </el-col>
-      </el-row>
-      <el-dialog v-model="centerDialogVisible" title="参数设置" width="60%" top="5vh" :show-close="false"
-                 :close-on-click-modal="false" center>
+
+    <el-row class="setting">
+      <div class="setting-actions">
+        <el-input v-model="pluginNameToInstall" :placeholder="'plugin name to install'" class="setting-actions-item"></el-input>
+        <el-button class="setting-actions-item" @click="installPlugin">install</el-button>
+      </div>
+      <div class="setting-container">
+        <el-row v-for="(info, index) in pluginsConfigList" class="setting-container-item">
+          <el-col :span="24">
+            <el-card :body-style="{ padding: '8px', width: '300px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}">
+              <div>name: {{info.name}}</div>
+              <div>version: {{info.version}}</div>
+              <div>description: {{info.description}}</div>
+              <div>
+                <el-tooltip
+                    class="box-item"
+                    effect="light"
+                    content="设置"
+                    placement="top">
+                  <el-icon @click="configClickHandler(index)" style="cursor: pointer" :size="17"><Setting/></el-icon>
+                </el-tooltip>
+                <el-tooltip
+                    class="box-item"
+                    effect="light"
+                    content="更新插件"
+                    placement="top">
+                  <el-icon @click="updatePlugin(index)" style="cursor: pointer" :size="17"><Refresh /></el-icon>
+                </el-tooltip>
+                <el-tooltip
+                    class="box-item"
+                    effect="light"
+                    content="删除插件"
+                    placement="top">
+                  <el-icon @click="deletePlugin(index)" style="cursor: pointer" :size="17"><Delete /></el-icon>
+                </el-tooltip>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-dialog v-model="centerDialogVisible" title="参数设置" width="60%" top="5vh" :show-close="false"
+                   :close-on-click-modal="false" center>
           <el-row v-for="(configItem, index) in dialogConfigList">
             <el-col :span="1" style="margin-top: 5px">
               <span v-show="configItem.required" style="color: red">*</span>
@@ -24,15 +51,18 @@
                 {{configItem.name}}:&nbsp
                 <el-input v-if="configItem.type === 'input'" :placeholder=configItem.name v-model="dialogModelData[configItem.name]"></el-input>
               </el-row>
-              <span v-show="configItem.required && !dialogModelData[configItem.name]" style="color: red; font-size: 10px;">{{currentRules[currentConfigIndex].message}}</span>
+              <!--              <span v-show="configItem.required && !dialogModelData[configItem.name]" style="color: red; font-size: 10px;">{{-->
+              <!--                  currentRules[currentConfigIndex]-->
+              <!--                  ? currentRules[currentConfigIndex].message: 'required'}}</span>-->
             </el-col>
           </el-row>
           <el-col style="display: flex; flex-direction: row; justify-content: space-evenly">
             <el-button type="primary" @click="closeHandler">close</el-button>
             <el-button type="primary" @click="confirmHandler">confirm</el-button>
           </el-col>
-      </el-dialog>
-    </div>
+        </el-dialog>
+      </div>
+    </el-row>
   </div>
 </template>
 
@@ -94,31 +124,65 @@ const confirmHandler = async (done: () => void) => {
   getPluginsNameList()
 }
 
-function getPluginsNameList() {
-  ipcRenderer.invoke('plugin.getAllPluginName').then(pluginInfoList => {
-    pluginInfoList.forEach((pluginInfo: {name:string, version: string, description: string}) => {
-      getPluginInfoByName(pluginInfo)
-    })
-  })
-}
-
-function getPluginInfoByName(pluginInfo: { name: string, version: string, description: string}) {
-  ipcRenderer.invoke('plugin.getConfig', pluginInfo.name).then(config => {
-    // console.log(`pluginInfo return config: `, config)
+async function getPluginsNameList() {
+  let pluginInfoList = await ipcRenderer.invoke('plugin.getAllPluginName')
+  for (const pluginInfo of pluginInfoList) {
+    let config = await ipcRenderer.invoke('plugin.getConfig', pluginInfo.name)
     pluginsConfigList.value.push({
       name: pluginInfo.name,
       version: pluginInfo.version,
       description: pluginInfo.description,
       config
     })
-  })
+  }
 }
 
-onMounted(() => {
-  getPluginsNameList()
+const pluginNameToInstall = ref('')
+
+function installPlugin() {
+  // [main]线程：
+  // const result = await execCommand('install', ["petgpt-plugin-template"], app.getPath('userData'), {}, {})
+  // if (!result.code) {
+  //   console.log(`download success`)
+  // } else {
+  //   console.log(`download failed: `, {code: `${result.code}`, data: result.data})
+  // }
+}
+
+function updatePlugin(index: number) {
+}
+
+function deletePlugin(index: number) {
+}
+
+
+onMounted(async () => {
+  await getPluginsNameList()
+  console.log(`pluginsConfigList:`, pluginsConfigList)
 })
 </script>
 
 <style scoped lang="less">
+.setting{
+  padding: 20px;
+  flex-direction: column;
+  &-container{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    &-item {
+      margin: 5px
+    }
+  }
 
+  &-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    &-item {
+      margin-left: 5px;
+    }
+  }
+}
 </style>
