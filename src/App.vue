@@ -1,8 +1,9 @@
 <template>
 <!--  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>-->
-  <div class="top">
-    <router-view />
-  </div>
+<!--  <div class="top">-->
+<!--    -->
+<!--  </div>-->
+  <router-view />
 </template>
 
 <script setup lang="ts">
@@ -80,14 +81,18 @@ console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}
   background-color: @red;// less测试代码
 }
 html,
-body,
-.top {
+body {
   height: 100%;
   width: 100%;
   /* 撑满整个空间 */
   margin: 0;
-  overflow: hidden;
+  overflow: auto;
   text-align: center;
   font-size: 100%;
+}
+.top{
+  height: 100%;
+  margin: 0;
+  text-align: center;
 }
 </style>
