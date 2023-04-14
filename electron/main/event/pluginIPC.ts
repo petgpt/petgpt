@@ -1,8 +1,12 @@
 import PluginLoader from "../plugin/PluginLoader";
-import {ipcMain, IpcMainEvent,} from "electron";
+import {app as APP, dialog, ipcMain, IpcMainEvent, shell,} from "electron";
 import {DataType, IPetPluginInterface, PetExpose} from "../plugin/share/types";
 import windowManger from "../window/windowManger";
 import {IWindowList} from "../types/enum";
+import {showNotification} from "../utils";
+import {install, uninstall, update} from "../plugin/PluginHandler";
+import path from "path";
+import {handleStreamlinePluginName} from "../plugin/common";
 
 export default {
     listen(pluginLoader: PluginLoader, ctx: PetExpose) {
@@ -109,6 +113,109 @@ export default {
         // 监听插件返回的更新slotMenu事件
         ctx.emitter.on('updateSlotMenu', (args: any) => {
             windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.send('updateSlotMenu', args)
+        })
+
+        // =========== plugin install or uninstall or update ===========
+        ipcMain.on('installPlugin', async (event: IpcMainEvent, fullName: string) => {
+            const res = await install([fullName])
+            // TODO: 根据res里的信息，进行通知
+            windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('installSuccess', {
+                success: res.success,
+                body: fullName,
+                errMsg: res.success ? '' : res.body
+            })
+            if (res.success) {
+                // shortKeyHandler.registerPluginShortKey(res.body[0])
+            } else {
+                showNotification({
+                    title: 'PLUGIN_INSTALL_FAILED',
+                    body: res.body as string
+                })
+            }
+        })
+
+        ipcMain.on('uninstallPlugin', async (event: IpcMainEvent, fullName: string) => {
+            const res = await uninstall([fullName])
+            if (res.success) {
+                windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('uninstallSuccess', res.body[0])
+                // shortKeyHandler.unregisterPluginShortKey(res.body[0])
+            } else {
+                showNotification({
+                    title: 'PLUGIN_UNINSTALL_FAILED',
+                    body: res.body as string
+                })
+            }
+        });
+
+        ipcMain.on('updatePlugin', async (event: IpcMainEvent, fullName: string) => {
+            const res = await update([fullName])
+            if (res.success) {
+                windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('updateSuccess', res.body[0])
+            } else {
+                showNotification({
+                    title: 'PLUGIN_UPDATE_FAILED',
+                    body: res.body as string
+                })
+            }
+        });
+
+        const getPluginList = async () => {
+            const pluginList = pluginLoader.getAllPluginsNameList()
+            const list = []
+            for (const i in pluginList) {
+                const plugin: IPetPluginInterface = await pluginLoader.getPlugin(pluginList[i])
+                const pluginPath = path.join(APP.getPath('userData'), `/node_modules/${pluginList[i]}`)
+                const pluginPKG = await import(path.join(pluginPath, 'package.json'))
+
+                const obj = {
+                    name: handleStreamlinePluginName(pluginList[i]),
+                    fullName: pluginList[i],
+                    author: pluginPKG.author.name || pluginPKG.author,
+                    description: pluginPKG.description,
+                    logo: 'file://' + path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
+                    version: pluginPKG.version,
+                    homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
+                    config: plugin.config(ctx)
+                }
+                list.push(obj)
+            }
+            return list
+        }
+
+        ipcMain.on('importLocalPlugin', async (event: IpcMainEvent) => {
+            const settingWindow = windowManger.get(IWindowList.PET_SETTING_WINDOW)
+
+            // 获取到文件路径
+            const res = await dialog.showOpenDialog(settingWindow, {
+                properties: ['openDirectory']
+            })
+
+            const filePaths = res.filePaths
+            if (filePaths.length > 0) {
+                const res = await install(filePaths)
+                if (res.success) {
+                    try {
+                        const list = getPluginList()
+                        windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('pluginList', list)
+                    } catch (e: any) {
+                        windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('pluginList', [])
+                        showNotification({
+                            title: 'TIPS_GET_PLUGIN_LIST_FAILED',
+                            body: e.message
+                        })
+                    }
+                    showNotification({
+                        title: 'PLUGIN_IMPORT_SUCCEED',
+                        body: ''
+                    })
+                } else {
+                    showNotification({
+                        title: 'PLUGIN_IMPORT_FAILED',
+                        body: res.body as string
+                    })
+                }
+            }
+            windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('hideLoading')
         })
     },
 }

@@ -3,10 +3,15 @@
     <el-divider>↓ Plugins ↓</el-divider>
 
     <el-row class="setting">
-      <div class="setting-actions">
-        <el-input v-model="pluginNameToInstall" :placeholder="'plugin name to install'" class="setting-actions-item"></el-input>
-        <el-button class="setting-actions-item" @click="installPlugin">install</el-button>
-      </div>
+      <el-row class="setting-actions">
+        <el-col :span="20" class="setting-actions-input">
+          <el-input v-model="pluginNameToInstall" :placeholder="'plugin name to install'" class="setting-actions-item"></el-input>
+          <el-progress v-show="installPercentage !== 0"  :percentage="installPercentage" :status="installStatus" style="margin-left: 5px" :text-inside="true" :show-text="false" />
+        </el-col>
+        <el-col :span="4">
+          <el-button class="setting-actions-button setting-actions-item" @click="installPlugin">install</el-button>
+        </el-col>
+      </el-row>
       <div class="setting-container">
         <el-row v-for="(info, index) in pluginsConfigList" class="setting-container-item">
           <el-col :span="24">
@@ -38,6 +43,7 @@
                 </el-tooltip>
               </div>
             </el-card>
+            <el-progress v-show="upOrDeleteProgress[index].percentage !== 0" :percentage="upOrDeleteProgress[index].percentage" :status="upOrDeleteProgress[index].status" :text-inside="true" :show-text="false" />
           </el-col>
         </el-row>
         <el-dialog v-model="centerDialogVisible" title="参数设置" width="60%" top="5vh" :show-close="false"
@@ -71,6 +77,7 @@ import {onMounted, reactive, ref} from "vue";
 import { ipcRenderer } from  "electron";
 import {IPluginConfig} from "../../electron/main/plugin/share/types";
 import {sendToMain} from "../utils/dataSender";
+import ChatgptLayout from "./ChatgptLayout.vue";
 
 interface Rule{
   required: boolean,
@@ -125,6 +132,9 @@ const confirmHandler = async (done: () => void) => {
 }
 
 async function getPluginsNameList() {
+  pluginsConfigList.value = []
+  upOrDeleteProgress.splice(0, upOrDeleteProgress.length)
+
   let pluginInfoList = await ipcRenderer.invoke('plugin.getAllPluginName')
   for (const pluginInfo of pluginInfoList) {
     let config = await ipcRenderer.invoke('plugin.getConfig', pluginInfo.name)
@@ -134,31 +144,116 @@ async function getPluginsNameList() {
       description: pluginInfo.description,
       config
     })
+    upOrDeleteProgress.push({percentage: 0, status: ''})
   }
 }
 
 const pluginNameToInstall = ref('')
-
+interface Progress {
+  percentage: number,
+  status: string
+}
+const upOrDeleteProgress = reactive<Progress[]>([])
+const installPercentage = ref(0)
+const installStatus = ref('')
 function installPlugin() {
-  // [main]线程：
-  // const result = await execCommand('install', ["petgpt-plugin-template"], app.getPath('userData'), {}, {})
-  // if (!result.code) {
-  //   console.log(`download success`)
-  // } else {
-  //   console.log(`download failed: `, {code: `${result.code}`, data: result.data})
-  // }
+  sendToMain('installPlugin', pluginNameToInstall.value)
+  installPercentage.value = 10
 }
 
 function updatePlugin(index: number) {
+  sendToMain('updatePlugin', getConfigByIndex(index).name)
+  setProgressBegin(index)
 }
 
 function deletePlugin(index: number) {
+  sendToMain('uninstallPlugin', getConfigByIndex(index).name)
+  setProgressBegin(index)
 }
 
+function setProgressBegin(index: number) {
+  upOrDeleteProgress[index] = {percentage: 10, status: ''}
+}
+
+function setProgressSuccess(type: 'install' | 'upOrDelete') {
+  if (type === 'install') {
+    installPercentage.value = 100
+    installStatus.value = 'success'
+  } else {
+    upOrDeleteProgress.forEach((progress, index) => {
+      if (progress.percentage > 0) {
+        upOrDeleteProgress[index] = {
+          percentage: 100,
+          status: 'success'
+        }
+      }
+    })
+  }
+  setTimeout(() => {
+    // clear progress status
+    if (type === 'install') {
+      installPercentage.value = 0
+      installStatus.value = ''
+    } else {
+      upOrDeleteProgress.forEach((progress, index) => {
+        if (progress.percentage > 0) {
+          upOrDeleteProgress[index] = {percentage: 0, status: ''}
+        }
+      })
+    }
+  }, 1000)
+}
+
+function setProgressFailed(type: 'install' | 'upOrDelete', index: number) {
+  if (type === 'install') {
+    installPercentage.value = 100
+    installStatus.value = 'exception'
+  } else {
+    upOrDeleteProgress[index] = {percentage: 100, status: 'exception'}
+  }
+  setTimeout(() => {
+    // clear progress status
+    if (type === 'install') {
+      installPercentage.value = 0
+      installStatus.value = ''
+    } else {
+      upOrDeleteProgress[index] = {percentage: 0, status: ''}
+    }
+  }, 1000)
+}
 
 onMounted(async () => {
   await getPluginsNameList()
   console.log(`pluginsConfigList:`, pluginsConfigList)
+
+  ipcRenderer.on('installSuccess', (event, data) => {
+    console.log(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+    getPluginsNameList()
+    console.log(`[after install success] pluginsConfigList:`, pluginsConfigList)
+    setProgressSuccess('install')
+  });
+
+  ipcRenderer.on('uninstallSuccess', (event, data) => {
+    console.log(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+    setProgressSuccess('upOrDelete')
+    getPluginsNameList()
+    console.log(`[after install success] pluginsConfigList:`, pluginsConfigList)
+  });
+
+  ipcRenderer.on('updateSuccess', (event, data) => {
+    console.log(`updateSuccess: `, data)
+    setProgressSuccess('upOrDelete')
+    getPluginsNameList()
+  });
+
+  // update \ delete 失败的时候，设置失败的进度条
+  ipcRenderer.on('failedProgress', () => {
+    upOrDeleteProgress.forEach((progress, index) => {
+      if (progress.percentage > 0) {
+        setProgressFailed('upOrDelete', index)
+      }
+    })
+  })
 })
 </script>
 
@@ -177,11 +272,15 @@ onMounted(async () => {
 
   &-actions {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     &-item {
       margin-left: 5px;
+    }
+    &-input {
+      display: flex;
+      flex-direction: column;
+    }
+    &-button {
+
     }
   }
 }

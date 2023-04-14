@@ -138,3 +138,5 @@ class LifeCycle {
 const lifeCycle = new LifeCycle()
 
 lifeCycle.launchApp();
+
+export default lifeCycle
