@@ -17,6 +17,7 @@ import {
     IpcMainEvent,
     IpcMainInvokeEvent,
     shell,
+    desktopCapturer
 } from "electron";
 import {INotification} from "../../../src/utils/types/types";
 import {getFileType, isDirectory, showNotification} from "../utils";
@@ -167,5 +168,22 @@ export default {
             //     // })
             // });
         });
+
+        // 获取操作系统
+        ipcMain.handle('getOperatingSystem', () => {
+            return process.platform
+        })
+
+        ipcMain.handle('getSources', async () => {
+            return await desktopCapturer.getSources({ types: ['window', 'screen'] })
+        })
+
+        // 保存音频 => 选择路径
+        ipcMain.handle('showSaveDialog', async () => {
+            return await dialog.showSaveDialog({
+                buttonLabel: 'Save video',
+                defaultPath: `vid-${Date.now()}.webm`
+            });
+        })
     }
 }

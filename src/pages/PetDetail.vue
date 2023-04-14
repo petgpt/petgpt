@@ -67,13 +67,18 @@
     <el-col>
     </el-col>
   </el-row>
+  <el-divider>↓↓ audio capture ↓↓</el-divider>
+  <el-row>
+    <el-icon v-if="os && os === 'win32'" style="cursor: pointer" :size="25" @click="startRecording"><Microphone /></el-icon>
+    <el-icon v-if="os && os === 'win32'" style="cursor: pointer" :size="25" @click="stopRecording"><Close /></el-icon>
+  </el-row>
 </template>
 
 <script setup lang="ts">
 import {usePersistStoreTest, useTitleStore} from "../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {sendToMain} from "../utils/dataSender";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {
   Change_Image,
   Execute_Cmd,
@@ -84,6 +89,7 @@ import {
   Sys_Notification
 } from "../utils/events/constants";
 import {DBList, IWindowList} from "../../electron/main/types/enum";
+import {writeFile} from "fs";
 
 const platform = computed(() => process.platform); // 获取当前的操作系统
 
@@ -273,6 +279,55 @@ function dbDelete() {
   ipcRenderer.send('db-delete', {db: DBList.Config_DB, key: keyToDelete.value})
 }
 // 【end】----------- 配置文件的CRUD -----------【end】
+
+// 【start】----------- audio capture -----------【start】
+import {RecordRTCPromisesHandler} from 'recordrtc';
+
+const os = ref('')
+const select = ref('')
+const options = ref<{id:string, name:string}[]>([])
+onMounted(async () => {
+  // await initApi(completionParams); // 初始化api，如果修改了completionParams，需要重新初始化
+  os.value = await ipcRenderer.invoke('getOperatingSystem')
+
+  let types = [
+    "video/webm", "audio/webm", "video/webm\;codecs=vp8", "video/webm\;codecs=daala", "video/webm\;codecs=h264",
+    "audio/webm\;codecs=opus", "video/mpeg", "audio/mpeg-3"
+  ];
+
+  for (let i in types) {
+    console.log(types[i] + "：" + (MediaRecorder.isTypeSupported(types[i]) ? "支持" : "不支持"));
+  }
+})
+
+let chunks: any = []; //will be used later to record audio
+let recorder: any = null;
+
+async function startRecording() {
+  let stream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
+  recorder = new RecordRTCPromisesHandler(stream, {
+    type: 'audio'
+  });
+  recorder.startRecording();
+}
+
+async function stopRecording() {
+  await recorder.stopRecording();
+  let blob = await recorder.getBlob();
+  invokeSaveAsDialog(blob);
+}
+
+async function invokeSaveAsDialog(blob: any){
+  const buffer = Buffer.from(await blob.arrayBuffer());
+
+  const { canceled, filePath } =  await ipcRenderer.invoke('showSaveDialog')
+  if(canceled) return
+
+  if (filePath) {
+    writeFile(filePath, buffer, () => console.log('video saved successfully!'));
+  }
+}
+// 【end】----------- audio capture -----------【end】
 
 // 【start】
 function pushRouter() {
