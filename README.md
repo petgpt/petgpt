@@ -41,6 +41,10 @@ https://www.npmjs.com/package/petgpt-plugin-template
   - [ ] 唤起已经打开的本地应用
 
 高级功能：
+- [x] 插件系统
+  - [x] 插件的在线下载、更新、删除 
+  - [x] 插件模板：https://www.npmjs.com/package/petgpt-plugin-template
+  - [x] chatgpt插件：https://www.npmjs.com/package/petgpt-plugin-chatgpt
 - [ ] 拖动的时候，屏幕不同边缘检测
 - [ ] 根据功能，进行页面布局设计
 - [ ] chatgpt
@@ -48,7 +52,7 @@ https://www.npmjs.com/package/petgpt-plugin-template
   - [x] 单次对话、连续对话
   - [x] 自定义temperature等参数
   - [x] markdown\表格\code
-  - [ ] latex
+  - [x] latex
   - [ ] 其他接口（模型操作、图片操作、语音转文字接口）
 - [ ] 本地配置文件（json）设计
   - [x] 提供操作接口 => db.ts
@@ -57,7 +61,7 @@ https://www.npmjs.com/package/petgpt-plugin-template
   - [ ] Pet页面的操作轮盘
   - [ ] 从配置文件渲染Pet页面？（2.0）
 - [ ] 音频获取
-  - [ ] win下的简单
+  - [x] win下的简单
   - [ ] mac下的非常麻烦，参考https://cloud.tencent.com/developer/article/1884082
 - [ ] OCR 功能
 - [ ] 翻译接口
