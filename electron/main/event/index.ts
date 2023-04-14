@@ -66,8 +66,9 @@ export default {
             return dbMap.get(args.db).read();
         });
         ipcMain.handle('db-get', (event: IpcMainEvent, args: {db: DBList, key: string}) => {
-            console.log(`args:`, args)
-            return dbMap.get(args.db).get(args.key);
+            let value = dbMap.get(args.db).get(args.key);
+            console.log(`args:`, args, ` value:`, value)
+            return value;
         })
         ipcMain.on('db-set', (event: IpcMainEvent, args: {db: DBList, key: string, value: string}) => {
             dbMap.get(args.db).set(args.key, args.value)

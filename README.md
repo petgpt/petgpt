@@ -15,6 +15,14 @@ yarn run dev
 yarn run build
 ```
 
+### 插件开发
+https://www.npmjs.com/package/petgpt-plugin-template
+- 这个是模板
+- 修改完后，上传到npm
+- 在setting页面，输入插件的名字，例如：petgpt-plugin-test，点击install，就可以安装了（需要有node环境，能运行npm命令）
+- 插件会自动下载到app.getPath('userData')/node_modules下，依赖会自动添加到.getPath('userData')下的package.json里的dependencies里
+- electron暴露给插件的能力，见lib/types.ts里的定义
+
 ### TODO:
 基础功能：
 - [x] 全局状态管理\持久化

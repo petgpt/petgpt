@@ -18,5 +18,10 @@ export default createRouter({
             name: "Chatgpt",
             component: () => import("../pages/ChatgptLayout.vue")
         },
+        {
+            path: '/setting',
+            name: "Setting",
+            component: () => import("../pages/Setting.vue")
+        },
     ]
 })

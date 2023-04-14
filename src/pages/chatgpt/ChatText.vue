@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-button @click="addOneMessageTest('123', true)">addOneUserMessageTest</el-button>
-    <el-button @click="addOneMessageTest('456', false)">addOneSysMessageTest</el-button>
+<!--    <el-button @click="addOneMessageTest('123', true)">addOneUserMessageTest</el-button>-->
+<!--    <el-button @click="addOneMessageTest('456', false)">addOneSysMessageTest</el-button>-->
     <el-button @click="deleteLastText">deleteLastText</el-button>
   </div>
   <div class="chat">
@@ -26,10 +26,11 @@
 import {marked} from 'marked';
 import hljs from "highlight.js";
 import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
-import {reactive} from "vue";
+import {onMounted, reactive} from "vue";
 import {sleep} from "../../utils/common";
 import {ChatItem} from "../../utils/types/types";
 import katex from "katex";
+import {ipcRenderer} from "electron";
 
 // "marked-katex-extension": "^1.0.2" latex支持还可以用前面的这个marked插件，https://github.com/UziTech/marked-katex-extension
 let marked_render = new marked.Renderer()
@@ -167,6 +168,13 @@ async function addOneMessageTest(id: string, isUser: boolean) {
     await sleep(200)
   }
 }
+
+onMounted(() => {
+  ipcRenderer.on('upsertLatestText', (event, message: ChatItem) => {
+    upsertLatestText(message)
+  })
+})
+
 function upsertLatestText(message: ChatItem) {
   if (chatList.length === 0) {
     chatList.push({
@@ -188,8 +196,14 @@ function upsertLatestText(message: ChatItem) {
     }
   }
 }
+
+function clearChatContext(isClearContext: boolean) {
+  // clear chatList
+  if(isClearContext) chatList.splice(0, chatList.length)
+}
 defineExpose({
-  upsertLatestText
+  upsertLatestText,
+  clearChatContext
 })
 </script>
 

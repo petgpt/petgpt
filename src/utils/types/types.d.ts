@@ -1,6 +1,20 @@
 // global
 import type { ChatMessage } from '../chatgpt/types'
 
+export type IPluginNameType = 'simple' | 'scope' | 'normal' | 'unknown'
+
+export interface IPluginProcessResult {
+  success: boolean
+  /**
+   * the package.json's name filed
+   */
+  pkgName: string
+  /**
+   * the plugin name or the fs absolute path
+   */
+  fullName: string
+}
+
 interface ChatItem {
   id: string,
   type: 'user' | 'system',

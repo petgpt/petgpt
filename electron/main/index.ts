@@ -2,11 +2,15 @@ import {app, BrowserWindow, globalShortcut} from 'electron'
 import {release} from 'node:os'
 import {join} from 'node:path'
 import ipcList from './event/index'
+import pluginIPC from "./event/pluginIPC";
 import windowManger from "./window/windowManger";
 import {DBList, IWindowList} from "./types/enum";
 import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
 import dbMap from "./data/db";
 import config from '../main/data/config'
+import PluginLoader from "./plugin/PluginLoader";
+import {PetExpose} from "./plugin/share/types";
+import {EventEmitter} from "events";
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -24,8 +28,31 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   : process.env.DIST
 
 class LifeCycle {
+  private pluginLoader: PluginLoader;
+  private emitter: EventEmitter;
+  private ctx: PetExpose;
   private async beforeReady () {
     ipcList.listen()
+
+    this.emitter = new EventEmitter()
+    this.ctx = {
+      db: dbMap.get(DBList.Config_DB),
+      baseDir: app.getPath('userData'), // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
+      emitter: this.emitter
+    };
+    this.pluginLoader = new PluginLoader(this.ctx);
+    this.pluginLoader.load() // 加载本地的插件
+  }
+  public getPluginLoader () {
+    return this.pluginLoader
+  }
+
+  public getEmitter () {
+    return this.emitter
+  }
+
+  public getCtx () {
+    return this.ctx
   }
 
   private onReady () {
@@ -47,8 +74,8 @@ class LifeCycle {
           }
         }
       })
-      console.log(globalShortcut.isRegistered('CommandOrControl+d'));
     })
+    pluginIPC.listen(this.pluginLoader, this.ctx)
   }
 
   private onRunning () {
@@ -111,3 +138,5 @@ class LifeCycle {
 const lifeCycle = new LifeCycle()
 
 lifeCycle.launchApp();
+
+export default lifeCycle
