@@ -1,11 +1,9 @@
 <template>
   <div>
-    <el-divider>↓ Plugins ↓</el-divider>
-
     <el-row class="setting">
       <el-row class="setting-actions">
         <el-col :span="20" class="setting-actions-input">
-          <el-input v-model="pluginNameToInstall" :placeholder="'plugin name to install'" class="setting-actions-item"></el-input>
+          <el-input v-model="pluginNameToInstall" :placeholder="'plugin name to install, like: petgpt-plugin-template/petgpt-plugin-chatgpt'" class="setting-actions-item"></el-input>
           <el-progress v-show="installPercentage !== 0"  :percentage="installPercentage" :status="installStatus" style="margin-left: 5px" :text-inside="true" :show-text="false" />
         </el-col>
         <el-col :span="4">
@@ -265,6 +263,7 @@ onMounted(async () => {
     display: flex;
     flex-direction: row;
     margin-top: 10px;
+    flex-wrap: wrap;
     &-item {
       margin: 5px
     }

@@ -87,7 +87,7 @@ https://www.npmjs.com/package/petgpt-plugin-template
   - [ ] 需要结合pet状态机的设计
 ### bug
 - [ ] 文件类型获取的时候，md多个hex值。xml与psd冲突。mac没有测试行不行。
-- [ ] main窗口拖动的时候，碰到屏幕边缘闪烁
+- [x] main窗口拖动的时候，碰到屏幕边缘闪烁
 - [ ] main/renderer的系统通知，监听notification的click事件都失败了，不知道为啥。
 - [ ] electron-clipboard-ex不兼容linux平台
 ---

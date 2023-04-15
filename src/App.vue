@@ -1,9 +1,14 @@
 <template>
 <!--  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>-->
-<!--  <div class="top">-->
-<!--    -->
-<!--  </div>-->
-  <router-view />
+  <div class="main_app">
+    <el-container>
+      <el-main>
+        <div class="layout">
+          <router-view class="layout-right"/>
+        </div>
+      </el-main>
+    </el-container>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -81,18 +86,33 @@ console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}
   background-color: @red;// less测试代码
 }
 html,
-body {
+body,
+.main_app {
+  display: inherit;
   height: 100%;
-  width: 100%;
   /* 撑满整个空间 */
   margin: 0;
   overflow: auto;
-  text-align: center;
+  //text-align: center;
   font-size: 100%;
 }
-.top{
+
+.layout {
+  display: flex;
+  /* layout占满整屏 */
   height: 100%;
-  margin: 0;
-  text-align: center;
+  //overflow: hidden;
+  flex-direction: column;
+  //border: 1px solid #000000;
+  &-right {
+    flex: 1; // right占满整个右边
+    display: flex; // 右边也是flex布局
+    flex-direction: column; // 让right这部分，竖着布局！！！
+    justify-content: flex-start;
+  }
+}
+
+.el-main{
+  padding: 0 !important;
 }
 </style>

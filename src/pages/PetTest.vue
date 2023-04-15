@@ -1,5 +1,5 @@
 <template>
-  <div @mouseenter="toolsVisible = true" @mouseleave="toolsVisible = false">
+  <div @mouseenter="toolsVisible = true" @mouseleave="toolsVisible = false" class="pet">
     <div class="pet-actions" v-if="toolsVisible">
       <el-button type="primary" size="small" @click="openDetailWindow">details</el-button>
       <el-button type="primary" size="small" @click="openChatWindow">chat</el-button>
@@ -77,7 +77,15 @@ function handleMouseMove (e: MouseEvent) {
   if (dragging.value) {
     const xLoc = e.screenX - wX.value
     const yLoc = e.screenY - wY.value
-    // console.log(`move`, xLoc, yLoc)
+    console.log(`xLoc: ${xLoc}, yLoc: ${yLoc}, wX: ${wX.value}, wY: ${wY.value}, screen.w:${window.screen.width}, screen.h:${window.screen.height}, screenX: ${e.screenX}, screenY: ${e.screenY}`)
+
+    // if current window is edge of screen, then can't move out of screen
+    // TODO: 这里的减去的值，和初始化的时候设置的PetWindow的大小有关。弄成配置项？
+    if (xLoc < 0 || yLoc < 0 || xLoc > window.screen.width - 260 || yLoc > window.screen.height - 250) {
+      console.log(`return`)
+      return
+    }
+
     sendToMain(Set_Main_Window_Pos, {
       x: xLoc,
       y: yLoc,
@@ -125,6 +133,9 @@ const openSettingWindow = () => sendToMain(Create_Window, {window: IWindowList.P
   /*top: 90px;*/
   /*left: 18px;*/
   /*border: 3px solid red;*/
+}
+.pet{
+  border: 1px solid green;
 }
 .pet-actions{
   display: flex;
