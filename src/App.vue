@@ -4,7 +4,9 @@
     <el-container>
       <el-main>
         <div class="layout">
-          <router-view class="layout-right"/>
+          <div class="layout-right">
+            <router-view />
+          </div>
         </div>
       </el-main>
     </el-container>
@@ -90,6 +92,7 @@ body,
 .main_app {
   display: inherit;
   height: 100%;
+  width: 100%;
   /* 撑满整个空间 */
   margin: 0;
   overflow: auto;

@@ -7,7 +7,7 @@
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 15 }"
               v-model="userInput"
-              @keydown.enter="chatTest"></el-input>
+              @keydown.enter="chatTest" autofocus></el-input>
     <el-button type="primary" @click="chatTest" style="margin-left: 5px">send</el-button>
   </div>
 </template>

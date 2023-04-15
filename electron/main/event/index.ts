@@ -81,8 +81,10 @@ export default {
         // 监听Create_Window事件 -> 创建窗口
         ipcMain.on(Create_Window, (evt, arg: {window: IWindowList, hash: string}) => {
             if (!windowManger.has(arg.window)) {
+                console.log(`create: `, arg.window)
                 windowManger.create(arg.window);
             } else {
+                console.log(`show: `, arg.window)
                 windowManger.get(arg.window).show();
             }
         })

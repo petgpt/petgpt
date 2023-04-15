@@ -60,6 +60,7 @@ class LifeCycle {
       config.setConfig()
 
       windowManger.create(IWindowList.PET_WINDOW)
+      // windowManger.get(IWindowList.PET_CHAT_WINDOW)
       globalShortcut.register('Control+shift+c', () => {
         if (windowManger.has(IWindowList.PET_WINDOW)) {
           let petWindow = windowManger.get(IWindowList.PET_WINDOW);
@@ -72,6 +73,17 @@ class LifeCycle {
             petWindow.setSize(800, 600)
             petWindow.center();
           }
+        }
+      })
+
+      globalShortcut.register('alt+c', () => {
+        if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && windowManger.get(IWindowList.PET_CHAT_WINDOW).isVisible()) {
+          windowManger.get(IWindowList.PET_CHAT_WINDOW).hide();
+          console.log(`hide`)
+        } else {
+          console.log(`show`)
+          windowManger.get(IWindowList.PET_CHAT_WINDOW).show();
+          windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.openDevTools()
         }
       })
     })

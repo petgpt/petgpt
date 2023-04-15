@@ -77,12 +77,12 @@ function handleMouseMove (e: MouseEvent) {
   if (dragging.value) {
     const xLoc = e.screenX - wX.value
     const yLoc = e.screenY - wY.value
-    console.log(`xLoc: ${xLoc}, yLoc: ${yLoc}, wX: ${wX.value}, wY: ${wY.value}, screen.w:${window.screen.width}, screen.h:${window.screen.height}, screenX: ${e.screenX}, screenY: ${e.screenY}`)
+    // console.log(`xLoc: ${xLoc}, yLoc: ${yLoc}, wX: ${wX.value}, wY: ${wY.value}, screen.w:${window.screen.width}, screen.h:${window.screen.height}, screenX: ${e.screenX}, screenY: ${e.screenY}`)
 
     // if current window is edge of screen, then can't move out of screen
     // TODO: 这里的减去的值，和初始化的时候设置的PetWindow的大小有关。弄成配置项？
     if (xLoc < 0 || yLoc < 0 || xLoc > window.screen.width - 260 || yLoc > window.screen.height - 250) {
-      console.log(`return`)
+      // console.log(`return`)
       return
     }
 
