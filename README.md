@@ -16,9 +16,13 @@ yarn run build
 ```
 
 ### 插件开发
-https://www.npmjs.com/package/petgpt-plugin-template
-- 这个是模板
-- 修改完后，上传到npm
+- [插件模板](https://www.npmjs.com/package/petgpt-plugin-template)
+- [chatgpt插件](https://www.npmjs.com/package/petgpt-plugin-chatgpt)
+- [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
+
+---
+
+- 模板修改完后，上传到npm
 - 在setting页面，输入插件的名字，例如：petgpt-plugin-test，点击install，就可以安装了（需要有node环境，能运行npm命令）
 - 插件会自动下载到app.getPath('userData')/node_modules下，依赖会自动添加到.getPath('userData')下的package.json里的dependencies里
 - electron暴露给插件的能力，见lib/types.ts里的定义
@@ -43,8 +47,9 @@ https://www.npmjs.com/package/petgpt-plugin-template
 高级功能：
 - [x] 插件系统
   - [x] 插件的在线下载、更新、删除 
-  - [x] 插件模板：https://www.npmjs.com/package/petgpt-plugin-template
-  - [x] chatgpt插件：https://www.npmjs.com/package/petgpt-plugin-chatgpt
+  - [x] [插件模板](https://www.npmjs.com/package/petgpt-plugin-template)
+  - [x] [chatgpt插件](https://www.npmjs.com/package/petgpt-plugin-chatgpt)
+  - [x] [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
 - [ ] 拖动的时候，屏幕不同边缘检测
 - [ ] 根据功能，进行页面布局设计
 - [ ] chatgpt
