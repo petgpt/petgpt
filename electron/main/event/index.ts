@@ -205,5 +205,13 @@ export default {
                 return window.webContents.getURL()
             }
         })
+
+        // pin current window
+        ipcMain.on('pinCurrentWindow', (event: IpcMainEvent, pin: boolean) => {
+            const window = BrowserWindow.getFocusedWindow()
+            if (window) {
+                window.setAlwaysOnTop(pin)
+            }
+        })
     }
 }
