@@ -1,12 +1,16 @@
 <template>
   <el-container class="chatgpt">
-    <el-aside class="chatgpt-aside">
-      <chatgpt-aside @changePlugin="changePluginHandler"></chatgpt-aside>
-    </el-aside>
+<!--    <el-aside class="chatgpt-aside">-->
+    <chatgpt-aside @changePlugin="changePluginHandler" :is-hide="hide"></chatgpt-aside>
+    <div style="display: flex;flex-direction: column;justify-content: center;" @click="hideMenuHandler">
+      <svg v-if="!hide" t="1681638156613" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2207" width="17" height="17"><path d="M825.6 179.2 467.2 537.6c-12.8 12.8-25.6 12.8-38.4 0L422.4 531.2c-12.8-12.8-12.8-25.6 0-38.4l358.4-358.4c12.8-12.8 25.6-12.8 38.4 0l6.4 6.4C838.4 153.6 838.4 166.4 825.6 179.2z" p-id="2208" fill="#515151"></path><path d="M467.2 486.4l358.4 358.4c12.8 12.8 12.8 25.6 0 38.4l-6.4 6.4c-12.8 12.8-25.6 12.8-38.4 0L422.4 531.2c-12.8-12.8-12.8-25.6 0-38.4l6.4-6.4C441.6 473.6 454.4 473.6 467.2 486.4z" p-id="2209" fill="#515151"></path><path d="M627.2 179.2 268.8 537.6C256 550.4 243.2 550.4 230.4 537.6L224 531.2c-12.8-12.8-12.8-25.6 0-38.4l358.4-358.4c12.8-12.8 25.6-12.8 38.4 0l6.4 6.4C640 153.6 640 166.4 627.2 179.2z" p-id="2210" fill="#515151"></path><path d="M268.8 486.4l358.4 358.4c12.8 12.8 12.8 25.6 0 38.4l-6.4 6.4c-12.8 12.8-25.6 12.8-38.4 0L224 531.2c-12.8-12.8-12.8-25.6 0-38.4l6.4-6.4C243.2 473.6 256 473.6 268.8 486.4z" p-id="2211" fill="#515151"></path></svg>
+      <svg v-else t="1681640074672" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2408" width="17" height="17"><path d="M224 844.8l358.4-358.4c12.8-12.8 25.6-12.8 38.4 0l6.4 6.4c12.8 12.8 12.8 25.6 0 38.4l-358.4 358.4c-12.8 12.8-25.6 12.8-38.4 0l-6.4-6.4C211.2 870.4 211.2 857.6 224 844.8z" p-id="2409" fill="#515151"></path><path d="M582.4 537.6 224 179.2c-12.8-12.8-12.8-25.6 0-38.4l6.4-6.4c12.8-12.8 25.6-12.8 38.4 0l358.4 358.4c12.8 12.8 12.8 25.6 0 38.4L620.8 537.6C608 550.4 588.8 550.4 582.4 537.6z" p-id="2410" fill="#515151"></path><path d="M422.4 844.8l358.4-358.4c12.8-12.8 25.6-12.8 38.4 0l6.4 6.4c12.8 12.8 12.8 25.6 0 38.4l-358.4 358.4c-12.8 12.8-25.6 12.8-38.4 0l-6.4-6.4C409.6 870.4 409.6 857.6 422.4 844.8z" p-id="2411" fill="#515151"></path><path d="M780.8 537.6 422.4 179.2c-12.8-12.8-12.8-25.6 0-38.4l6.4-6.4c12.8-12.8 25.6-12.8 38.4 0l358.4 358.4c12.8 12.8 12.8 25.6 0 38.4l-6.4 6.4C806.4 550.4 793.6 550.4 780.8 537.6z" p-id="2412" fill="#515151"></path></svg>
+    </div>
+<!--    </el-aside>-->
     <el-container>
-      <el-header class="chatgpt-header">
-        <chatgpt-header></chatgpt-header>
-      </el-header>
+<!--      <el-header class="chatgpt-header">-->
+<!--        <chatgpt-header></chatgpt-header>-->
+<!--      </el-header>-->
       <el-main class="chatgpt-main">
         <chat-text ref="chatText"></chat-text>
       </el-main>
@@ -99,6 +103,10 @@ onMounted(async () => {
   ipcRenderer.on('updateSlotMenu', (event: IpcRendererEvent, args) => {
     fetchSlotData()
   })
+
+  ipcRenderer.on('hideMenu', () => {
+    hide.value = true
+  })
 })
 
 /**
@@ -190,6 +198,12 @@ function changePluginHandler(isClearContext: boolean) {
   fetchSlotData()
   chatText.value.clearChatContext(isClearContext)
 }
+
+const hide = ref(false)
+function hideMenuHandler() {
+  hide.value = !hide.value
+}
+
 </script>
 
 <style scoped lang="less">
@@ -229,8 +243,8 @@ function changePluginHandler(isClearContext: boolean) {
     --el-footer-height: 70px;
   }
   &-aside{
-    width: 100px;
-    border-right: 1px solid black;
+    width: auto;
+    //border-right: 1px solid black;
   }
 }
 </style>

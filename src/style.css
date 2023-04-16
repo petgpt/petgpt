@@ -157,3 +157,8 @@ tr:nth-child(even) {
 .el-container{
   height: 100% !important;
 }
+
+.el-menu{
+  margin: 0 !important;
+  border-bottom-left-radius: 20px;
+}

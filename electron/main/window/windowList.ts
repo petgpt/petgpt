@@ -7,7 +7,7 @@ import {
     Change_Image,
     Change_Image_Replay, Detail_Window_Height, Detail_Window_Width,
     Main_Window_Height,
-    Main_Window_Width,
+    Main_Window_Width, Set_Detail_Window_Pos,
     Set_Main_Window_Pos
 } from "../../../src/utils/events/constants";
 import dbMap from "../data/db";
@@ -166,6 +166,27 @@ windowList.set(IWindowList.PET_WINDOW, {
                 }
             } catch (e){
                 console.log(`setBounds error:`, e)
+            }
+        })
+
+        // 设置其他窗口的位置
+        ipcMain.on(Set_Detail_Window_Pos, (evt, pos) => {
+            const window = BrowserWindow.getFocusedWindow();
+            // pos里的x、y是当前窗口的左边框 上边框 距离屏幕最左边与最上边的距离
+            let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
+            let screenW = screenWorkAreaSize.width
+            let screenH = screenWorkAreaSize.height
+            // console.log(`pos:`, pos, ` screenW: ${screenW}, screenH: ${screenH}, is x over half:`, pos.x > screenW / 2)
+            if (pos.x < screenW / 7) {
+                pos.width = 450
+                window.setBounds(pos);
+                window.webContents.send('hideMenu')
+            } else if (pos.x > (screenW / 4) * 2) {
+                pos.width = 450
+                window.setBounds(pos);
+                window.webContents.send('hideMenu')
+            } else {
+                window.setBounds(pos);
             }
         })
     }

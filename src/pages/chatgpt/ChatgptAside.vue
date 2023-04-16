@@ -1,18 +1,18 @@
 <template>
-  <el-scrollbar>
-    <el-menu :collapse="isCollapse" :default-active="defaultActiveMenu">
-      <el-menu-item v-for="(info, index) in pluginsConfigList" :index="`${index}`" @click="onPluginClick(index)">
-        <span>{{info.name.slice(14)}}</span>
-      </el-menu-item>
-    </el-menu>
-  </el-scrollbar>
+<!--  <el-scrollbar view-style="height:100%;">-->
+  <el-menu :collapse="isCollapse" :default-active="defaultActiveMenu" v-if="!isHide">
+    <el-menu-item v-for="(info, index) in pluginsConfigList" :index="`${index}`" @click="onPluginClick(index)">
+      <span>{{info.name.slice(14)}}</span>
+    </el-menu-item>
+  </el-menu>
+  <!--  </el-scrollbar>-->
 </template>
 
 <script setup lang="ts">
 import {ipcRenderer} from "electron";
-import {nextTick, onMounted, ref} from "vue";
-import {PluginInfo} from "../Setting.vue";
+import {nextTick, onMounted, ref, toRef} from "vue";
 import {useChatStore} from "../../store";
+import {PluginInfo} from "../../utils/types/types";
 
 const defaultActiveMenu = ref('0')
 const isCollapse = ref(false)
@@ -48,6 +48,9 @@ onMounted(() => {
     })
   })
 })
+
+const props = defineProps(["isHide"]);
+let isHide = toRef(props, 'isHide')
 </script>
 
 <style scoped lang="less">

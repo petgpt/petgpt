@@ -16,7 +16,7 @@ export default {
     setConfig() {
         dbSetIfNotPresent(DBList.Config_DB, Main_Window_Width, 260)
         dbSetIfNotPresent(DBList.Config_DB, Main_Window_Height, 220)
-        dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Width, 1200)
+        dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Width, 900)
         dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Height, 600)
         dbSetIfNotPresent(DBList.Config_DB, 'baseDir', app.getPath('userData'))
     },

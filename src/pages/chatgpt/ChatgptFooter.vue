@@ -48,7 +48,6 @@ let firstChunk = true // 是否是第一次返回数据，如果是的话，不�
 let options = reactive({
   parentMessageId: ''
 })
-const chatText = ref()
 const controller = new AbortController();
 const signal = controller.signal;
 

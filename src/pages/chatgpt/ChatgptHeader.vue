@@ -1,10 +1,6 @@
 <template>
   <div>
-    <h3>
-      chatgpt功能测试
-      <el-button type="primary" size="small" @click="pushRouter">跳转回detail页面</el-button>
-      <IpInfo></IpInfo>
-    </h3>
+<!--    <IpInfo></IpInfo>-->
   </div>
 </template>
 

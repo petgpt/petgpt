@@ -1,4 +1,5 @@
 export const Set_Main_Window_Pos = 'Set_Main_Window_Pos'
+export const Set_Detail_Window_Pos = 'Set_Detail_Window_Pos'
 
 export const Create_Window = 'Create_Window'
 
