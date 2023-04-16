@@ -13,33 +13,43 @@
       <div class="setting-container">
         <el-row v-for="(info, index) in pluginsConfigList" class="setting-container-item">
           <el-col :span="24">
-            <el-card :body-style="{ padding: '8px', width: '300px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}">
-              <div>name: {{info.name}}</div>
-              <div>version: {{info.version}}</div>
-              <div>description: {{info.description}}</div>
-              <div>
+            <el-card :body-style="{ padding: '8px', width: '300px', display: 'flex', flexDirection: 'column'}">
+              <el-row>
+                <el-text tag="b">{{info.name}} - {{info.version}}</el-text>
+              </el-row>
+              <el-row style="text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">
+                <el-text truncated>{{info.description}}</el-text>
+              </el-row>
+              <el-row class="setting-tooltips">
                 <el-tooltip
                     class="box-item"
                     effect="light"
                     content="设置"
                     placement="top">
-                  <el-icon @click="configClickHandler(index)" style="cursor: pointer" :size="17"><Setting/></el-icon>
+                  <el-icon @click="configClickHandler(index)" class="setting-tooltips-item" style="cursor: pointer" :size="17"><Setting/></el-icon>
                 </el-tooltip>
                 <el-tooltip
-                    class="box-item"
+                    class="box-item setting-tooltips-item"
                     effect="light"
                     content="更新插件"
                     placement="top">
-                  <el-icon @click="updatePlugin(index)" style="cursor: pointer" :size="17"><Refresh /></el-icon>
+                  <el-icon @click="updatePlugin(index)" class="setting-tooltips-item" :size="17"><Refresh /></el-icon>
                 </el-tooltip>
                 <el-tooltip
-                    class="box-item"
+                    class="box-item setting-tooltips-item"
                     effect="light"
                     content="删除插件"
                     placement="top">
-                  <el-icon @click="deletePlugin(index)" style="cursor: pointer" :size="17"><Delete /></el-icon>
+                  <el-icon @click="deletePlugin(index)" class="setting-tooltips-item" :size="17"><Delete /></el-icon>
                 </el-tooltip>
-              </div>
+                <el-tooltip
+                    class="box-item setting-tooltips-item"
+                    effect="light"
+                    content="启用插件"
+                    placement="top">
+                  <el-icon @click="enablePlugin(index)" class="setting-tooltips-item" :size="17"><Open /></el-icon>
+                </el-tooltip>
+              </el-row>
             </el-card>
             <el-progress v-show="upOrDeleteProgress[index].percentage !== 0" :percentage="upOrDeleteProgress[index].percentage" :status="upOrDeleteProgress[index].status" :text-inside="true" :show-text="false" />
           </el-col>
@@ -72,22 +82,10 @@
 
 <script setup lang="ts">
 import {onMounted, reactive, ref} from "vue";
-import { ipcRenderer } from  "electron";
+import {ipcRenderer} from "electron";
 import {IPluginConfig} from "../../electron/main/plugin/share/types";
 import {sendToMain} from "../utils/dataSender";
-import ChatgptLayout from "./ChatgptLayout.vue";
-
-interface Rule{
-  required: boolean,
-  message: string,
-  trigger: string
-}
-export interface PluginInfo{ // plugin的基本信息
-  name: string,
-  version:string,
-  description: string,
-  config: IPluginConfig[] // plugin需要的config配置条目，例如key、token等的配置
-}
+import {PluginInfo, Progress, Rule} from "../utils/types/types";
 
 let currentRules = reactive<Rule[]>([])
 let currentConfigIndex = ref(0)
@@ -95,7 +93,7 @@ const centerDialogVisible = ref(false)
 let pluginsConfigList = ref<PluginInfo[]>([])
 const getConfigByIndex = (index: number) => pluginsConfigList.value[index]
 let dialogConfigList = reactive<IPluginConfig[]>([])
-let dialogModelData = reactive({})
+let dialogModelData = reactive<any>({})
 async function configClickHandler(index: number) {
   dialogModelData = reactive({})
   currentRules = reactive<Rule[]>([])
@@ -147,10 +145,7 @@ async function getPluginsNameList() {
 }
 
 const pluginNameToInstall = ref('')
-interface Progress {
-  percentage: number,
-  status: string
-}
+
 const upOrDeleteProgress = reactive<Progress[]>([])
 const installPercentage = ref(0)
 const installStatus = ref('')
@@ -167,6 +162,10 @@ function updatePlugin(index: number) {
 function deletePlugin(index: number) {
   sendToMain('uninstallPlugin', getConfigByIndex(index).name)
   setProgressBegin(index)
+}
+
+function enablePlugin(index: number) {
+
 }
 
 function setProgressBegin(index: number) {
@@ -281,6 +280,13 @@ onMounted(async () => {
     &-button {
 
     }
+  }
+}
+.setting-tooltips{
+  margin-top: 4px;
+  &-item:nth-child(n + 2) {
+    margin-left: 4px;
+    cursor: pointer;
   }
 }
 </style>

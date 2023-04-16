@@ -17,7 +17,8 @@ import {
     IpcMainEvent,
     IpcMainInvokeEvent,
     shell,
-    desktopCapturer
+    desktopCapturer,
+    BrowserWindow
 } from "electron";
 import {INotification} from "../../../src/utils/types/types";
 import {getFileType, isDirectory, showNotification} from "../utils";
@@ -186,6 +187,23 @@ export default {
                 buttonLabel: 'Save video',
                 defaultPath: `vid-${Date.now()}.webm`
             });
+        })
+
+        // header的模拟关闭与最小化
+        ipcMain.on('close', () => {
+            BrowserWindow.getFocusedWindow().close();
+        })
+        ipcMain.on('minus', () => {
+            BrowserWindow.getFocusedWindow().minimize();
+        })
+
+        // 获取路由信息
+        ipcMain.handle('get-router-location', () => {
+            const window = BrowserWindow.getFocusedWindow()
+            if (window) {
+                // console.log(`${new Date().getMilliseconds()}, focusedWindow.getURL():`, window.webContents.getURL())
+                return window.webContents.getURL()
+            }
         })
     }
 }

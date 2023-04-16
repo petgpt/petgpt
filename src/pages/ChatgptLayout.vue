@@ -23,7 +23,7 @@
                   <el-icon v-if="slotInfo.menu.type === 'dialog'" @click="centerDialogVisible = true" style="cursor: pointer" :size="17"><Setting/></el-icon>
                   <el-dialog v-model="centerDialogVisible" :title="slotInfo.description" width="60%" :show-close="false"
                              :close-on-click-modal="false" center>
-                    <div v-for="(dialogInfo, index) in slotData[index].value">
+                    <div v-for="dialogInfo in slotData[index].value">
                       <el-popover
                           placement="top-start"
                           title="systemMessage"
@@ -104,7 +104,7 @@ onMounted(async () => {
 /**
  * 根据插件的slotMenu定义，构建v-model绑定的slotData
  */
-const slotData = reactive([
+const slotData = reactive<any[]>([
   {},{},{},{},{}
 ])
 
@@ -145,7 +145,7 @@ function buildSlotData(currentPluginSlotMenuList: SlotMenu[] | undefined) {
     } else if (slotMenu.menu.type === 'select') {
       slotData[index] = {
         type: 'select',
-        options: slotMenu.menu.child?.map((child) => {// options是渲染select的数据
+        options: slotMenu.menu.child?.map((child: any) => {// options是渲染select的数据
           return {label: child.name, value: child.value}
         }),
         value: slotMenu.menu.value || slotMenu.menu.child?.[0].value // 如果传来的value有东西，那么就是select默认选中的值，否则就是第一个
@@ -153,7 +153,7 @@ function buildSlotData(currentPluginSlotMenuList: SlotMenu[] | undefined) {
     } else if (slotMenu.menu.type === 'dialog') {
       slotData[index] = {
         type: 'dialog',
-        value: slotMenu.menu.child?.map((child) => {
+        value: slotMenu.menu.child?.map((child: any) => {
           return {name: child.name, value: child.default, message: child.message}
         })
       };
@@ -215,6 +215,7 @@ function changePluginHandler(isClearContext: boolean) {
     //overflow: hidden;
     flex-direction: column;
     //border: 1px solid #000000;
+    margin: 10px;
   }
   &-footer{
     display: flex;

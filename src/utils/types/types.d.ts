@@ -1,6 +1,22 @@
 // global
-import type { ChatMessage } from '../chatgpt/types'
+import type {ChatMessage} from '../chatgpt/types'
+import {IPluginConfig} from "../../../electron/main/plugin/share/types";
 
+export interface Progress {
+  percentage: number,
+  status: string
+}
+export interface Rule{
+  required: boolean,
+  message: string,
+  trigger: string
+}
+export interface PluginInfo{ // plugin的基本信息
+  name: string,
+  version:string,
+  description: string,
+  config: IPluginConfig[] // plugin需要的config配置条目，例如key、token等的配置
+}
 export type IPluginNameType = 'simple' | 'scope' | 'normal' | 'unknown'
 
 export interface IPluginProcessResult {

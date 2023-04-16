@@ -187,6 +187,11 @@ windowList.set(IWindowList.PET_DETAIL_WINDOW, {
                 contextIsolation: false, // 禁用上下文隔离, 如果不设置这个新建的窗口里process信息获取不到
             }
         }
+        if (process.platform === 'win32') {
+            options.frame = false
+            options.backgroundColor = '#00000000'
+            options.transparent = true // 透明背景
+        }
         return options;
     },
     callback (petDetailWindow) {
@@ -224,6 +229,11 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
                 contextIsolation: false, // 禁用上下文隔离, 如果不设置这个新建的窗口里process信息获取不到
             }
         }
+        if (process.platform === 'win32') {
+            options.frame = false
+            options.backgroundColor = '#00000000'
+            options.transparent = true // 透明背景
+        }
         return options;
     },
     callback (chatWindow) {
@@ -260,6 +270,11 @@ windowList.set(IWindowList.PET_SETTING_WINDOW, {
                 nodeIntegration: true, // 启用Node integration
                 contextIsolation: false, // 禁用上下文隔离, 如果不设置这个新建的窗口里process信息获取不到
             }
+        }
+        if (process.platform === 'win32') {
+            options.frame = false
+            options.backgroundColor = '#00000000'
+            options.transparent = true // 透明背景
         }
         return options;
     },

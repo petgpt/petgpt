@@ -90,6 +90,7 @@ import {
 } from "../utils/events/constants";
 import {DBList, IWindowList} from "../../electron/main/types/enum";
 import {writeFile} from "fs";
+import {RecordRTCPromisesHandler} from 'recordrtc';
 
 const platform = computed(() => process.platform); // 获取当前的操作系统
 
@@ -281,7 +282,7 @@ function dbDelete() {
 // 【end】----------- 配置文件的CRUD -----------【end】
 
 // 【start】----------- audio capture -----------【start】
-import {RecordRTCPromisesHandler} from 'recordrtc';
+
 
 const os = ref('')
 const select = ref('')

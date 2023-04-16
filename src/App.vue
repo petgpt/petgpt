@@ -1,22 +1,15 @@
 <template>
 <!--  <div class="test" :style="{ color: variables['greenColor'] }">click to open detail window：{{ titleStore.title }}</div>-->
   <div class="main_app">
-    <el-container>
-      <el-main>
-        <div class="layout">
-          <div class="layout-right">
-            <router-view />
-          </div>
-        </div>
-      </el-main>
-    </el-container>
+    <head-tools></head-tools>
   </div>
 </template>
 
 <script setup lang="ts">
 import {useTitleStore} from './store';
 import {computed} from "vue";
-import variables from '../src/assets/css/variables.module.less'; // less变量，可以在脚本中获取
+import variables from '../src/assets/css/variables.module.less';
+import HeadTools from "./pages/HeadTools.vue"; // less变量，可以在脚本中获取
 
 // ---------------- 全局状态 store的引入 ---------------- pinia使用更简单
 const titleStore = useTitleStore()
