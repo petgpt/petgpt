@@ -102,6 +102,12 @@ export default {
                 // console.log(`[ipcMain] plugin.${purePluginName}.slot.push`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
                 ctx.emitter.emit(`plugin.${purePluginName}.slot.push`, JSON.stringify(newSlotData))
             })
+
+            // 调用clear方法
+            ipcMain.on(`plugin.${purePluginName}.func.clear`, (event: IpcMainEvent, data) => {
+                // console.log(`[ipcMain] plugin.${purePluginName}.func.clear`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
+                ctx.emitter.emit(`plugin.${purePluginName}.func.clear`)
+            })
         })
 
         // 监听插件返回的应答数据

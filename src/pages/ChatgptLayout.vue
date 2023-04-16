@@ -15,7 +15,7 @@
         <chat-text ref="chatText"></chat-text>
       </el-main>
       <el-footer class="chatgpt-footer">
-        <chatgpt-footer @upsertLatestText="upsertLatestText">
+        <chatgpt-footer @upsertLatestText="upsertLatestText" @clearCurrentChat="clearChatHandler">
           <template v-for="(slotInfo, index) in currentPluginSlotInfo" v-slot:[`slot`+slotInfo.slot]="{ data }">
             <el-popover
                 placement="top-start"
@@ -203,6 +203,10 @@ function hideMenuHandler() {
   hide.value = !hide.value
 }
 
+// clear chat
+function clearChatHandler() {
+  chatText.value.clearChatContext(true)
+}
 </script>
 
 <style scoped lang="less">
