@@ -56,6 +56,10 @@ class LifeCycle {
   }
 
   private onReady () {
+    // 闪烁问题：
+    // https://github.com/electron/electron/issues/12130#issuecomment-627198990
+    app.commandLine.appendSwitch('wm-window-animations-disabled');
+
     app.whenReady().then(() => {
       config.setConfig()
 
