@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 // ---------------- header ----------------
-import {onMounted, ref} from "vue";
+import {onBeforeMount, ref} from "vue";
 import {ipcRenderer} from "electron";
 import {sendToMain} from "../utils/dataSender";
 import {
@@ -43,10 +43,13 @@ import {DBList} from "../../electron/main/types/enum";
 const os = ref('')
 const routerLocation = ref('')
 
-onMounted(async () => {
-  os.value = await ipcRenderer.invoke('getOperatingSystem')
-  let fullLocation = await ipcRenderer.invoke('get-router-location')
-  routerLocation.value = fullLocation ? fullLocation.split('#')[1] : '/'
+onBeforeMount(() => {
+  ipcRenderer.invoke('getOperatingSystem').then(res => {
+    os.value = res
+  })
+  ipcRenderer.invoke('get-router-location').then(fullLocation => {
+    routerLocation.value = fullLocation ? fullLocation.split('#')[1] : '/'
+  })
   console.log(`routerLocation:`, routerLocation)
 
   ipcRenderer.invoke('db-get', {db: DBList.Config_DB, key: Detail_Window_Width}).then(res => mainW.value = res)

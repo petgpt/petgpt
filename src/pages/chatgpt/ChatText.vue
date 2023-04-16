@@ -1,16 +1,11 @@
 <template>
   <div>
-<!--    <el-button @click="addOneMessageTest('123', true)">addOneUserMessageTest</el-button>-->
-<!--    <el-button @click="addOneMessageTest('456', false)">addOneSysMessageTest</el-button>-->
     <el-button @click="deleteLastText">deleteLastText</el-button>
   </div>
   <div class="chat">
     <el-row v-for="(item, index) in chatList" :key="index" :class="`chat-${item.type} chat-item`">
       <el-col :span="20">
         <el-card :body-style="{ padding: '8px', background: item.type === 'user' ? 'linear-gradient(to right, rgb(0 225 255 / 20%), rgb(0 255 189 / 20%), rgb(150 0 0 / 20%))' : 'none' }">
-<!--          <div :class="`chat-${item.type}-info`">-->
-<!--            {{item.time}}-->
-<!--          </div>-->
           <div class="chat-content">
             <div v-html="textToHtml(item.text)"></div>
           </div>
@@ -26,8 +21,7 @@
 import {marked} from 'marked';
 import hljs from "highlight.js";
 import 'highlight.js/styles/base16/gruvbox-dark-hard.css';
-import {onMounted, reactive} from "vue";
-import {sleep} from "../../utils/common";
+import {onBeforeMount, reactive} from "vue";
 import {ChatItem} from "../../utils/types/types";
 import katex from "katex";
 import {ipcRenderer} from "electron";
@@ -76,26 +70,6 @@ let mdOptions = {
   xhtml: false
 };
 marked.setOptions(mdOptions);
-let testLatex = '$$f(x)=\\frac{P(x)}{Q(x)}$$\n' +
-    '\ntest两个dollar包裹的内联无法渲染: \n' +
-    '\n$$f(x)=\\frac{P(x)}{Q(x)}$$\n' +
-    '\n$2x - 5y =  8$  \n' + // 如果少了这行最前面的\n那么，前面的$$ $$中的内联就会渲染失败！！！！
-    '$3x + 9y =  -12$\n' +
-    '$7x \\times 2y \\neq 3z$\n'
-let testMd = '"Sure, here\'s an example of a short Python code:\n' +
-    '\n' +
-    '```python\n' +
-    'print("Hello, World!")\n' +
-    '```\n' +
-    '\n' +
-    'This code simply prints the string "Hello, World!" to the console when executed."';
-let testTable = '| Fruit  | Color | Taste     |\n' +
-    '|--------|-------|-----------|\n' +
-    '| Apple  | Red   | Sweet     |\n' +
-    '| Orange | Orange| Citrusy   |\n' +
-    '| Lemon  | Yellow| Sour      |\n' +
-    '| Banana | Yellow| Sweetish  |\n' +
-    '| Grape  | Purple| Sweet/Sour| \n';
 // 【end】----------- mardown  -----------【end】
 
 const getCurrentTime = () => new Date().toLocaleString()
@@ -158,18 +132,7 @@ function deleteLastText() {
   chatList.pop()
 }
 
-async function addOneMessageTest(id: string, isUser: boolean) {
-  for (let i = 0; i < 10; i++) {
-    upsertLatestText({
-      id: id,
-      type: isUser ? 'user' : 'system',
-      text: `${i}`
-    })
-    await sleep(200)
-  }
-}
-
-onMounted(() => {
+onBeforeMount(() => {
   ipcRenderer.on('upsertLatestText', (event, message: ChatItem) => {
     upsertLatestText(message)
   })
