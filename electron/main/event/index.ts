@@ -9,7 +9,7 @@ import {
     from "../../../src/utils/events/constants";
 
 import {
-    app as APP,
+    app,
     clipboard,
     dialog,
     globalShortcut,
@@ -50,7 +50,7 @@ export default {
         })
 
         // 配置文件打开
-        const STORE_PATH = APP.getPath('userData')
+        const STORE_PATH = app.getPath('userData')
         ipcMain.on('open-file', (event: IpcMainEvent, fileName: string) => {
             console.log(`STORE_PATH:${STORE_PATH}`)
             const abFilePath = path.join(STORE_PATH, fileName)
@@ -212,6 +212,11 @@ export default {
             if (window) {
                 window.setAlwaysOnTop(pin)
             }
+        })
+
+        ipcMain.on('RELOAD_APP', () => {
+            app.relaunch()
+            app.exit(0)
         })
     }
 }

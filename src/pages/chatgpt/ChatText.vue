@@ -1,7 +1,4 @@
 <template>
-  <div>
-    <el-button @click="deleteLastText">deleteLastText</el-button>
-  </div>
   <div class="chat">
     <el-row v-for="(item, index) in chatList" :key="index" :class="`chat-${item.type} chat-item`">
       <el-col :span="20">

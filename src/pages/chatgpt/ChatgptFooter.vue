@@ -33,7 +33,8 @@ const userInput = ref('');
 
 const emits = defineEmits(['upsertLatestText', 'clearCurrentChat'])
 const chatStore = useChatStore()
-function chatTest() {
+function chatTest(event: KeyboardEvent){
+  event.preventDefault()
   // 添加用户输入的文本
   emits('upsertLatestText', {
     id: uuidv4(),
