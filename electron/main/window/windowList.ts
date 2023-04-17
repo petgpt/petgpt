@@ -168,27 +168,6 @@ windowList.set(IWindowList.PET_WINDOW, {
                 console.log(`setBounds error:`, e)
             }
         })
-
-        // 设置其他窗口的位置
-        ipcMain.on(Set_Detail_Window_Pos, (evt, pos) => {
-            const window = BrowserWindow.getFocusedWindow();
-            // pos里的x、y是当前窗口的左边框 上边框 距离屏幕最左边与最上边的距离
-            let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
-            let screenW = screenWorkAreaSize.width
-            let screenH = screenWorkAreaSize.height
-            // console.log(`pos:`, pos, ` screenW: ${screenW}, screenH: ${screenH}, is x over half:`, pos.x > screenW / 2)
-            if (pos.x < screenW / 7) {
-                pos.width = 450
-                window.setBounds(pos);
-                window.webContents.send('hideMenu')
-            } else if (pos.x > (screenW / 4) * 2) {
-                pos.width = 450
-                window.setBounds(pos);
-                window.webContents.send('hideMenu')
-            } else {
-                window.setBounds(pos);
-            }
-        })
     }
 })
 
@@ -270,6 +249,32 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
         // 在窗口关闭时清除window对象
         chatWindow.on('closed', () => {
             chatWindow = null
+        })
+
+        let dbWidth = dbMap.get(DBList.Config_DB).get(Detail_Window_Width);
+        let dbHeight = dbMap.get(DBList.Config_DB).get(Detail_Window_Height);
+        let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
+        let screenW = screenWorkAreaSize.width
+        let screenH = screenWorkAreaSize.height
+        chatWindow.on('move', () => {
+            let chatPosition = chatWindow.getPosition();
+            let pos = {x: chatPosition[0], y: chatPosition[1], width: dbWidth, height: dbHeight} // 配置里的chat窗口宽高
+
+            if (pos.x < 0 || pos.y < 0 || pos.x + 450 > screenW || pos.y + 600 > screenH) {
+                return; // 如果超出边界，会回弹到边界位置
+            }
+
+            if (pos.x < screenW / 7) {
+                pos.width = 450;
+                chatWindow.setBounds(pos);
+                chatWindow.webContents.send('hideMenu');
+            } else if (pos.x > (screenW / 4) * 2) {
+                pos.width = 450;
+                chatWindow.setBounds(pos);
+                chatWindow.webContents.send('hideMenu');
+            } else {
+                chatWindow.setBounds(pos);
+            }
         })
     },
     listen(chatWindow){

@@ -47,7 +47,7 @@
                     </el-col>
                   </el-dialog>
                 </el-col>
-                <el-col v-if="slotInfo.menu.type === 'switch'" :span="2" style="display: flex;flex-direction: column;align-items: center;">
+                <el-col v-if="slotInfo.menu.type === 'switch'" :span="3" style="display: flex;flex-direction: column;align-items: center;">
                   <el-switch v-if="slotInfo.menu.type === 'switch'" v-model="slotData[index].value" />
                 </el-col>
                 <el-col v-if="slotInfo.menu.type === 'select'" :span="4" style="display: flex;flex-direction: column;align-items: center; margin-left: 10px">
@@ -173,7 +173,7 @@ function buildSlotData(currentPluginSlotMenuList: SlotMenu[] | undefined) {
 async function getPluginSlotMenu() {
   await ipcRenderer.invoke("plugin.getSlotMenu").then((infoList) => {
     pluginSlotInfoList.value = infoList
-    currentPluginSlotInfo.value = infoList[chatStore.state.activePluginIndex].menu
+    currentPluginSlotInfo.value = infoList[chatStore.state.activePluginIndex]?.menu
   })
 }
 
