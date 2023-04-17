@@ -7,6 +7,7 @@ import {showNotification} from "../utils";
 import {install, uninstall, update} from "../plugin/PluginHandler";
 import path from "path";
 import {handleStreamlinePluginName} from "../plugin/common";
+import {TextFileSync} from "@commonify/lowdb";
 
 export default {
     listen(pluginLoader: PluginLoader, ctx: PetExpose) {
@@ -37,17 +38,8 @@ export default {
         })
 
         ipcMain.handle('plugin.getAllPluginName', async (event: IpcMainEvent, pluginName: string) => {
-            let pluginInfoList = []
-            let allPluginsNameList = pluginLoader.getAllPluginsNameList();
-            for (const name of allPluginsNameList) {
-                let plugin: IPetPluginInterface = await pluginLoader.getPlugin(name);
-                pluginInfoList.push({
-                    name: name,
-                    version: plugin.version,
-                    description: plugin.description
-                })
-            }
-            return pluginInfoList
+            let list = await getPluginList();
+            return list
         })
 
         ipcMain.handle('plugin.getConfig', async (event: IpcMainEvent, pluginName: string) => {
@@ -156,6 +148,7 @@ export default {
         ipcMain.on('updatePlugin', async (event: IpcMainEvent, fullName: string) => {
             const res = await update([fullName])
             if (res.success) {
+                // TODO: 发送最新的插件信息，例如版本等
                 windowManger.get(IWindowList.PET_SETTING_WINDOW).webContents.send('updateSuccess', res.body[0])
             } else {
                 showNotification({
@@ -171,15 +164,15 @@ export default {
             for (const i in pluginList) {
                 const plugin: IPetPluginInterface = await pluginLoader.getPlugin(pluginList[i])
                 const pluginPath = path.join(APP.getPath('userData'), `/node_modules/${pluginList[i]}`)
-                const pluginPKG = await import(path.join(pluginPath, 'package.json'))
+                const pluginPKG = JSON.parse(new TextFileSync(path.join(pluginPath, 'package.json')).read())
 
                 const obj = {
                     name: handleStreamlinePluginName(pluginList[i]),
+                    version: pluginPKG.version,
+                    description: pluginPKG.description,
                     fullName: pluginList[i],
                     author: pluginPKG.author.name || pluginPKG.author,
-                    description: pluginPKG.description,
                     logo: 'file://' + path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
-                    version: pluginPKG.version,
                     homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
                     config: plugin.config(ctx)
                 }

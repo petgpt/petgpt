@@ -5,12 +5,15 @@ import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
 import {
     Change_Image,
-    Change_Image_Replay, Detail_Window_Height, Detail_Window_Width,
+    Change_Image_Replay,
+    Detail_Window_Height,
+    Detail_Window_Width,
     Main_Window_Height,
-    Main_Window_Width, Set_Detail_Window_Pos,
+    Main_Window_Width,
     Set_Main_Window_Pos
 } from "../../../src/utils/events/constants";
 import dbMap from "../data/db";
+import WindowManger from "./windowManger";
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -66,15 +69,22 @@ windowList.set(IWindowList.PET_WINDOW, {
     callback (petWindow) {
         const contextMenu = Menu.buildFromTemplate([
             {
-                label: '设置',
+                label: '重启应用',
                 click: function () {
-
-                } //打开相应页面
+                    app.relaunch()
+                    app.exit(0)
+                }
             },
             {
-                label: '切换皮肤',
+                label: '设置',
                 click: function () {
-
+                    WindowManger.get(IWindowList.PET_SETTING_WINDOW)?.show()
+                }
+            },
+            {
+                label: 'chat',
+                click: function () {
+                    WindowManger.get(IWindowList.PET_CHAT_WINDOW)?.show()
                 }
             },
             {

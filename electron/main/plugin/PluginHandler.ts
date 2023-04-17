@@ -21,7 +21,7 @@ export async function execCommand (cmd: string, modules: string[], where: string
             args = args.concat(`--proxy=${proxy}`)
         }
         try {
-            const npm = spawn('npm', args, { cwd: where, env: Object.assign({}, process.env, env) })
+            const npm = spawn('yarn', args, { cwd: where, env: Object.assign({}, process.env, env) })
 
             let output = ''
             npm.stdout?.on('data', (data: string) => {
@@ -42,7 +42,7 @@ export async function execCommand (cmd: string, modules: string[], where: string
             // for users who haven't installed node.js
             npm.on('error', (err: Error) => {
                 console.error(err)
-                console.error('NPM is not installed')
+                console.error('NPM is not installed') // TODO: 测试
             })
         } catch (e) {
             console.error(e as Error)
@@ -75,7 +75,7 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
         // install plugins must use fullNameList:
         // 1. install remote pacage
         // 2. install local pacage
-        const result = await execCommand('install', fullNameList, app.getPath('userData'), options, env)
+        const result = await execCommand('add', fullNameList, app.getPath('userData'), options, env)
         if (!result.code) {
             pkgNameList.forEach((pluginName: string) => {
                 lifeCycle.getPluginLoader().registerPlugin(pluginName)
@@ -150,7 +150,7 @@ export async function uninstall(plugins: string[]): Promise<IPluginHandlerResult
     if (pkgNameList.length > 0) {
         // uninstall plugins must use pkgNameList:
         // npm uninstall will use the package.json's name
-        const result = await execCommand('uninstall', pkgNameList, app.getPath('userData'))
+        const result = await execCommand('remove', pkgNameList, app.getPath('userData'))
         if (!result.code) {
             pkgNameList.forEach((pluginName: string) => {
                 lifeCycle.getPluginLoader().unregisterPlugin(pluginName)
@@ -199,10 +199,12 @@ export async function uninstall(plugins: string[]): Promise<IPluginHandlerResult
 export async function update(plugins: string[], options: IPluginHandlerOptions = {}, env?: IProcessEnv): Promise<IPluginHandlerResult<boolean>> {
     const processPlugins = plugins.map((item: string) => handlePluginNameProcess(console, item)).filter(item => item.success)
     const pkgNameList = processPlugins.map(item => item.pkgName)
+    console.log(`processPlugins: `, processPlugins, ` pkgNameList: `, pkgNameList)
     if (pkgNameList.length > 0) {
         // update plugins must use pkgNameList:
         // npm update will use the package.json's name
-        const result = await execCommand('update', pkgNameList, app.getPath('userData'), options, env)
+        pkgNameList.push('--latest')
+        const result = await execCommand('upgrade', pkgNameList, app.getPath('userData'), options, env)
         if (!result.code) {
             console.log('PLUGIN_HANDLER_PLUGIN_UPDATE_SUCCESS')
             // this.ctx.emit('updateSuccess', {

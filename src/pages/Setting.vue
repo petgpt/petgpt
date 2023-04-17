@@ -133,12 +133,11 @@ async function getPluginsNameList() {
 
   let pluginInfoList = await ipcRenderer.invoke('plugin.getAllPluginName')
   for (const pluginInfo of pluginInfoList) {
-    let config = await ipcRenderer.invoke('plugin.getConfig', pluginInfo.name)
     pluginsConfigList.value.push({
       name: pluginInfo.name,
       version: pluginInfo.version,
       description: pluginInfo.description,
-      config
+      config: pluginInfo.config
     })
     upOrDeleteProgress.push({percentage: 0, status: ''})
   }

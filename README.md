@@ -14,6 +14,10 @@ yarn run dev
 # build
 yarn run build
 ```
+### 前置条件
+- node环境：推荐nvm来管理node环境
+- yarn包管理工具，用于插件下载：npm install -g yarn
+
 
 ### 插件开发
 - [插件模板](https://www.npmjs.com/package/petgpt-plugin-template)
