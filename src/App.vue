@@ -91,6 +91,7 @@ body,
   overflow: auto;
   //text-align: center;
   font-size: 100%;
+  border-radius: 20px;
 }
 
 .layout {

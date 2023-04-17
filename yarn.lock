@@ -1362,6 +1362,11 @@ electron-clipboard-ex@^1.3.3:
     node-addon-api "^4.0.0"
     node-gyp-build "^4.2.3"
 
+electron-log@^5.0.0-beta.22:
+  version "5.0.0-beta.22"
+  resolved "https://registry.npmjs.org/electron-log/-/electron-log-5.0.0-beta.22.tgz#8a18300a665f1b368ad5928725d0a1f879920621"
+  integrity sha512-O3EmWQrsEU0elD8XzJRs6VuPKvaKdWgglggCgViY7UwlnoLkywLId6oIi8q5tMBrYLV93MauChKxalNmZFVb5g==
+
 electron-osx-sign@^0.6.0:
   version "0.6.0"
   resolved "https://registry.npmmirror.com/electron-osx-sign/-/electron-osx-sign-0.6.0.tgz"

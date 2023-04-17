@@ -104,7 +104,7 @@ export default {
 
         // 监听插件返回的应答数据
         ctx.emitter.on('upsertLatestText', (args: any) => {
-            console.log(`[ipMain] from plugin upsertLatestText`, ` args:`, args)
+            // console.log(`[ipMain] from plugin upsertLatestText`, ` args:`, args)
             windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.send('upsertLatestText', args)
         });
 
