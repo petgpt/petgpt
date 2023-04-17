@@ -3,6 +3,7 @@ import path from 'path'
 import resolve from 'resolve'
 import {IPetPlugin, IPluginLoader} from "./types";
 import {IEventBus, IPetPluginInterface, PetExpose} from "./share/types";
+import logger from "../utils/logger";
 
 /**
  * Local plugin loader, file system is required
@@ -49,7 +50,7 @@ export class PluginLoader implements IPluginLoader {
     const pluginDir = path.join(this.baseDir, 'node_modules/')
     // Thanks to hexo -> https://github.com/hexojs/hexo/blob/master/lib/hexo/load_plugins.js
     if (!fs.existsSync(pluginDir)) {
-      console.log(`${pluginDir} not exist`)
+      logger.info(`${pluginDir} not exist`)
       return false
     }
     const json = fs.readJSONSync(packagePath)
@@ -116,11 +117,11 @@ export class PluginLoader implements IPluginLoader {
     // 动态加载 ==> export default的东西
     const {default: pluginFunction} = await import(winPluginAbsolutePath)
         .then((m) => m)
-        .catch((e) => {console.log(`error: `, e)});
+        .catch((e) => {logger.info(`error: `, e)});
     const plugin: IPetPluginInterface = pluginFunction(this.ctx); // 动态引入后调用函数，返回IPetPluginInterface对象
     this.pluginMap.set(name, plugin)
     return plugin
-    // console.log(`plugin: `, plugin)
+    // logger.info(`plugin: `, plugin)
     // return undefined
   }
 

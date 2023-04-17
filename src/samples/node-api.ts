@@ -1,13 +1,14 @@
 import { lstat } from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { ipcRenderer } from 'electron'
+import log from "electron-log";
 
 ipcRenderer.on('main-process-message', (_event, ...args) => {
-  console.log('[Receive Main-process message]:', ...args)
+  // log.info('[Receive Main-process message]:', ...args)
 })
 
 lstat(cwd()).then(stats => {
-  console.log('[fs.lstat]', stats)
+  // log.info('[fs.lstat]', stats)
 }).catch(err => {
-  console.error(err)
+  log.error(err)
 })

@@ -7,6 +7,7 @@ import {IPluginProcessResult} from "../../../src/utils/types/types";
 import {getNormalPluginName, getProcessPluginName} from "./common";
 import lifeCycle from "../index";
 import {app} from "electron";
+import logger from "../utils/logger";
 
 
 export async function execCommand (cmd: string, modules: string[], where: string, options: IPluginHandlerOptions = {}, env: IProcessEnv = {}): Promise<IResult> {
@@ -59,7 +60,7 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
             // or will cause error
             if (lifeCycle.getPluginLoader().hasPlugin(item.pkgName)) {
                 installedPlugins.push(item.pkgName)
-                console.log(`[main] [install] Petgpt has already installed ${item.pkgName}`)
+                logger.info(`[main] [install] Petgpt has already installed ${item.pkgName}`)
                 return false
             }
             // if something wrong, filter it out
@@ -80,7 +81,7 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
             pkgNameList.forEach((pluginName: string) => {
                 lifeCycle.getPluginLoader().registerPlugin(pluginName)
             })
-            console.log(`==== PLUGIN_HANDLER_PLUGIN_INSTALL_SUCCESS ====`)
+            logger.info(`==== PLUGIN_HANDLER_PLUGIN_INSTALL_SUCCESS ====`)
             // this.ctx.emit('installSuccess', {
             //     title: this.ctx.i18n.translate<ILocalesKey>('PLUGIN_HANDLER_PLUGIN_INSTALL_SUCCESS'),
             //     body: [...pkgNameList, ...installedPlugins]
@@ -122,7 +123,7 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
         }
         return res
     } else {
-        console.log('PLUGIN_HANDLER_PLUGIN_INSTALL_SUCCESS')
+        logger.info('PLUGIN_HANDLER_PLUGIN_INSTALL_SUCCESS')
         // this.ctx.emit('installSuccess', {
         //     title: this.ctx.i18n.translate<ILocalesKey>('PLUGIN_HANDLER_PLUGIN_INSTALL_SUCCESS'),
         //     body: [...pkgNameList, ...installedPlugins]
@@ -137,9 +138,9 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
 
     // const result = await execCommand('install', plugins, app.getPath('userData'), options, env)
     // if (!result.code) {
-    //     console.log(`download success`)
+    //     logger.info(`download success`)
     // } else {
-    //     console.log(`download failed: `, {code: `${result.code}`, data: result.data})
+    //     logger.info(`download failed: `, {code: `${result.code}`, data: result.data})
     // }
     // return null;
 }
@@ -155,7 +156,7 @@ export async function uninstall(plugins: string[]): Promise<IPluginHandlerResult
             pkgNameList.forEach((pluginName: string) => {
                 lifeCycle.getPluginLoader().unregisterPlugin(pluginName)
             })
-            console.log('PLUGIN_HANDLER_PLUGIN_UNINSTALL_SUCCESS')
+            logger.info('PLUGIN_HANDLER_PLUGIN_UNINSTALL_SUCCESS')
             // this.ctx.emit('uninstallSuccess', {
             //     title: this.ctx.i18n.translate<ILocalesKey>('PLUGIN_HANDLER_PLUGIN_UNINSTALL_SUCCESS'),
             //     body: pkgNameList
@@ -199,14 +200,14 @@ export async function uninstall(plugins: string[]): Promise<IPluginHandlerResult
 export async function update(plugins: string[], options: IPluginHandlerOptions = {}, env?: IProcessEnv): Promise<IPluginHandlerResult<boolean>> {
     const processPlugins = plugins.map((item: string) => handlePluginNameProcess(console, item)).filter(item => item.success)
     const pkgNameList = processPlugins.map(item => item.pkgName)
-    console.log(`processPlugins: `, processPlugins, ` pkgNameList: `, pkgNameList)
+    logger.info(`processPlugins: `, processPlugins, ` pkgNameList: `, pkgNameList)
     if (pkgNameList.length > 0) {
         // update plugins must use pkgNameList:
         // npm update will use the package.json's name
         pkgNameList.push('--latest')
         const result = await execCommand('upgrade', pkgNameList, app.getPath('userData'), options, env)
         if (!result.code) {
-            console.log('PLUGIN_HANDLER_PLUGIN_UPDATE_SUCCESS')
+            logger.info('PLUGIN_HANDLER_PLUGIN_UPDATE_SUCCESS')
             // this.ctx.emit('updateSuccess', {
             //     title: this.ctx.i18n.translate<ILocalesKey>('PLUGIN_HANDLER_PLUGIN_UPDATE_SUCCESS'),
             //     body: pkgNameList

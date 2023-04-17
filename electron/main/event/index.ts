@@ -29,6 +29,7 @@ import path from "path";
 import fs from "fs";
 import dbMap from "../data/db";
 import {join} from "node:path";
+import logger from "../utils/logger";
 
 const clipboardEx = require('electron-clipboard-ex');
 
@@ -52,12 +53,12 @@ export default {
         // 配置文件打开
         const STORE_PATH = app.getPath('userData')
         ipcMain.on('open-file', (event: IpcMainEvent, fileName: string) => {
-            console.log(`STORE_PATH:${STORE_PATH}`)
+            logger.info(`STORE_PATH:${STORE_PATH}`)
             const abFilePath = path.join(STORE_PATH, fileName)
             if (fs.existsSync(abFilePath)) {
                 shell.openPath(abFilePath);
             } else {
-                console.log(`file not exists`)
+                logger.info(`file not exists`)
                 fs.writeFileSync(abFilePath, '{}')
                 setTimeout(() => shell.openPath(abFilePath), 1000)
             }
@@ -69,7 +70,7 @@ export default {
         });
         ipcMain.handle('db-get', (event: IpcMainEvent, args: {db: DBList, key: string}) => {
             let value = dbMap.get(args.db).get(args.key);
-            console.log(`args:`, args, ` value:`, value)
+            logger.debug(`[db-get] db:${args.db}, key:${args.key}, value: ${value}`)
             return value;
         })
         ipcMain.on('db-set', (event: IpcMainEvent, args: {db: DBList, key: string, value: string}) => {
@@ -82,22 +83,22 @@ export default {
         // 监听Create_Window事件 -> 创建窗口
         ipcMain.on(Create_Window, (evt, arg: {window: IWindowList, hash: string}) => {
             if (!windowManger.has(arg.window)) {
-                console.log(`create: `, arg.window)
+                logger.info(`create: `, arg.window)
                 windowManger.create(arg.window);
             } else {
-                console.log(`show: `, arg.window)
+                logger.info(`show: `, arg.window)
                 windowManger.get(arg.window).show();
             }
         })
 
         // main与renderer进程通信
         ipcMain.handle('ping', async (event: IpcMainInvokeEvent, ...args) => {
-            console.log(`[ipcMain.handle]arg: `, args)
+            logger.info(`[ipcMain.handle]arg: `, args)
             // 处理异步调用请求
             return {msg: "[ipcMain.handle]pong"};
         })
         ipcMain.on('ping', (event: IpcMainEvent, args) => {
-            console.log(`[ipcMain.on]arg:`, args); // 打印接收到的消息
+            logger.info(`[ipcMain.on]arg:`, args); // 打印接收到的消息
             event.sender.send('ping-replay', {msg: "[event.sender.send]pong"});
         });
         ipcMain.handle(Get_ClipBoard_Type, async (event: IpcMainInvokeEvent, ...args) => {
@@ -125,29 +126,29 @@ export default {
             new: string,
             old: string
         }) => {
-            console.log(`[ipcMain.on] old and new short key:`, args);
+            logger.info(`[ipcMain.on] old and new short key:`, args);
             if(args.old) globalShortcut.unregister(args.old)
             globalShortcut.register(args.new, () => {
                 // 调用截图方法
-                console.log(`[globalShortcut.registered] ${args.new} is pressed`) // 如果新绑定的按键被按下，就会在terminal打印出来！
+                logger.info(`[globalShortcut.registered] ${args.new} is pressed`) // 如果新绑定的按键被按下，就会在terminal打印出来！
             })
         });
         ipcMain.on(Reset_Short_Key, (event: IpcMainEvent, old) => {
-            console.log(`old key:`, old)
+            logger.info(`old key:`, old)
             globalShortcut.unregister(old)
         });
 
         // 选择文件夹
         ipcMain.on(Get_System_File_Path, (event: IpcMainEvent, args) => {
-            console.log(`[Get_System_File_Path] arg:`, args); // 打印接收到的消息
+            logger.info(`[Get_System_File_Path] arg:`, args); // 打印接收到的消息
 
             dialog.showOpenDialog({
                 properties: ['openDirectory']
             }).then(result => {
-                console.log(`[ipcMain.on Get_System_File_Path]result`, result, ` result.filePaths: `, result.filePaths)
+                logger.info(`[ipcMain.on Get_System_File_Path]result`, result, ` result.filePaths: `, result.filePaths)
                 if(!result.canceled) event.sender.send(Get_System_File_Path, {path: result.filePaths[0]});
             }).catch(err => {
-                console.log(err)
+                logger.info(err)
                 event.sender.send(Get_System_File_Path, {path: ''});
             })
         });
@@ -156,7 +157,7 @@ export default {
         ipcMain.on(Sys_Notification, (event: IpcMainEvent, options: INotification) => {
             showNotification({
                 ...options,
-                // clickFn: () => console.log(`notification clicked!/closed!`),
+                // clickFn: () => logger.info(`notification clicked!/closed!`),
             })
         });
 
@@ -201,7 +202,7 @@ export default {
         ipcMain.handle('get-router-location', () => {
             const window = BrowserWindow.getFocusedWindow()
             if (window) {
-                // console.log(`${new Date().getMilliseconds()}, focusedWindow.getURL():`, window.webContents.getURL())
+                // logger.info(`${new Date().getMilliseconds()}, focusedWindow.getURL():`, window.webContents.getURL())
                 return window.webContents.getURL()
             }
         })

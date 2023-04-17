@@ -3,6 +3,7 @@ import {Notification} from 'electron'
 import {lstat} from "node:fs/promises";
 import clipboardEx from "electron-clipboard-ex";
 import fs from 'fs';
+import logger from "./logger";
 
 export function showNotification(options: INotification) {
     const notification = new Notification({
@@ -12,7 +13,7 @@ export function showNotification(options: INotification) {
     })
 
     const handleClick = () => { // TODO: main与renderer线程咋都不能触发click事件？？
-        console.log(`handle click`)
+        logger.info(`handle click`)
         if (options.clickFn) {
             options.clickFn()
         }

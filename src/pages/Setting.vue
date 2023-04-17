@@ -86,6 +86,7 @@ import {ipcRenderer} from "electron";
 import {IPluginConfig} from "../../electron/main/plugin/share/types";
 import {sendToMain} from "../utils/dataSender";
 import {PluginInfo, Progress, Rule} from "../utils/types/types";
+import log from "electron-log";
 
 let currentRules = reactive<Rule[]>([])
 let currentConfigIndex = ref(0)
@@ -120,7 +121,7 @@ const confirmHandler = async (done: () => void) => {
   centerDialogVisible.value = false;
   let configByIndex = getConfigByIndex(currentConfigIndex.value);
   let purePluginName = configByIndex.name;
-  // console.log(`name:${purePluginName}, configData: `, dialogModelData)
+  // log.info(`name:${purePluginName}, configData: `, dialogModelData)
   sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, data: dialogModelData})
 
   pluginsConfigList.value = []
@@ -220,24 +221,24 @@ function setProgressFailed(type: 'install' | 'upOrDelete', index: number) {
 
 onMounted(async () => {
   await getPluginsNameList()
-  console.log(`pluginsConfigList:`, pluginsConfigList)
+  log.info(`pluginsConfigList:`, pluginsConfigList)
 
   ipcRenderer.on('installSuccess', (event, data) => {
-    console.log(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+    log.info(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
     getPluginsNameList()
-    console.log(`[after install success] pluginsConfigList:`, pluginsConfigList)
+    log.info(`[after install success] pluginsConfigList:`, pluginsConfigList)
     setProgressSuccess('install')
   });
 
   ipcRenderer.on('uninstallSuccess', (event, data) => {
-    console.log(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+    log.info(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
     setProgressSuccess('upOrDelete')
     getPluginsNameList()
-    console.log(`[after install success] pluginsConfigList:`, pluginsConfigList)
+    log.info(`[after install success] pluginsConfigList:`, pluginsConfigList)
   });
 
   ipcRenderer.on('updateSuccess', (event, data) => {
-    console.log(`updateSuccess: `, data)
+    log.info(`updateSuccess: `, data)
     setProgressSuccess('upOrDelete')
     getPluginsNameList()
   });

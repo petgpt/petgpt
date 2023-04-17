@@ -11,6 +11,7 @@ import config from '../main/data/config'
 import PluginLoader from "./plugin/PluginLoader";
 import {PetExpose} from "./plugin/share/types";
 import {EventEmitter} from "events";
+import logger from "./utils/logger";
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -83,9 +84,9 @@ class LifeCycle {
       globalShortcut.register('alt+c', () => {
         if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && windowManger.get(IWindowList.PET_CHAT_WINDOW).isVisible()) {
           windowManger.get(IWindowList.PET_CHAT_WINDOW).hide();
-          console.log(`hide`)
+          logger.info(`hide`)
         } else {
-          console.log(`show`)
+          logger.info(`show`)
           windowManger.get(IWindowList.PET_CHAT_WINDOW).show();
           windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.openDevTools()
         }

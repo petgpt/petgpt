@@ -8,15 +8,16 @@ import {install, uninstall, update} from "../plugin/PluginHandler";
 import path from "path";
 import {handleStreamlinePluginName} from "../plugin/common";
 import {TextFileSync} from "@commonify/lowdb";
+import logger from "../utils/logger";
 
 export default {
     listen(pluginLoader: PluginLoader, ctx: PetExpose) {
         let fullList = pluginLoader.getAllPluginsNameList();
         // fullList.forEach(async (pluginName) => {
         //   let plugin = await pluginLoader.getPlugin(pluginName);
-        //   console.log(`plugin: `, plugin)
+        //   logger.info(`plugin: `, plugin)
         // plugin.config();
-        // plugin.handle(DataType.Image).then(res => console.log(`handle res: `, res))
+        // plugin.handle(DataType.Image).then(res => logger.info(`handle res: `, res))
         // await plugin.stop()
         // });
         // ------------ plugin 测试 ------------
@@ -25,15 +26,15 @@ export default {
         let allPluginsNameList = pluginLoader.getAllPluginsNameList();
         allPluginsNameList.forEach((pluginName) => {
             pluginLoader.getPlugin(pluginName).then(plugin => {
-                // console.log(`\n======================== ${plugin.name} ${plugin.version} ========================`)
-                // console.log(`plugin: `, plugin)
+                // logger.info(`\n======================== ${plugin.name} ${plugin.version} ========================`)
+                // logger.info(`plugin: `, plugin)
                 //
                 // // 获取需要渲染的配置页面
                 // let iPluginConfigs = plugin.config(ctx);
-                // console.log(`plugin needed config: `, iPluginConfigs)
+                // logger.info(`plugin needed config: `, iPluginConfigs)
                 //
-                // console.log(`slotMenu: `, plugin.slotMenu)
-                // console.log(`======================== ${plugin.name} ${plugin.version} ========================\n`)
+                // logger.info(`slotMenu: `, plugin.slotMenu)
+                // logger.info(`======================== ${plugin.name} ${plugin.version} ========================\n`)
             })
         })
 
@@ -75,14 +76,14 @@ export default {
             let purePluginName = name.slice(14)
             // 监听插件的config的update事件
             ipcMain.on(`plugin.${purePluginName}.config.update`, (event: IpcMainEvent, args: {name: string, data: any}) => {
-                console.log(`[ipcMain] plugin.${purePluginName}.config.update`, ` args:`, args)
+                logger.info(`[ipcMain] plugin.${purePluginName}.config.update`, ` args:`, args)
                 // 只用发送核心的config数据，不用发name
                 ctx.emitter.emit(`plugin.${purePluginName}.config.update`, args.data)
             })
 
             // 监听插件的核心handle事件，调用插件的核心方法
             ipcMain.on(`plugin.${purePluginName}.func.handle`, (event: IpcMainEvent, args: {pluginName: string, input: any}) => {
-                console.log(`[ipcMain] plugin.${purePluginName}.func.handle`, ` args:`, args)
+                logger.info(`[ipcMain] plugin.${purePluginName}.func.handle`, ` args:`, args)
                 pluginLoader.getPlugin("petgpt-plugin-" + args.pluginName).then((plugin) => {
                     // 调用插件的handle方法
                     plugin.handle({type: DataType.Text, data: args.input})
@@ -91,20 +92,20 @@ export default {
 
             // 监听renderer的插件的slot的push事件，推送到插件中，提醒插件slot的数据更新了
             ipcMain.on(`plugin.${purePluginName}.slot.push`, (event: IpcMainEvent, newSlotData) => {
-                // console.log(`[ipcMain] plugin.${purePluginName}.slot.push`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
+                // logger.info(`[ipcMain] plugin.${purePluginName}.slot.push`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
                 ctx.emitter.emit(`plugin.${purePluginName}.slot.push`, JSON.stringify(newSlotData))
             })
 
             // 调用clear方法
             ipcMain.on(`plugin.${purePluginName}.func.clear`, (event: IpcMainEvent, data) => {
-                // console.log(`[ipcMain] plugin.${purePluginName}.func.clear`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
+                // logger.info(`[ipcMain] plugin.${purePluginName}.func.clear`, ` newSlotData(${typeof newSlotData})(len: ${newSlotData.length}):`, newSlotData)
                 ctx.emitter.emit(`plugin.${purePluginName}.func.clear`)
             })
         })
 
         // 监听插件返回的应答数据
         ctx.emitter.on('upsertLatestText', (args: any) => {
-            // console.log(`[ipMain] from plugin upsertLatestText`, ` args:`, args)
+            // logger.info(`[ipMain] from plugin upsertLatestText`, ` args:`, args)
             windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.send('upsertLatestText', args)
         });
 

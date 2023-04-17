@@ -13,6 +13,7 @@ import {ipcRenderer} from "electron";
 import {nextTick, onMounted, ref, toRef} from "vue";
 import {useChatStore} from "../../store";
 import {PluginInfo} from "../../utils/types/types";
+import log from "electron-log";
 
 const defaultActiveMenu = ref('0')
 const isCollapse = ref(false)
@@ -28,19 +29,19 @@ async function getPluginsNameList() {
       config: pluginInfo.config
     })
   }
-  console.log(`aside, pluginInfoList：`, pluginInfoList, ` pluginsConfigList:`, pluginsConfigList.value)
+  log.info(`aside, pluginInfoList：`, pluginInfoList, ` pluginsConfigList:`, pluginsConfigList.value)
 }
 
 const emits = defineEmits(['changePlugin'])
 function onPluginClick(index: number) {
-  console.log(`click: `, index)
+  log.info(`click: `, index)
   chatStore.state.activePluginIndex = index+""
   emits('changePlugin', true)
 }
 
 onMounted(() => {
   defaultActiveMenu.value = chatStore.getActivePluginIndex
-  // console.log(`defaultActiveMenu:`, defaultActiveMenu.value)
+  // log.info(`defaultActiveMenu:`, defaultActiveMenu.value)
   getPluginsNameList().then(() => {
     let purePluginNameList = pluginsConfigList.value.map(info => info.name);
     nextTick(() => {

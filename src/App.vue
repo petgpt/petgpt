@@ -9,7 +9,8 @@
 import {useTitleStore} from './store';
 import {computed} from "vue";
 import variables from '../src/assets/css/variables.module.less';
-import HeadTools from "./pages/HeadTools.vue"; // less变量，可以在脚本中获取
+import HeadTools from "./pages/HeadTools.vue";
+import log from "electron-log";
 
 // ---------------- 全局状态 store的引入 ---------------- pinia使用更简单
 const titleStore = useTitleStore()
@@ -31,8 +32,8 @@ titleStore.changeTitleAsync('新标题3').then(() => {}) // 调用action，异�
 // mutation.events : 是这次state改变的具体数据，包括改变前的值和改变后的值等等数据.
 // mutation.type : type表示这次变化是通过什么产生的。“direct” ：通过 action 变化的。”patch object“ ：通过 $patch 传递对象的方式改变的。“patch function” ：通过 $patch 传递函数的方式改变的
 let unsubscribe = titleStore.$subscribe((mutation, state) => { // 监听store的变化
-  console.log(`mutation:`, mutation)
-  console.log(`state.title:`, state.title)
+  log.info(`mutation:`, mutation)
+  log.info(`state.title:`, state.title)
 }, {});// 第二个参数是options，detached（默认组件卸载的时候取消订阅）。还有immediate、deep、flush等，对标watch
 unsubscribe() // 可以在onBeforeUnmount里调用
 
@@ -44,16 +45,16 @@ const unsubscribeAction = titleStore.$onAction(({
   after, // 钩子函数，在action函数执行完成返回或者resolves后执行
   onError, // 钩子函数，在action函数报错或者rejects后执行
 }) => {
-  console.log('action的函数名', name)
-  console.log('参数数组', args)
-  console.log('store实例', store)
+  log.info('action的函数名', name)
+  log.info('参数数组', args)
+  log.info('store实例', store)
 
   after((result) => {
-    console.log('$onAction after函数', result)
+    log.info('$onAction after函数', result)
   })
 
   onError(error => {
-    console.log('错误捕获', error)
+    log.info('错误捕获', error)
   })
 }, false); // 可以监听action的动作及结果等，第二个参数如果是true，组件卸载时，订阅依然有效（默认false）
 unsubscribeAction(); // 取消监听
@@ -69,8 +70,6 @@ setTimeout(()=> {
     titleStore.$reset();
   })
 }, 5000) //调用mutations，修改store中的test的值
-
-console.log("[App.vue]", `Hello world from Electron ${process.versions.electron}!`)
 
 // ---------------- 使用preload里暴露的api ----------------
 // window.electronAPI.loadPreferences().then(res => {})

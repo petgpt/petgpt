@@ -29,6 +29,7 @@ import {
   Set_Detail_Window_Pos,
 } from "../utils/events/constants";
 import {DBList} from "../../electron/main/types/enum";
+import log from "electron-log";
 
 const os = ref('')
 const routerLocation = ref('')
@@ -40,7 +41,7 @@ onBeforeMount(() => {
   ipcRenderer.invoke('get-router-location').then(fullLocation => {
     routerLocation.value = fullLocation ? fullLocation.split('#')[1] : '/'
   })
-  console.log(`routerLocation:`, routerLocation)
+  log.info(`routerLocation:`, routerLocation)
 })
 
 

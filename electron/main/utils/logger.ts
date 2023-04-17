@@ -21,7 +21,7 @@ class Logger implements ILogger{
         // log.initialize({ spyRendererConsole: true });
     }
 
-    info(msg: string | number): void {
+    info(...msg: any[]): void {
         log.info(msg)
     }
 

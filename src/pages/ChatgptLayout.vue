@@ -91,13 +91,14 @@ import {ipcRenderer, IpcRendererEvent} from "electron";
 import {SlotMenu} from "../../electron/main/plugin/share/types";
 import {useChatStore} from "../store";
 import {sendToMain} from "../utils/dataSender";
+import log from "electron-log";
 
 let chatStore = useChatStore();
 const pluginSlotInfoList = ref([])
 const currentPluginSlotInfo = ref<SlotMenu[]>()
 onMounted(async () => {
   await fetchSlotData()
-  console.log(`pluginSlotInfo`, pluginSlotInfoList, ` currentPluginSlotInfo:`, currentPluginSlotInfo, ` slotData:`, slotData)
+  log.info(`pluginSlotInfo`, pluginSlotInfoList, ` currentPluginSlotInfo:`, currentPluginSlotInfo, ` slotData:`, slotData)
 
   ipcRenderer.on('updateSlotMenu', (event: IpcRendererEvent, args) => {
     fetchSlotData()
@@ -120,7 +121,7 @@ const slotData = reactive<any[]>([
 watch(slotData, (newSlotData, oldSlotData) => {
   let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
   let channel = `plugin.${pluginPureName}.slot.push`;
-  console.log(`sendToMain:`, channel, ` data:`, newSlotData, ` oldData:`, oldSlotData)
+  log.info(`sendToMain:`, channel, ` data:`, newSlotData, ` oldData:`, oldSlotData)
   sendToMain(channel, newSlotData)
 })
 
@@ -143,7 +144,7 @@ function buildSlotData(currentPluginSlotMenuList: SlotMenu[] | undefined) {
   })
 
   currentPluginSlotMenuList?.forEach((slotMenu, index) => {
-    // console.log(`当前的slotMenu:`, slotMenu, `, index:${index}`)
+    // log.info(`当前的slotMenu:`, slotMenu, `, index:${index}`)
     if (slotMenu.menu.type === 'switch') {
       slotData[index] = {
         type: 'switch',
@@ -184,7 +185,7 @@ function closeHandler() {
 }
 
 function confirmHandler(data: any) {
-  console.log(`click slot confirm, data:`, data)
+  log.info(`click slot confirm, data:`, data)
   centerDialogVisible.value = false;
 }
 

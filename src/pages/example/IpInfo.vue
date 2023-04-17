@@ -18,6 +18,7 @@
 import {ref} from "vue";
 import HttpsProxyAgent from "https-proxy-agent";
 import fetch from "node-fetch";
+import log from "electron-log";
 
 const visible = ref(false)
 const ipInfoFromCip = ref('fetching...')
@@ -47,7 +48,7 @@ async function getProxyIpInfoFromIpInfo() {
 
   let response = await res.json();
 
-  console.log(`response: `, response)
+  log.info(`response: `, response)
   return response
 }
 /**
@@ -72,7 +73,7 @@ async function getProxyIpInfoFromCip () {
   let first = response.indexOf("<pre>IP\t: ");
   let second = response.indexOf("</pre>");
   let ip = response.substring(first + 5, second);
-  console.log(ip)
+  log.info(ip)
   return ip
 }
 

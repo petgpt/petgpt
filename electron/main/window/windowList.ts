@@ -14,6 +14,7 @@ import {
 } from "../../../src/utils/events/constants";
 import dbMap from "../data/db";
 import WindowManger from "./windowManger";
+import logger from "../utils/logger";
 
 const windowList = new Map<IWindowList, IWindowListItem>()
 
@@ -140,12 +141,12 @@ windowList.set(IWindowList.PET_WINDOW, {
         //     return { action: 'deny' }
         // })
         // window.webContents.on('will-navigate', (event, url) => { }) #344
-        // console.log(`window.webContents.id: `, window.webContents.id)
+        // logger.info(`window.webContents.id: `, window.webContents.id)
     },
     listen(petWindow){
         // 监听渲染进程的消息，要发往PetTest里的监听，通过这样的方式来。试过mitt/pinia/sendTo都不行。这样是可以的！！！！
         ipcMain.on(Change_Image, (event: IpcMainEvent, args) => {
-            console.log(`main receive changeImage, args:`, args)
+            logger.info(`main receive changeImage, args:`, args)
             // event.sender.send('changeImage-replay', args)
             petWindow.webContents.send(Change_Image_Replay, args)
         })
@@ -164,7 +165,7 @@ windowList.set(IWindowList.PET_WINDOW, {
             let winH = bounds.height
 
             let isOverlappingScreen = x < 0 || y < 0 || x + winW > screenW || y + winH > screenH;
-            // console.log(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
+            // logger.info(`isOverlappingScreen: ${isOverlappingScreen}, screenW: ${screenW}, screenH: ${screenH}, winW: ${winW}, winH: ${winH}, winX: ${x}, winY: ${y}`)
 
             try {
                 if (isOverlappingScreen) {
@@ -175,7 +176,7 @@ windowList.set(IWindowList.PET_WINDOW, {
                     window.setBounds(pos);
                 }
             } catch (e){
-                console.log(`setBounds error:`, e)
+                logger.info(`setBounds error:`, e)
             }
         })
     }

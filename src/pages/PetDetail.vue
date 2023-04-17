@@ -91,6 +91,7 @@ import {
 import {DBList, IWindowList} from "../../electron/main/types/enum";
 import {writeFile} from "fs";
 import {RecordRTCPromisesHandler} from 'recordrtc';
+import log from "electron-log";
 
 const platform = computed(() => process.platform); // 获取当前的操作系统
 
@@ -99,7 +100,7 @@ const platform = computed(() => process.platform); // 获取当前的操作系�
 const titleStore = useTitleStore()
 const computedStoreTitle = computed(() => titleStore.title)
 const persistStoreTestCount = computed(() => persistStoreTest.state.count)
-const storeClick = () => console.log(titleStore.title)
+const storeClick = () => log.info(titleStore.title)
 // 【end】---------------------- 全局状态获取 ----------------------【end】
 
 
@@ -107,7 +108,7 @@ const storeClick = () => console.log(titleStore.title)
 function ipcRenderInvokeTest() {
   // invoke方法会返回一个promise对象，可以通过then方法获取返回值。可以通过catch捕获主进程处理函数抛出的错误。
   ipcRenderer.invoke('ping', '[invoke]ping').then((arg: {msg: string}) => {
-    console.log(arg)
+    log.info(arg)
   })
 }
 
@@ -116,7 +117,7 @@ function ipcRenderSendTest() {
 
   // send方法不会返回任何结果，send方法不提供错误处理机制
   ipcRenderer.on('ping-replay', (event: IpcRendererEvent, arg: {msg: string}) => {
-    console.log(arg)
+    log.info(arg)
   })
 }
 // 【end】---------------------- main线程与renderer线程通信 ----------------------【end】
@@ -149,7 +150,7 @@ function  inputBlur () {
     ipcRenderer.send(Set_Short_Keys, params)
 
     // TODO: persist short key
-    console.log(`shortKey:`, params)
+    log.info(`shortKey:`, params)
   }
 }
 
@@ -190,7 +191,7 @@ const dirPath = ref('')
 function getSystemDirPath() {
   sendToMain(Get_System_File_Path)
   ipcRenderer.on(Get_System_File_Path, (event: IpcRendererEvent, arg: {path: string}) => {
-    console.log(`[renderer][on:${Get_System_File_Path}]获取到的文件夹路径:`, arg.path)
+    log.info(`[renderer][on:${Get_System_File_Path}]获取到的文件夹路径:`, arg.path)
     dirPath.value = arg.path
   })
 }
@@ -200,7 +201,7 @@ function getSystemDirPath() {
 const clipBoardType = ref('')
 function getClipBoardType() {
   ipcRenderer.invoke(Get_ClipBoard_Type).then((arg) => {
-    console.log(`[renderer][on:Get_ClipBoard_Type]获取到的剪贴板信息:`, arg)
+    log.info(`[renderer][on:Get_ClipBoard_Type]获取到的剪贴板信息:`, arg)
     clipBoardType.value = arg;
   }).catch((err) => {
     alert(`获取到的剪贴板信息 err:${JSON.stringify(err)}`)
@@ -243,7 +244,7 @@ function executeCmd() {
 //     // --incognito|--window-size="1080,1000"|--window-position="0,0" 为啥不行
 //     // "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --chrome-frame --app=https://www.baidu.com
 //   };
-//   console.log(`exe arg: `, args)
+//   log.info(`exe arg: `, args)
 //   ipcRenderer.send('cmd', args)
 // }
 // 【end】----------- 运行cmd -----------【end】
@@ -297,7 +298,7 @@ onMounted(async () => {
   ];
 
   for (let i in types) {
-    console.log(types[i] + "：" + (MediaRecorder.isTypeSupported(types[i]) ? "支持" : "不支持"));
+    log.info(types[i] + "：" + (MediaRecorder.isTypeSupported(types[i]) ? "支持" : "不支持"));
   }
 })
 
@@ -325,7 +326,7 @@ async function invokeSaveAsDialog(blob: any){
   if(canceled) return
 
   if (filePath) {
-    writeFile(filePath, buffer, () => console.log('video saved successfully!'));
+    writeFile(filePath, buffer, () => log.info('video saved successfully!'));
   }
 }
 // 【end】----------- audio capture -----------【end】

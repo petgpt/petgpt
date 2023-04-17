@@ -39,7 +39,7 @@ export interface IEventBus {
  * 暴露给plugin的logger能力
  */
 export interface ILogger{
-    info: (...msg: (string | number)[]) => void
+    info: (...msg: any[]) => void
     warn: (...msg: (string | number)[]) => void
     debug: (...msg: (string | number)[]) => void
     error: (...msg: (string | number | Error)[]) => void
