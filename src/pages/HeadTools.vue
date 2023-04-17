@@ -23,13 +23,7 @@
 import {onBeforeMount, ref} from "vue";
 import {ipcRenderer} from "electron";
 import {sendToMain} from "../utils/dataSender";
-import {
-  Detail_Window_Height,
-  Detail_Window_Width,
-  Set_Detail_Window_Pos,
-} from "../utils/events/constants";
-import {DBList} from "../../electron/main/types/enum";
-import log from "electron-log";
+import {logger} from "../utils/common";
 
 const os = ref('')
 const routerLocation = ref('')
@@ -41,7 +35,7 @@ onBeforeMount(() => {
   ipcRenderer.invoke('get-router-location').then(fullLocation => {
     routerLocation.value = fullLocation ? fullLocation.split('#')[1] : '/'
   })
-  log.info(`routerLocation:`, routerLocation)
+  logger(`routerLocation:`, routerLocation)
 })
 
 

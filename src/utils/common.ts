@@ -1,5 +1,5 @@
 import { isReactive, isRef, toRaw, unref } from 'vue'
-import {IStringKeyMap, SendResponseOptions} from "./types/types";
+import {sendToMain} from "./dataSender";
 
 export const getRawData = (args: any): any => {
     if (Array.isArray(args)) {
@@ -15,7 +15,7 @@ export const getRawData = (args: any): any => {
         return data
     }
     if (typeof args === 'object') {
-        const data = {} as IStringKeyMap
+        const data = {} as any
         Object.keys(args).forEach(key => {
             const item = args[key]
             if (isRef(item)) {
@@ -53,19 +53,6 @@ export function isFunction<T extends (...args: any[]) => any | void | never>(val
     return Object.prototype.toString.call(value) === '[object Function]'
 }
 
-export function sendResponse<T>(options: SendResponseOptions<T>) {
-    if (options.type === 'Success') {
-        return Promise.resolve({
-            message: options.message ?? null,
-            data: options.data ?? null,
-            status: options.type,
-        })
-    }
-
-    // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject({
-        message: options.message ?? 'Failed',
-        data: options.data ?? null,
-        status: options.type,
-    })
+export function logger(...args: any[]) {
+    sendToMain("logger", JSON.stringify({...args}))
 }

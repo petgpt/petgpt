@@ -24,8 +24,7 @@ import {sendToMain} from "../utils/dataSender";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
 import {ipcRenderer, IpcRendererEvent} from "electron";
-import {DBList, IWindowList} from "../../electron/main/types/enum";
-import log from "electron-log";
+import {logger} from "../utils/common";
 
 const toolsVisible = ref(false)
 const dragging = ref(false)
@@ -42,7 +41,7 @@ onBeforeMount(() => {
   window.addEventListener('mouseup', handleMouseUp, false)
 
   ipcRenderer.on(Change_Image_Replay, (event: IpcRendererEvent, args) => {
-    log.info(`收到changeImage, args:`, args)
+    logger(`收到changeImage, args:`, args)
     if (imageUrl.value === image2) {
       imageUrl.value = image
     } else {
@@ -78,12 +77,12 @@ function handleMouseMove (e: MouseEvent) {
   if (dragging.value) {
     const xLoc = e.screenX - wX.value
     const yLoc = e.screenY - wY.value
-    // log.info(`xLoc: ${xLoc}, yLoc: ${yLoc}, wX: ${wX.value}, wY: ${wY.value}, screen.w:${window.screen.width}, screen.h:${window.screen.height}, screenX: ${e.screenX}, screenY: ${e.screenY}`)
+    // logger(`xLoc: ${xLoc}, yLoc: ${yLoc}, wX: ${wX.value}, wY: ${wY.value}, screen.w:${window.screen.width}, screen.h:${window.screen.height}, screenX: ${e.screenX}, screenY: ${e.screenY}`)
 
     // if current window is edge of screen, then can't move out of screen
     // TODO: 这里的减去的值，和初始化的时候设置的PetWindow的大小有关。弄成配置项？
     if (xLoc < 0 || yLoc < 0 || xLoc > window.screen.width - 260 || yLoc > window.screen.height - 250) {
-      // log.info(`return`)
+      // logger(`return`)
       return
     }
 
@@ -106,7 +105,7 @@ function handleMouseUp (e: MouseEvent) {
   dragging.value = false
   if (screenX.value === e.screenX && screenY.value === e.screenY) {
     if (e.button === 0) { // left mouse
-      log.info("click", e)
+      logger("click", e)
       // sendToMain(Mouse_Event_Click, {
       //   test: 1
       // })
@@ -136,7 +135,7 @@ const openSettingWindow = () => sendToMain(Create_Window, {window: IWindowList.P
   /*border: 3px solid red;*/
 }
 .pet{
-  border: 1px solid green;
+  /*border: 1px solid green;*/
 }
 .pet-actions{
   display: flex;

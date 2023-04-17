@@ -45,7 +45,7 @@ function chatTest(event: KeyboardEvent){
   // 发送消息给插件
   let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
   let channel = `plugin.${pluginPureName}.func.handle`;
-  // log.info(`[renderer] plugin channel:`, channel, ` userInput:`, userInput.value)
+  // logger(`[renderer] plugin channel:`, channel, ` userInput:`, userInput.value)
   // 发往main线程，调用插件的handle函数
   sendToMain(channel, {
     pluginName: pluginPureName,

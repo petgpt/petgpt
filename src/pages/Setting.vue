@@ -85,8 +85,8 @@ import {onMounted, reactive, ref} from "vue";
 import {ipcRenderer} from "electron";
 import {IPluginConfig} from "../../electron/main/plugin/share/types";
 import {sendToMain} from "../utils/dataSender";
-import {PluginInfo, Progress, Rule} from "../utils/types/types";
-import log from "electron-log";
+import {logger} from "../utils/common";
+
 
 let currentRules = reactive<Rule[]>([])
 let currentConfigIndex = ref(0)
@@ -121,7 +121,7 @@ const confirmHandler = async (done: () => void) => {
   centerDialogVisible.value = false;
   let configByIndex = getConfigByIndex(currentConfigIndex.value);
   let purePluginName = configByIndex.name;
-  // log.info(`name:${purePluginName}, configData: `, dialogModelData)
+  // logger(`name:${purePluginName}, configData: `, dialogModelData)
   sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, data: dialogModelData})
 
   pluginsConfigList.value = []
@@ -221,24 +221,24 @@ function setProgressFailed(type: 'install' | 'upOrDelete', index: number) {
 
 onMounted(async () => {
   await getPluginsNameList()
-  log.info(`pluginsConfigList:`, pluginsConfigList)
+  logger(`pluginsConfigList:`, pluginsConfigList)
 
   ipcRenderer.on('installSuccess', (event, data) => {
-    log.info(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+    logger(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
     getPluginsNameList()
-    log.info(`[after install success] pluginsConfigList:`, pluginsConfigList)
+    logger(`[after install success] pluginsConfigList:`, pluginsConfigList)
     setProgressSuccess('install')
   });
 
   ipcRenderer.on('uninstallSuccess', (event, data) => {
-    log.info(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+    logger(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
     setProgressSuccess('upOrDelete')
     getPluginsNameList()
-    log.info(`[after install success] pluginsConfigList:`, pluginsConfigList)
+    logger(`[after install success] pluginsConfigList:`, pluginsConfigList)
   });
 
   ipcRenderer.on('updateSuccess', (event, data) => {
-    log.info(`updateSuccess: `, data)
+    logger(`updateSuccess: `, data)
     setProgressSuccess('upOrDelete')
     getPluginsNameList()
   });

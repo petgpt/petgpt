@@ -11,7 +11,7 @@ class Logger implements ILogger{
         log.transports.file.fileName = 'main.log';
         // 日志格式，默认：[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}]{scope} {text}
         log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}]{scope} {text}';
-        // 日志大小，默认：1048576（10M），达到最大上限后，备份文件并重命名为：main.old.log，有且仅有一个备份文件
+        // 日志大小，默认：10485760（10M），达到最大上限后，备份文件并重命名为：main.old.log，有且仅有一个备份文件
         log.transports.file.maxSize = 10485760;
         // 日志文件位置：C:\Users\%USERPROFILE%\AppData\Roaming\Electron\logs
         // 完整的日志路径：log.transports.file.file，优先级高于 appName、fileName

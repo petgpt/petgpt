@@ -84,11 +84,13 @@ class LifeCycle {
       globalShortcut.register('alt+c', () => {
         if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && windowManger.get(IWindowList.PET_CHAT_WINDOW).isVisible()) {
           windowManger.get(IWindowList.PET_CHAT_WINDOW).hide();
-          logger.info(`hide`)
+          logger.debug(`hide`)
         } else {
-          logger.info(`show`)
+          logger.debug(`show`)
           windowManger.get(IWindowList.PET_CHAT_WINDOW).show();
-          windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.openDevTools()
+          if (process.env.VITE_DEV_SERVER_URL) {
+            windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.openDevTools()
+          }
         }
       })
     })

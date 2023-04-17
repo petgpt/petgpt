@@ -219,5 +219,9 @@ export default {
             app.relaunch()
             app.exit(0)
         })
+
+        ipcMain.on('logger', (event: IpcMainEvent, args: string) => {
+            logger.info(args)
+        })
     }
 }
