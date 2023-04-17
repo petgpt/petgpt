@@ -1,7 +1,6 @@
 import {join} from "node:path";
 import {app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, screen, Tray} from "electron";
 import {DBList, IWindowList} from "../types/enum";
-import {IBrowserWindowOptions, IWindowListItem} from "../types/types";
 import pkg from '../../../package.json'
 import {
     Change_Image,
@@ -94,7 +93,7 @@ windowList.set(IWindowList.PET_WINDOW, {
                     dialog.showMessageBox({
                         title: 'PetGpt',
                         message: 'PetGpt',
-                        detail: `Version: ${pkg.version}\nAuthor: PetGpt\\nGithub: https://github.com/petgpt/petgpt/tree/vite-vue3-ts`
+                        detail: `Version: ${pkg.version}\nAuthor: PetGpt\nGithub: https://github.com/petgpt/petgpt/tree/vite-vue3-ts`
                     })
                 }
             },

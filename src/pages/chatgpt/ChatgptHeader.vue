@@ -6,8 +6,7 @@
 
 <script setup lang="ts">
 import {ipcRenderer} from "electron";
-import {IWindowList} from "../../../electron/main/types/enum";
-import IpInfo from "../example/IpInfo.vue";
+import {IWindowList} from "../../utils/types/types";
 
 function pushRouter() {
   ipcRenderer.send('router', {window: IWindowList.PET_DETAIL_WINDOW, hash: 'petDetail'})

@@ -1,4 +1,3 @@
-import {INotification} from "../../../src/utils/types/types";
 import {Notification} from 'electron'
 import {lstat} from "node:fs/promises";
 import clipboardEx from "electron-clipboard-ex";

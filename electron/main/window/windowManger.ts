@@ -1,6 +1,5 @@
 import windowList from "./windowList";
 import {BrowserWindow} from "electron";
-import {IWindowListItem, IWindowManager} from "../types/types";
 import {IWindowList} from "../types/enum";
 
 class WindowManager implements IWindowManager {

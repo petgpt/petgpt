@@ -88,8 +88,8 @@ import {
   Set_Short_Keys,
   Sys_Notification
 } from "../utils/events/constants";
-import {DBList, IWindowList} from "../../electron/main/types/enum";
 import {writeFile} from "fs";
+import {DBList, IWindowList} from "../utils/types/types";
 import {RecordRTCPromisesHandler} from 'recordrtc';
 import {logger} from "../utils/common";
 

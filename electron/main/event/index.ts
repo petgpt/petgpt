@@ -20,7 +20,6 @@ import {
     desktopCapturer,
     BrowserWindow
 } from "electron";
-import {INotification} from "../../../src/utils/types/types";
 import {getFileType, isDirectory, showNotification} from "../utils";
 import * as child_process from "child_process";
 import windowManger from "../window/windowManger";

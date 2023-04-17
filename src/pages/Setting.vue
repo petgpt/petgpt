@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import {onMounted, reactive, ref} from "vue";
 import {ipcRenderer} from "electron";
-import {IPluginConfig} from "../../electron/main/plugin/share/types";
+import {IPluginConfig, PluginInfo, Progress, Rule} from "../utils/types/types";
 import {sendToMain} from "../utils/dataSender";
 import {logger} from "../utils/common";
 

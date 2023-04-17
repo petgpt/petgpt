@@ -88,8 +88,9 @@ import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
 import ChatText from "./chatgpt/ChatText.vue";
 import {onMounted, reactive, ref, watch} from "vue";
 import {ipcRenderer, IpcRendererEvent} from "electron";
-import {SlotMenu} from "../../electron/main/plugin/share/types";
 import {useChatStore} from "../store";
+import {SlotMenu} from "../utils/types/types";
+
 import {sendToMain} from "../utils/dataSender";
 import {logger} from "../utils/common";
 

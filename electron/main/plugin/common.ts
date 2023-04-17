@@ -1,5 +1,4 @@
 import path from "path";
-import {IPluginNameType} from "../../../src/utils/types/types";
 import fs from "fs-extra";
 
 /**

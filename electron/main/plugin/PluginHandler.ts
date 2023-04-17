@@ -3,7 +3,6 @@ import {IPluginHandlerOptions, IProcessEnv, IResult, Undefinable} from "./types"
 import dbMap from "../data/db";
 import {DBList} from "../types/enum";
 import {IPluginHandlerResult, PetExpose} from "./share/types";
-import {IPluginProcessResult} from "../../../src/utils/types/types";
 import {getNormalPluginName, getProcessPluginName} from "./common";
 import lifeCycle from "../index";
 import {app} from "electron";

@@ -23,6 +23,8 @@ import {
 import {sendToMain} from "../utils/dataSender";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
+import {DBList, IWindowList} from "../utils/types/types";
+
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {logger} from "../utils/common";
 
