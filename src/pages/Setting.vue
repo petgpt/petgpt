@@ -119,7 +119,7 @@ function closeHandler() {
 const confirmHandler = async (done: () => void) => {
   centerDialogVisible.value = false;
   let configByIndex = getConfigByIndex(currentConfigIndex.value);
-  let purePluginName = configByIndex.name.slice(14);
+  let purePluginName = configByIndex.name;
   // console.log(`name:${purePluginName}, configData: `, dialogModelData)
   sendToMain(`plugin.${purePluginName}.config.update`, {name: purePluginName, data: dialogModelData})
 

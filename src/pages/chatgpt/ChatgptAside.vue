@@ -2,7 +2,7 @@
 <!--  <el-scrollbar view-style="height:100%;">-->
   <el-menu :collapse="isCollapse" :default-active="defaultActiveMenu" v-if="!isHide">
     <el-menu-item v-for="(info, index) in pluginsConfigList" :index="`${index}`" @click="onPluginClick(index)">
-      <span>{{info.name.slice(14)}}</span>
+      <span>{{info.name}}</span>
     </el-menu-item>
   </el-menu>
   <!--  </el-scrollbar>-->
@@ -28,6 +28,7 @@ async function getPluginsNameList() {
       config: pluginInfo.config
     })
   }
+  console.log(`aside, pluginInfoList：`, pluginInfoList, ` pluginsConfigList:`, pluginsConfigList.value)
 }
 
 const emits = defineEmits(['changePlugin'])
@@ -41,7 +42,7 @@ onMounted(() => {
   defaultActiveMenu.value = chatStore.getActivePluginIndex
   // console.log(`defaultActiveMenu:`, defaultActiveMenu.value)
   getPluginsNameList().then(() => {
-    let purePluginNameList = pluginsConfigList.value.map(info => info.name.slice(14));
+    let purePluginNameList = pluginsConfigList.value.map(info => info.name);
     nextTick(() => {
       chatStore.state.activePluginNameList = purePluginNameList
     })
