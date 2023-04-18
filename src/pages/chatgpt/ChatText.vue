@@ -2,7 +2,7 @@
   <div class="chat">
     <el-row v-for="(item, index) in chatList" :key="index" :class="`chat-${item.type} chat-item`">
       <el-col :span="20">
-        <el-card :body-style="{ padding: '8px', background: item.type === 'user' ? 'linear-gradient(to right, rgb(0 225 255 / 20%), rgb(0 255 189 / 20%), rgb(150 0 0 / 20%))' : 'none' }">
+        <el-card :body-style="{ padding: '8px', background: item.type === 'user' ? 'linear-gradient(to right, rgb(241, 242, 181), rgb(19 80 88 / 64%))' : 'none' }">
           <div class="chat-content">
             <div v-html="textToHtml(item.text)"></div>
           </div>
@@ -10,7 +10,6 @@
       </el-col>
     </el-row>
   </div>
-
 </template>
 
 <script setup lang="ts">
@@ -154,6 +153,8 @@ function upsertLatestText(message: ChatItem) {
         // time: getCurrentTime()
       })
     }
+    // 对外emit事件，返回信息来了
+    emits('onChatUpdate')
   }
 }
 
@@ -161,6 +162,8 @@ function clearChatContext(isClearContext: boolean) {
   // clear chatList
   if(isClearContext) chatList.splice(0, chatList.length)
 }
+
+const emits = defineEmits(['onChatUpdate']);
 defineExpose({
   upsertLatestText,
   clearChatContext
@@ -171,6 +174,7 @@ defineExpose({
 .chat{
   display: flex;
   flex-direction: column;
+  margin-right: 10px;
   &-item{
     margin-top: 10px;
   }

@@ -106,6 +106,7 @@ body,
     display: flex; // 右边也是flex布局
     flex-direction: column; // 让right这部分，竖着布局！！！
     justify-content: flex-start;
+    height: 550px; // 限制chat页面的高度
   }
 }
 

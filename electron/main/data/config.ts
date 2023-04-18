@@ -1,6 +1,8 @@
 import dbMap from "./db";
 import {DBList} from "../types/enum";
 import {
+    Chat_Window_Height,
+    Chat_Window_Width,
     Detail_Window_Height,
     Detail_Window_Width,
     Main_Window_Height,
@@ -18,6 +20,8 @@ export default {
         dbSetIfNotPresent(DBList.Config_DB, Main_Window_Height, 220)
         dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Width, 900)
         dbSetIfNotPresent(DBList.Config_DB, Detail_Window_Height, 600)
+        dbSetIfNotPresent(DBList.Config_DB, Chat_Window_Width, 900)
+        dbSetIfNotPresent(DBList.Config_DB, Chat_Window_Height, 600)
         dbSetIfNotPresent(DBList.Config_DB, 'baseDir', app.getPath('userData'))
     },
 }

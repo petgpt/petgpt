@@ -4,7 +4,7 @@ import {DBList, IWindowList} from "../types/enum";
 import pkg from '../../../package.json'
 import {
     Change_Image,
-    Change_Image_Replay,
+    Change_Image_Replay, Chat_Window_Height, Chat_Window_Width,
     Detail_Window_Height,
     Detail_Window_Width,
     Main_Window_Height,
@@ -228,8 +228,8 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
     multiple: false,
     options () {
         const options: IBrowserWindowOptions = {
-            width: dbMap.get(DBList.Config_DB).get(Detail_Window_Width),
-            height: dbMap.get(DBList.Config_DB).get(Detail_Window_Height),
+            width: dbMap.get(DBList.Config_DB).get(Chat_Window_Width),
+            height: dbMap.get(DBList.Config_DB).get(Chat_Window_Height),
             show: true,
             fullscreenable: true,
             useContentSize: true,
@@ -261,8 +261,8 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
             chatWindow = null
         })
 
-        let dbWidth = dbMap.get(DBList.Config_DB).get(Detail_Window_Width);
-        let dbHeight = dbMap.get(DBList.Config_DB).get(Detail_Window_Height);
+        let dbWidth = dbMap.get(DBList.Config_DB).get(Chat_Window_Width);
+        let dbHeight = dbMap.get(DBList.Config_DB).get(Chat_Window_Height);
         let screenWorkAreaSize = screen.getPrimaryDisplay().workAreaSize;
         let screenW = screenWorkAreaSize.width
         let screenH = screenWorkAreaSize.height
@@ -286,6 +286,18 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
                 chatWindow.setBounds(pos);
             }
         })
+        // chatWindow.on('resize', () => {
+        //     let bounds = chatWindow.getBounds();
+        //     let x = bounds.x;// 当前窗口的x
+        //     let y = bounds.y;// 当前窗口的y
+        //     let winW = bounds.width
+        //     let winH = bounds.height
+        //
+        //     // update db
+        //     // dbMap.get(DBList.Config_DB).set(Chat_Window_Width, winW);
+        //     dbMap.get(DBList.Config_DB).set(Chat_Window_Height, winH);
+        //     console.log(`x: ${x}, y: ${y}, winW: ${winW}, winH: ${winH}`)
+        // })
     },
     listen(chatWindow){
     }

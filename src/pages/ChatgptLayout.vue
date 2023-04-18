@@ -11,8 +11,12 @@
 <!--      <el-header class="chatgpt-header">-->
 <!--        <chatgpt-header></chatgpt-header>-->
 <!--      </el-header>-->
-      <el-main class="chatgpt-main">
-        <chat-text ref="chatText"></chat-text>
+      <el-main class="chatgpt-main" ref="chatMain">
+        <el-scrollbar ref="scrollBar">
+          <div ref="chatTextContainer">
+            <chat-text ref="chatText" @on-chat-update="onChatUpdateScrollHandler"></chat-text>
+          </div>
+        </el-scrollbar>
       </el-main>
       <el-footer class="chatgpt-footer">
         <chatgpt-footer @upsertLatestText="upsertLatestText" @clearCurrentChat="clearChatHandler">
@@ -86,7 +90,7 @@
 import ChatgptAside from "./chatgpt/ChatgptAside.vue";
 import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
 import ChatText from "./chatgpt/ChatText.vue";
-import {onMounted, reactive, ref, watch} from "vue";
+import {nextTick, onMounted, reactive, ref, watch} from "vue";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {useChatStore} from "../store";
 import {SlotMenu} from "../utils/types/types";
@@ -209,6 +213,15 @@ function hideMenuHandler() {
 function clearChatHandler() {
   chatText.value.clearChatContext(true)
 }
+
+// scrollbar自动触底
+let scrollBar = ref();
+let chatTextContainer = ref() // chatText的父元素，用于获取chatText的高度
+function onChatUpdateScrollHandler() {
+  nextTick(() => {
+    scrollBar.value!.setScrollTop(+chatTextContainer.value.clientHeight - 400)
+  })
+}
 </script>
 
 <style scoped lang="less">
@@ -234,7 +247,7 @@ function clearChatHandler() {
     //overflow: hidden;
     flex-direction: column;
     //border: 1px solid #000000;
-    margin: 10px;
+    margin: 5px;
   }
   &-footer{
     display: flex;
