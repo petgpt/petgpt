@@ -90,7 +90,7 @@
 import ChatgptAside from "./chatgpt/ChatgptAside.vue";
 import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
 import ChatText from "./chatgpt/ChatText.vue";
-import {nextTick, onMounted, reactive, ref, watch} from "vue";
+import {computed, nextTick, onMounted, reactive, ref, watch} from "vue";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {useChatStore} from "../store";
 import {SlotMenu} from "../utils/types/types";
@@ -112,7 +112,13 @@ onMounted(async () => {
   ipcRenderer.on('hideMenu', () => {
     hide.value = true
   })
+  registerCurrentPlugin()
 })
+
+// 暂时调用的是插件的register方法，因为api的初始化都是在register里，插件设计的时候没有单独提供init的方法
+function registerCurrentPlugin() {
+  sendToMain('plugin.register', pluginPureName)
+}
 
 /**
  * 根据插件的slotMenu定义，构建v-model绑定的slotData
@@ -121,10 +127,10 @@ const slotData = reactive<any[]>([
   {},{},{},{},{}
 ])
 
+const pluginPureName = computed(() => chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex])
 
 // 监听 slotData的变化，发送最新的slotdata到main线程，再到plugin中
 watch(slotData, (newSlotData, oldSlotData) => {
-  let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
   let channel = `plugin.${pluginPureName}.slot.push`;
   // logger(`sendToMain:`, channel, ` data:`, newSlotData, ` oldData:`, oldSlotData)
   sendToMain(channel, newSlotData)
@@ -202,6 +208,7 @@ function upsertLatestText(arg: any) {
 function changePluginHandler(isClearContext: boolean) {
   fetchSlotData()
   chatText.value.clearChatContext(isClearContext)
+  registerCurrentPlugin()
 }
 
 const hide = ref(false)

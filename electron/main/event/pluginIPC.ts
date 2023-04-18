@@ -197,6 +197,12 @@ export default {
             return list
         }
 
+        ipcMain.on('plugin.register', (event: IpcMainEvent, name: string) => {
+            pluginLoader.getPlugin(`petgpt-plugin-${name}`).then((plugin: IPetPluginInterface) => {
+                plugin.register()
+            })
+        })
+
         ipcMain.on('importLocalPlugin', async (event: IpcMainEvent) => {
             const settingWindow = windowManger.get(IWindowList.PET_SETTING_WINDOW)
 

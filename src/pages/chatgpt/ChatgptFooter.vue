@@ -51,6 +51,7 @@ function chatTest(event: KeyboardEvent){
     pluginName: pluginPureName,
     input: userInput.value
   })
+  userInput.value = ''
 }
 
 function clearChat() {

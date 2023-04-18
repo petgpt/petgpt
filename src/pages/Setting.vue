@@ -229,7 +229,7 @@ function setProgressFailed(type: 'install' | 'upOrDelete', index: number) {
 
 onMounted(async () => {
   await getPluginsNameList()
-  logger(`pluginsConfigList:`, pluginsConfigList)
+  // logger(`pluginsConfigList:`, pluginsConfigList)
 
   ipcRenderer.on('installSuccess', (event, data) => {
     logger(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
