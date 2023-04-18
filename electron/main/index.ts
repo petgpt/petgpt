@@ -39,7 +39,8 @@ class LifeCycle {
     this.ctx = {
       db: dbMap.get(DBList.Config_DB),
       baseDir: app.getPath('userData'), // 指定C:\\Users\\15275\\AppData\\Roaming\\petgpt
-      emitter: this.emitter
+      emitter: this.emitter,
+      logger: logger
     };
     this.pluginLoader = new PluginLoader(this.ctx);
     this.pluginLoader.load() // 加载本地的插件

@@ -1,14 +1,15 @@
 import PluginLoader from "../plugin/PluginLoader";
-import {app as APP, dialog, ipcMain, IpcMainEvent, shell,} from "electron";
+import {app as APP, dialog, ipcMain, IpcMainEvent,} from "electron";
 import {DataType, IPetPluginInterface, PetExpose} from "../plugin/share/types";
 import windowManger from "../window/windowManger";
-import {IWindowList} from "../types/enum";
+import {DBList, IWindowList} from "../types/enum";
 import {showNotification} from "../utils";
 import {install, uninstall, update} from "../plugin/PluginHandler";
 import path from "path";
 import {handleStreamlinePluginName} from "../plugin/common";
 import {TextFileSync} from "@commonify/lowdb";
 import logger from "../utils/logger";
+import dbMap from "../data/db";
 
 export default {
     listen(pluginLoader: PluginLoader, ctx: PetExpose) {
@@ -146,6 +147,18 @@ export default {
             }
         });
 
+        ipcMain.on('enablePlugin', async (event: IpcMainEvent, args: {name: string, enabled: boolean}) => {
+            logger.info(`[ipcMain] enablePlugin`, ` args:`, args)
+            const plugin: IPetPluginInterface = await pluginLoader.getPlugin(`petgpt-plugin-${args.name}`)
+            if (args.enabled) {
+                plugin.register()
+                dbMap.get(DBList.Config_DB).set(`petPlugins.petgpt-plugin-${args.name}`, true);
+            } else {
+                plugin.unregister()
+                dbMap.get(DBList.Config_DB).set(`petPlugins.petgpt-plugin-${args.name}`, false);
+            }
+        });
+
         ipcMain.on('updatePlugin', async (event: IpcMainEvent, fullName: string) => {
             const res = await update([fullName])
             if (res.success) {
@@ -167,6 +180,7 @@ export default {
                 const pluginPath = path.join(APP.getPath('userData'), `/node_modules/${pluginList[i]}`)
                 const pluginPKG = JSON.parse(new TextFileSync(path.join(pluginPath, 'package.json')).read())
 
+                let enabled = dbMap.get(DBList.Config_DB).get(`petPlugins.${pluginList[i]}`);
                 const obj = {
                     name: handleStreamlinePluginName(pluginList[i]),
                     version: pluginPKG.version,
@@ -175,7 +189,8 @@ export default {
                     author: pluginPKG.author.name || pluginPKG.author,
                     logo: 'file://' + path.join(pluginPath, 'logo.png').split(path.sep).join('/'),
                     homepage: pluginPKG.homepage ? pluginPKG.homepage : '',
-                    config: plugin.config(ctx)
+                    config: plugin.config(ctx),
+                    enabled: enabled,
                 }
                 list.push(obj)
             }

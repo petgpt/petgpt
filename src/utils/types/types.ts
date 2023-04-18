@@ -65,6 +65,7 @@ export interface PluginInfo{ // plugin的基本信息
   version:string,
   description: string,
   config: IPluginConfig[] // plugin需要的config配置条目，例如key、token等的配置
+  enabled: boolean
 }
 export type IPluginNameType = 'simple' | 'scope' | 'normal' | 'unknown' // TODO: main线程还有一个一份，后面改成共用的（像这样的还有些）
 

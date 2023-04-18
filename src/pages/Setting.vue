@@ -47,7 +47,13 @@
                     effect="light"
                     content="启用插件"
                     placement="top">
-                  <el-icon @click="enablePlugin(index)" class="setting-tooltips-item" :size="17"><Open /></el-icon>
+                  <el-icon style="margin-left: 10px; margin-top: 1px">
+                    <el-switch
+                        v-model="info.enabled"
+                        size="small"
+                        @change="enablePlugin(info.enabled, index)"
+                    />
+                  </el-icon>
                 </el-tooltip>
               </el-row>
             </el-card>
@@ -138,7 +144,8 @@ async function getPluginsNameList() {
       name: pluginInfo.name,
       version: pluginInfo.version,
       description: pluginInfo.description,
-      config: pluginInfo.config
+      config: pluginInfo.config,
+      enabled: pluginInfo.enabled
     })
     upOrDeleteProgress.push({percentage: 0, status: ''})
   }
@@ -164,8 +171,9 @@ function deletePlugin(index: number) {
   setProgressBegin(index)
 }
 
-function enablePlugin(index: number) {
-
+function enablePlugin(enabled: boolean, index: number) {
+  let name = getConfigByIndex(index).name;
+  sendToMain('enablePlugin', {name, enabled})
 }
 
 function setProgressBegin(index: number) {

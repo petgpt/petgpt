@@ -23,12 +23,15 @@ const chatStore = useChatStore()
 async function getPluginsNameList() {
   let pluginInfoList = await ipcRenderer.invoke('plugin.getAllPluginName')
   for (const pluginInfo of pluginInfoList) {
-    pluginsConfigList.value.push({
-      name: pluginInfo.name,
-      version: pluginInfo.version,
-      description: pluginInfo.description,
-      config: pluginInfo.config
-    })
+    if (pluginInfo.enabled) {
+      pluginsConfigList.value.push({
+        name: pluginInfo.name,
+        version: pluginInfo.version,
+        description: pluginInfo.description,
+        config: pluginInfo.config,
+        enabled: pluginInfo.enabled
+      });
+    }
   }
   // logger(`aside, pluginInfoList：`, pluginInfoList, ` pluginsConfigList:`, pluginsConfigList.value)
 }

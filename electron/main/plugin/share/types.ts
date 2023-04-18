@@ -19,7 +19,7 @@ export interface PetExpose {
     baseDir: string
     emitter: IEventBus
     notify?: (title: string, body: string) => void
-    logger?: ILogger
+    logger: ILogger
 }
 
 /**
