@@ -37,7 +37,7 @@
     "less-loader": "^11.1.0",
     "typescript": "^4.9.5",
     "vite": "^4.1.4",
-    "vite-plugin-electron": "^0.11.1",
+    "vite-plugin-electron": "^0.11.2",
     "vite-plugin-electron-renderer": "^0.12.1",
     "vite-plugin-wasm": "^3.2.2",
     "vue": "^3.2.47",
