@@ -4,6 +4,7 @@ import {join} from 'node:path'
 import ipcList from './event/index'
 import pluginIPC from "./event/pluginIPC";
 import windowManger from "./window/windowManger";
+import WindowManger from "./window/windowManger";
 import {DBList, IWindowList} from "./types/enum";
 import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
 import dbMap from "./data/db";
@@ -12,7 +13,6 @@ import PluginLoader from "./plugin/PluginLoader";
 import {PetExpose} from "./plugin/share/types";
 import {EventEmitter} from "events";
 import logger from "./utils/logger";
-import WindowManger from "./window/windowManger";
 import pkg from "../../package.json";
 // The built directory structure
 //
@@ -68,7 +68,7 @@ class LifeCycle {
     app.whenReady().then(() => {
       config.setConfig()
 
-      windowManger.create(IWindowList.PET_WINDOW)
+      if(dbMap.get(DBList.Config_DB).get('openPetOnReady')) windowManger.create(IWindowList.PET_WINDOW)
       const contextMenu = Menu.buildFromTemplate([
         {
           label: '重启应用',
@@ -87,6 +87,15 @@ class LifeCycle {
           label: 'chat',
           click: function () {
             WindowManger.get(IWindowList.PET_CHAT_WINDOW)?.show()
+          }
+        },
+        {
+          label: '启动时打开pet',
+          type: 'checkbox',
+          checked: dbMap.get(DBList.Config_DB).get('openPetOnReady'),
+          click: function () {
+            let openPetOnReady = dbMap.get(DBList.Config_DB).get('openPetOnReady');
+            dbMap.get(DBList.Config_DB).set('openPetOnReady', !openPetOnReady)
           }
         },
         {
