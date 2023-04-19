@@ -147,7 +147,7 @@ class LifeCycle {
       })
 
       globalShortcut.register('alt+c', () => {
-        if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && windowManger.get(IWindowList.PET_CHAT_WINDOW).isVisible()) {
+        if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && windowManger.get(IWindowList.PET_CHAT_WINDOW).isFocused()) {
           windowManger.get(IWindowList.PET_CHAT_WINDOW).hide();
           logger.debug(`hide`)
         } else {
