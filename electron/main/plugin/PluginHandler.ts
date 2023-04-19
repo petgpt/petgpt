@@ -93,10 +93,10 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
         } else {
             // const err = this.ctx.i18n.translate<ILocalesKey>('PLUGIN_HANDLER_PLUGIN_INSTALL_FAILED_REASON', {
             //     code: `${result.code}`,
-            //     data: result.data
+            //     data: result.data.replace(/\x1B\[\d+[A-Za-zm]/g, '') // 过滤转移字符等
             // })
             let errMsg = {code: `${result.code}`,
-                data: result.data
+                data: result.data.replace(/\x1B\[\d+[A-Za-zm]/g, '') // 过滤转移字符等
             };
             console.error(errMsg)
             // this.ctx.emit('installFailed', {
@@ -139,7 +139,7 @@ export async function install (plugins: string[], options: IPluginHandlerOptions
     // if (!result.code) {
     //     logger.info(`download success`)
     // } else {
-    //     logger.info(`download failed: `, {code: `${result.code}`, data: result.data})
+    //     logger.info(`download failed: `, {code: `${result.code}`, data: result.data.replace(/\x1B\[\d+[A-Za-zm]/g, '') // 过滤转移字符等})
     // }
     // return null;
 }
@@ -168,7 +168,7 @@ export async function uninstall(plugins: string[]): Promise<IPluginHandlerResult
         } else {
             const err = {
                 code: `${result.code}`,
-                data: result.data
+                data: result.data.replace(/\x1B\[\d+[A-Za-zm]/g, '') // 过滤转移字符等
             }
             console.error(err)
             // this.ctx.emit('uninstallFailed', {
@@ -219,7 +219,7 @@ export async function update(plugins: string[], options: IPluginHandlerOptions =
         } else {
             const err = {
                 code: `${result.code}`,
-                data: result.data
+                data: result.data.replace(/\x1B\[\d+[A-Za-zm]/g, '') // 过滤转移字符等
             }
             console.error(err)
             // this.ctx.emit('updateFailed', {
