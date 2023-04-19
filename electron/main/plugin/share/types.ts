@@ -6,9 +6,17 @@ export interface IPetPluginInterface {
     unregister: () => void
     config?: (ctx: PetExpose) => IPluginConfig[]
     slotMenu?: (ctx: PetExpose) => SlotMenu[]
+    actions?: PluginAction[]
     handle: (data: PluginData) => Promise<void> // 核心交互函数
     stop: () => Promise<void> // 停止handle的执行
     [propName: string]: any
+}
+
+// chat页面右边的drawer里的action按钮定义
+export interface PluginAction {
+    name: string // 按钮文字
+    eventName: string // 点击后触发的事件
+    description?: string // 描述
 }
 
 /**

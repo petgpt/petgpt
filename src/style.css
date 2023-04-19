@@ -164,3 +164,6 @@ tr:nth-child(even) {
   margin: 0 !important;
   border-bottom-left-radius: 20px;
 }
+.el-overlay{
+  border-radius: 20px;
+}

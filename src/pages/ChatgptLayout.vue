@@ -83,6 +83,12 @@
         </chatgpt-footer>
       </el-footer>
     </el-container>
+    <div style="display: flex;flex-direction: column;justify-content: center;">
+      <svg  @mouseover="hideSideBarHandler" style="cursor: pointer" t="1681638156613" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2207" width="19" height="19"><path d="M825.6 179.2 467.2 537.6c-12.8 12.8-25.6 12.8-38.4 0L422.4 531.2c-12.8-12.8-12.8-25.6 0-38.4l358.4-358.4c12.8-12.8 25.6-12.8 38.4 0l6.4 6.4C838.4 153.6 838.4 166.4 825.6 179.2z" p-id="2208" fill="#515151"></path><path d="M467.2 486.4l358.4 358.4c12.8 12.8 12.8 25.6 0 38.4l-6.4 6.4c-12.8 12.8-25.6 12.8-38.4 0L422.4 531.2c-12.8-12.8-12.8-25.6 0-38.4l6.4-6.4C441.6 473.6 454.4 473.6 467.2 486.4z" p-id="2209" fill="#515151"></path><path d="M627.2 179.2 268.8 537.6C256 550.4 243.2 550.4 230.4 537.6L224 531.2c-12.8-12.8-12.8-25.6 0-38.4l358.4-358.4c12.8-12.8 25.6-12.8 38.4 0l6.4 6.4C640 153.6 640 166.4 627.2 179.2z" p-id="2210" fill="#515151"></path><path d="M268.8 486.4l358.4 358.4c12.8 12.8 12.8 25.6 0 38.4l-6.4 6.4c-12.8 12.8-25.6 12.8-38.4 0L224 531.2c-12.8-12.8-12.8-25.6 0-38.4l6.4-6.4C243.2 473.6 256 473.6 268.8 486.4z" p-id="2211" fill="#515151"></path></svg>
+    </div>
+    <el-drawer v-model="hideSideBar" title="I am the title" :with-header="false" :append-to-body="true" style="border-radius: 20px; margin-top: 50px;height: 80%" :modal-class="'side-modal'">
+      <side-bar></side-bar>
+    </el-drawer>
   </el-container>
 </template>
 
@@ -97,6 +103,7 @@ import {SlotMenu} from "../utils/types/types";
 
 import {sendToMain} from "../utils/dataSender";
 import {logger} from "../utils/common";
+import SideBar from "./chatgpt/SideBar.vue";
 
 let chatStore = useChatStore();
 const pluginSlotInfoList = ref([])
@@ -214,8 +221,12 @@ function changePluginHandler(isClearContext: boolean) {
 }
 
 const hide = ref(false)
+const hideSideBar = ref(false)
 function hideMenuHandler() {
   hide.value = !hide.value
+}
+function hideSideBarHandler() {
+  hideSideBar.value = !hideSideBar.value
 }
 
 // clear chat

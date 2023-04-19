@@ -72,6 +72,17 @@
     <el-icon v-if="os && os === 'win32'" style="cursor: pointer" :size="25" @click="startRecording"><Microphone /></el-icon>
     <el-icon v-if="os && os === 'win32'" style="cursor: pointer" :size="25" @click="stopRecording"><Close /></el-icon>
   </el-row>
+  <el-divider>↓↓ drag ↓↓</el-divider>
+  <el-row @drop.prevent="onDrop"
+          @dragover.prevent="dragover = true"
+          @dragleave.prevent="dragover = false">
+    <div>
+      拖拽文本、链接、文件到这里！
+    </div>
+    <div>
+      识别到的东西：{{dragContent}}
+    </div>
+  </el-row>
 </template>
 
 <script setup lang="ts">
@@ -335,6 +346,35 @@ async function invokeSaveAsDialog(blob: any){
 function pushRouter() {
   ipcRenderer.send('router', {window: IWindowList.PET_DETAIL_WINDOW, hash: 'chatgpt'})
 }
+
+// drag
+const dragContent = ref('')
+const dragover = ref(false)
+function onDrop (e: DragEvent) {
+  dragover.value = false
+  const items = e.dataTransfer?.items!
+  const files = e.dataTransfer?.files!
+
+  // send files first
+  if (files?.length) {
+    console.log(`files: `, e.dataTransfer?.files!);
+    // ipcSendFiles(e.dataTransfer?.files!)
+  } else {
+    if (items.length === 2 && items[0].type === 'text/uri-list') {
+      // handleURLDrag(items, e.dataTransfer!)
+      console.log(`e.dataTransfer!: `, e.dataTransfer!);
+    } else if (items[0].type === 'text/plain') {
+      const str = e.dataTransfer!.getData(items[0].type)
+      console.log(`items[0].type === 'text/plain', str:`, str)
+      // if (isUrl(str)) {
+      //   sendToMain('uploadChoosedFiles', [{ path: str }])
+      // } else {
+      //   $message.error($T('TIPS_DRAG_VALID_PICTURE_OR_URL'))
+      // }
+    }
+  }
+}
+
 </script>
 
 <style scoped lang="less">
