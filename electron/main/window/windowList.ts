@@ -228,10 +228,12 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
                 pos.width = 450;
                 chatWindow.setBounds(pos);
                 chatWindow.webContents.send('hideMenu');
+                chatWindow.webContents.closeDevTools()
             } else if (pos.x > (screenW / 4) * 2) {
                 pos.width = 450;
                 chatWindow.setBounds(pos);
                 chatWindow.webContents.send('hideMenu');
+                chatWindow.webContents.closeDevTools()
             } else {
                 chatWindow.setBounds(pos);
             }

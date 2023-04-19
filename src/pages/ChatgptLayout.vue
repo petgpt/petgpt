@@ -34,7 +34,7 @@
                     <div v-for="dialogInfo in slotData[index].value">
                       <el-popover
                           placement="top-start"
-                          title="systemMessage"
+                          :title="dialogInfo.name"
                           :width="300"
                           trigger="hover"
                           :content="dialogInfo.message"
@@ -52,10 +52,10 @@
                   </el-dialog>
                 </el-col>
                 <el-col v-if="slotInfo.menu.type === 'switch'" :span="3" style="display: flex;flex-direction: column;align-items: center;">
-                  <el-switch v-if="slotInfo.menu.type === 'switch'" v-model="slotData[index].value" />
+                  <el-switch v-if="slotInfo.menu.type === 'switch'" v-model="slotData[index].value" @change="slotUpdateHandler" />
                 </el-col>
                 <el-col v-if="slotInfo.menu.type === 'select'" :span="4" style="display: flex;flex-direction: column;align-items: center; margin-left: 10px">
-                  <el-select v-model="slotData[index].value" :size="'small'">
+                  <el-select v-model="slotData[index].value" :size="'small'" @change="slotUpdateHandler">
                     <el-option
                         v-for="item in slotData[index].options"
                         :key="item.value"
@@ -90,7 +90,7 @@
 import ChatgptAside from "./chatgpt/ChatgptAside.vue";
 import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
 import ChatText from "./chatgpt/ChatText.vue";
-import {computed, nextTick, onMounted, reactive, ref, watch} from "vue";
+import {computed, nextTick, onMounted, reactive, ref} from "vue";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {useChatStore} from "../store";
 import {SlotMenu} from "../utils/types/types";
@@ -117,7 +117,7 @@ onMounted(async () => {
 
 // 暂时调用的是插件的register方法，因为api的初始化都是在register里，插件设计的时候没有单独提供init的方法
 function registerCurrentPlugin() {
-  sendToMain('plugin.register', pluginPureName)
+  sendToMain('plugin.register', pluginPureName.value)
 }
 
 /**
@@ -129,12 +129,6 @@ const slotData = reactive<any[]>([
 
 const pluginPureName = computed(() => chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex])
 
-// 监听 slotData的变化，发送最新的slotdata到main线程，再到plugin中
-watch(slotData, (newSlotData, oldSlotData) => {
-  let channel = `plugin.${pluginPureName}.slot.push`;
-  // logger(`sendToMain:`, channel, ` data:`, newSlotData, ` oldData:`, oldSlotData)
-  sendToMain(channel, newSlotData)
-})
 
 /**
  * 重新获取插件的slotMenu定义
@@ -195,9 +189,17 @@ function closeHandler() {
   centerDialogVisible.value = false;
 }
 
+
+function slotUpdateHandler() {
+  let channel = `plugin.${pluginPureName.value}.slot.push`;
+  // logger(`sendToMain:`, channel, ` data:`, newSlotData, ` oldData:`, oldSlotData)
+  sendToMain(channel, slotData)
+}
 function confirmHandler(data: any) {
   logger(`click slot confirm, data:`, data)
   centerDialogVisible.value = false;
+
+  slotUpdateHandler()
 }
 
 const chatText = ref();
