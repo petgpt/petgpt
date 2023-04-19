@@ -1,10 +1,11 @@
 import {join} from "node:path";
-import {app, BrowserWindow, dialog, ipcMain, IpcMainEvent, Menu, screen, Tray} from "electron";
+import {BrowserWindow, ipcMain, IpcMainEvent, screen} from "electron";
 import {DBList, IWindowList} from "../types/enum";
-import pkg from '../../../package.json'
 import {
     Change_Image,
-    Change_Image_Replay, Chat_Window_Height, Chat_Window_Width,
+    Change_Image_Replay,
+    Chat_Window_Height,
+    Chat_Window_Width,
     Detail_Window_Height,
     Detail_Window_Width,
     Main_Window_Height,
@@ -67,57 +68,6 @@ windowList.set(IWindowList.PET_WINDOW, {
         return options
     },
     callback (petWindow) {
-        const contextMenu = Menu.buildFromTemplate([
-            {
-                label: '重启应用',
-                click: function () {
-                    app.relaunch()
-                    app.exit(0)
-                }
-            },
-            {
-                label: '设置',
-                click: function () {
-                    WindowManger.get(IWindowList.PET_SETTING_WINDOW)?.show()
-                }
-            },
-            {
-                label: 'chat',
-                click: function () {
-                    WindowManger.get(IWindowList.PET_CHAT_WINDOW)?.show()
-                }
-            },
-            {
-                label: '关于',
-                click: function () {
-                    dialog.showMessageBox({
-                        title: 'PetGpt',
-                        message: 'PetGpt',
-                        detail: `Version: ${pkg.version}\nAuthor: PetGpt\nGithub: https://github.com/petgpt/petgpt/tree/vite-vue3-ts`
-                    })
-                }
-            },
-            {
-                label: '退出',
-                click: function () {
-                    app.quit();
-                    app.quit();//因为程序设定关闭为最小化, 所以调用两次关闭, 防止最大化时一次不能关闭的情况
-                }
-            }]);
-
-        let tray = new Tray(join(process.env.PUBLIC, iconFile))
-        tray.setContextMenu(contextMenu)
-        tray.setToolTip('PetGpt')
-        tray.setTitle('PetGpt')
-
-        tray.on('click',function(){
-            petWindow.show();
-        })
-        //右键
-        tray.on('right-click', () => {
-            tray.popUpContextMenu(contextMenu);
-        });
-
         if (process.env.VITE_DEV_SERVER_URL) { // electron-vite-vue#298
             petWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
         } else {

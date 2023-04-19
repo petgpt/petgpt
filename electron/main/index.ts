@@ -1,4 +1,4 @@
-import {app, BrowserWindow, globalShortcut} from 'electron'
+import {app, BrowserWindow, dialog, globalShortcut, Menu, Tray} from 'electron'
 import {release} from 'node:os'
 import {join} from 'node:path'
 import ipcList from './event/index'
@@ -12,6 +12,8 @@ import PluginLoader from "./plugin/PluginLoader";
 import {PetExpose} from "./plugin/share/types";
 import {EventEmitter} from "events";
 import logger from "./utils/logger";
+import WindowManger from "./window/windowManger";
+import pkg from "../../package.json";
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -28,6 +30,7 @@ process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? join(process.env.DIST_ELECTRON, '../public')
   : process.env.DIST
 
+let canQuitNow = false
 class LifeCycle {
   private pluginLoader: PluginLoader;
   private emitter: EventEmitter;
@@ -66,6 +69,58 @@ class LifeCycle {
       config.setConfig()
 
       windowManger.create(IWindowList.PET_WINDOW)
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: '重启应用',
+          click: function () {
+            app.relaunch()
+            app.exit(0)
+          }
+        },
+        {
+          label: '设置',
+          click: function () {
+            WindowManger.get(IWindowList.PET_SETTING_WINDOW)?.show()
+          }
+        },
+        {
+          label: 'chat',
+          click: function () {
+            WindowManger.get(IWindowList.PET_CHAT_WINDOW)?.show()
+          }
+        },
+        {
+          label: '关于',
+          click: function () {
+            dialog.showMessageBox({
+              title: 'PetGpt',
+              message: 'PetGpt',
+              detail: `Version: ${pkg.version}\nAuthor: PetGpt\nGithub: https://github.com/petgpt/petgpt/tree/vite-vue3-ts`
+            })
+          }
+        },
+        {
+          label: '退出',
+          click: function () {
+            canQuitNow = true
+            app.quit();
+            app.quit();//因为程序设定关闭为最小化, 所以调用两次关闭, 防止最大化时一次不能关闭的情况
+          }
+        }]);
+
+      let tray = new Tray(join(process.env.PUBLIC, process.platform == 'darwin' ? 'favicon.png' : 'favicon.ico'))
+      tray.setContextMenu(contextMenu)
+      tray.setToolTip('PetGpt')
+      tray.setTitle('PetGpt')
+
+      tray.on('click',function(){
+        windowManger.get(IWindowList.PET_WINDOW)?.show();
+      })
+      //右键
+      tray.on('right-click', () => {
+        tray.popUpContextMenu(contextMenu);
+      });
+
       // windowManger.get(IWindowList.PET_CHAT_WINDOW)
       globalShortcut.register('Control+shift+c', () => {
         if (windowManger.has(IWindowList.PET_WINDOW)) {
@@ -127,11 +182,22 @@ class LifeCycle {
   }
 
   private onQuit () {
-    app.on('window-all-closed', () => {
-      if (process.platform !== 'darwin') app.quit()
+    app.on('window-all-closed', (e) => {
+      if (process.platform !== 'darwin') {
+        if (!canQuitNow) {
+          e.preventDefault()
+        } else {
+          app.quit()
+        }
+      }
     })
-    app.on('will-quit', () => {
-      globalShortcut.unregisterAll()
+    app.on('will-quit', (e) => {
+      if (!canQuitNow) {
+        e.preventDefault()
+      } else {
+        globalShortcut.unregisterAll()
+        app.quit()
+      }
     })
   }
 
