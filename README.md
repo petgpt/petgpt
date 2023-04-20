@@ -53,6 +53,7 @@ yarn run build
   - [x] 插件的在线下载、更新、删除 
   - [x] [插件模板](https://www.npmjs.com/package/petgpt-plugin-template)
   - [x] [chatgpt插件](https://www.npmjs.com/package/petgpt-plugin-chatgpt)
+    - [ ] 多个对话
   - [x] [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
 - [ ] 拖动的时候，屏幕不同边缘检测
 - [ ] 根据功能，进行页面布局设计

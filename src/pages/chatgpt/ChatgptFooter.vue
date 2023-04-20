@@ -13,7 +13,7 @@
     <slot v-for="(slot, index) in slotChildData" :name="slot.name" :data="slotChildData[index]" class="footer-first-slot"></slot>
   </div>
   <div class="footer-second">
-    <el-input :placeholder="'请输入聊天内容'"
+    <el-input ref="userInputRef" :placeholder="placeHolder"
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 15 }"
               v-model="userInput"
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref} from "vue";
+import {nextTick, onMounted, reactive, ref, watch} from "vue";
 import {v4 as uuidv4} from "uuid";
 import {sendToMain} from "../../utils/dataSender";
 import {useChatStore} from "../../store";
@@ -90,8 +90,13 @@ function getClipBoard() {
     }
   })
 }
+const userInputRef = ref()
 onMounted(() => {
   getClipBoard()
+
+  ipcRenderer.on('show', () => {
+    nextTick(() => userInputRef.value?.focus())
+  })
 })
 function pasteToUserInput() {
   let str = clipBoardData.value.map((item) => item.data).join(', ')
@@ -101,6 +106,35 @@ function pasteToUserInput() {
   if (clipSvg) {
     clipSvg.setAttribute("fill", "rgb(96, 96, 96, 1)");
   }
+}
+
+const placeHolder = ref('请输入聊天内容')
+watch(userInput, (newVal, oldVal) => {
+  if (newVal === '') {
+    placeHolder.value = 'TAB 粘贴剪贴板内容'
+    addKeyDownListener()
+  } else {
+    removeKeyDownListener()
+  }
+}, {
+  immediate: true
+});
+
+function onTabKeyDown(event: KeyboardEvent) {
+  if (event.code === "Tab") { // tab键的键码是9
+    event.preventDefault();
+    pasteToUserInput()
+  }
+}
+
+function addKeyDownListener() {
+  window.addEventListener('keydown', onTabKeyDown);
+  console.log(`addEventListener tab`)
+}
+
+function removeKeyDownListener() {
+  window.removeEventListener('keydown', onTabKeyDown)
+  console.log(`removeEventListener tab`)
 }
 
 </script>
