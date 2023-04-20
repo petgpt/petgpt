@@ -73,16 +73,14 @@
     <el-icon v-if="os && os === 'win32'" style="cursor: pointer" :size="25" @click="stopRecording"><Close /></el-icon>
   </el-row>
   <el-divider>↓↓ drag ↓↓</el-divider>
-  <el-row @drop.prevent="onDrop"
-          @dragover.prevent="dragover = true"
-          @dragleave.prevent="dragover = false">
-    <div>
-      拖拽文本、链接、文件到这里！
-    </div>
-    <div>
-      识别到的东西：{{dragContent}}
-    </div>
-  </el-row>
+  <div @dragover.prevent="dragover = true" @drop.prevent="onDrop" @dragleave.prevent="dragover = false" class="upload-container" :class="dragover ? 'dragover' : ''">
+    拖拽文本、链接、文件到这里！
+    <div style="pointer-events: none">测试子元素</div>
+    <div class="dragover-border">将文件、链接、文本放到此处</div>
+  </div>
+  <div>
+    识别到的东西：{{dragContent}}
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -355,28 +353,55 @@ function onDrop (e: DragEvent) {
   const items = e.dataTransfer?.items!
   const files = e.dataTransfer?.files!
 
-  // send files first
   if (files?.length) {
     console.log(`files: `, e.dataTransfer?.files!);
-    // ipcSendFiles(e.dataTransfer?.files!)
+    dragContent.value = Object.keys(e.dataTransfer?.files!).map((key:any) => `(${e.dataTransfer?.files![key].type})` + e.dataTransfer?.files![key].path).join(', ')
   } else {
     if (items.length === 2 && items[0].type === 'text/uri-list') {
       // handleURLDrag(items, e.dataTransfer!)
       console.log(`e.dataTransfer!: `, e.dataTransfer!);
+      dragContent.value = e.dataTransfer!.getData(items[0].type)
     } else if (items[0].type === 'text/plain') {
       const str = e.dataTransfer!.getData(items[0].type)
-      console.log(`items[0].type === 'text/plain', str:`, str)
+      console.log(`文本:`, str)
+      dragContent.value = str
       // if (isUrl(str)) {
       //   sendToMain('uploadChoosedFiles', [{ path: str }])
       // } else {
       //   $message.error($T('TIPS_DRAG_VALID_PICTURE_OR_URL'))
       // }
+    } else {
+      console.log(`未知拖拽类型`)
     }
   }
 }
-
 </script>
 
 <style scoped lang="less">
+.upload-container {
+  position: relative;
+  /* 其他样式 */
+}
 
+.dragover-border {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 3px dashed #29b9b9;
+  z-index: 999;
+  box-sizing: border-box;
+  border-radius: 5px;
+  background-color: #121212;
+  color: #e1e1e1;
+  pointer-events: none;
+}
+
+.upload-container.dragover .dragover-border {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 </style>
