@@ -180,7 +180,7 @@ windowList.set(IWindowList.PET_CHAT_WINDOW, {
         const options: IBrowserWindowOptions = {
             width: dbMap.get(DBList.Config_DB).get(Chat_Window_Width),
             height: dbMap.get(DBList.Config_DB).get(Chat_Window_Height),
-            show: true,
+            show: false,
             fullscreenable: true,
             useContentSize: true,
             resizable: true,

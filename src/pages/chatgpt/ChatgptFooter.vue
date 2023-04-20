@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, reactive, ref, watch} from "vue";
+import {nextTick, onBeforeMount, onMounted, reactive, ref, watch} from "vue";
 import {v4 as uuidv4} from "uuid";
 import {sendToMain} from "../../utils/dataSender";
 import {useChatStore} from "../../store";
@@ -78,23 +78,32 @@ function clearChat() {
 
 const clipBoardData = ref<{type: string, data: string}[]>([])
 const clipBoardSvg = ref()
-function getClipBoard() {
-  ipcRenderer.invoke(Get_ClipBoard_Type).then((arg) => {
-    clipBoardData.value = arg
-    let clipSvg = document.getElementById("clipBoardSvg");
-    if (arg.length && clipSvg) {
-      clipSvg.setAttribute("fill", "url(#gradient-horizontal)");
-      setTimeout(() => {
-        clipSvg!.setAttribute("fill", "rgb(96, 96, 96, 1)");
-      }, 8000)
-    }
-  })
+async function getClipBoard() {
+  let arg = await ipcRenderer.invoke(Get_ClipBoard_Type)
+  clipBoardData.value = arg
+  let clipSvg = document.getElementById("clipBoardSvg");
+  if (arg.length > 0 && clipSvg) {
+    clipSvg.setAttribute("fill", "url(#gradient-horizontal)");
+    setTimeout(() => {
+      clipSvg!.setAttribute("fill", "rgb(96, 96, 96, 1)");
+    }, 8000)
+  }
 }
 const userInputRef = ref()
-onMounted(() => {
-  getClipBoard()
 
+onBeforeMount(async () => {
+  await getClipBoard()
+  addOrRemoveTabListener()
+})
+onMounted(() => {
   ipcRenderer.on('show', () => {
+    getClipBoard()
+    addOrRemoveTabListener()
+    nextTick(() => userInputRef.value?.focus())
+  })
+
+  ipcRenderer.on('clear', () => {
+    clearChat()
     nextTick(() => userInputRef.value?.focus())
   })
 })
@@ -110,31 +119,36 @@ function pasteToUserInput() {
 
 const placeHolder = ref('请输入聊天内容')
 watch(userInput, (newVal, oldVal) => {
-  if (newVal === '') {
-    placeHolder.value = 'TAB 粘贴剪贴板内容'
+  addOrRemoveTabListener()
+}, {
+  immediate: true
+});
+
+function addOrRemoveTabListener() {
+  // 为空, 存在剪贴板数据
+  if (userInput.value === '' && clipBoardData.value && clipBoardData.value.length) {
+    placeHolder.value = 'TAB 粘贴剪贴板内容';
     addKeyDownListener()
   } else {
     removeKeyDownListener()
   }
-}, {
-  immediate: true
-});
+}
 
 function onTabKeyDown(event: KeyboardEvent) {
   if (event.code === "Tab") { // tab键的键码是9
     event.preventDefault();
     pasteToUserInput()
+    nextTick(() => userInputRef.value?.focus())
   }
 }
 
 function addKeyDownListener() {
+  removeKeyDownListener()
   window.addEventListener('keydown', onTabKeyDown);
-  console.log(`addEventListener tab`)
 }
 
 function removeKeyDownListener() {
   window.removeEventListener('keydown', onTabKeyDown)
-  console.log(`removeEventListener tab`)
 }
 
 </script>

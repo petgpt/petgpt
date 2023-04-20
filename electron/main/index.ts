@@ -160,6 +160,10 @@ class LifeCycle {
           }
         }
       })
+      globalShortcut.register('alt+x', () => {
+        let chatWindow = windowManger.get(IWindowList.PET_CHAT_WINDOW);
+        chatWindow.webContents.send('clear')
+      });
     })
     pluginIPC.listen(this.pluginLoader, this.ctx)
   }
