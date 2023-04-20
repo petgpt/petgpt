@@ -147,17 +147,23 @@ class LifeCycle {
       })
 
       globalShortcut.register('alt+c', () => {
-        if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && windowManger.get(IWindowList.PET_CHAT_WINDOW).isFocused()) {
-          windowManger.get(IWindowList.PET_CHAT_WINDOW).hide();
+        let browserWindow = windowManger.get(IWindowList.PET_CHAT_WINDOW);
+        if (windowManger.has(IWindowList.PET_CHAT_WINDOW) && browserWindow.isFocused()) {
+          browserWindow.hide();
           logger.debug(`hide`)
         } else {
           logger.debug(`show`)
-          windowManger.get(IWindowList.PET_CHAT_WINDOW).show();
+          browserWindow.show();
+          browserWindow.webContents.send('show')
           if (process.env.VITE_DEV_SERVER_URL) {
-            windowManger.get(IWindowList.PET_CHAT_WINDOW).webContents.openDevTools()
+            browserWindow.webContents.openDevTools()
           }
         }
       })
+      globalShortcut.register('alt+x', () => {
+        let chatWindow = windowManger.get(IWindowList.PET_CHAT_WINDOW);
+        chatWindow.webContents.send('clear')
+      });
     })
     pluginIPC.listen(this.pluginLoader, this.ctx)
   }
