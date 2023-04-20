@@ -107,17 +107,23 @@ export default {
             }
 
             let paths = clipboardEx.readFilePaths();
-            paths.forEach(path => {
-                isDirectory(path).then(isDir => {
-                    let fileType = getFileType(path);
-                    dialog.showMessageBox({
-                        title: '',
-                        message: `path: ${path}, isDir: ${isDir}, hex: ${fileType.hex}, type:${fileType.type}`
-                    })
-                    // paths.push({type: fileType.type, path: path, isDir: isDir});
-                })
-            })
-            return paths;
+            let pathList = []
+            for (let i = 0; i < paths.length; i++) {
+                let path = paths[i];
+                let isDir = await isDirectory(path);
+                pathList.push({type: isDir ? 'directory' : 'file', data: path})
+            }
+            // paths.forEach(path => {
+            //     isDirectory(path).then(isDir => {
+            //         let fileType = getFileType(path);
+            //         dialog.showMessageBox({
+            //             title: '',
+            //             message: `path: ${path}, isDir: ${isDir}, hex: ${fileType.hex}, type:${fileType.type}`
+            //         })
+            //         // paths.push({type: fileType.type, path: path, isDir: isDir});
+            //     })
+            // })
+            return pathList;
         })
 
         // 快捷键
