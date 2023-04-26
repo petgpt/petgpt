@@ -117,7 +117,7 @@ export class PluginLoader implements IPluginLoader {
     // 动态加载 ==> export default的东西
     const {default: pluginFunction} = await import(winPluginAbsolutePath)
         .then((m) => m)
-        .catch((e) => {logger.info(`error: `, e)});
+        .catch((e) => {logger.info(`plugin import error: `, e)});
     const plugin: IPetPluginInterface = pluginFunction(this.ctx); // 动态引入后调用函数，返回IPetPluginInterface对象
     this.pluginMap.set(name, plugin)
     return plugin
