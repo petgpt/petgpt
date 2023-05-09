@@ -57,6 +57,8 @@ yarn run build
   - [x] [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
 - [ ] 拖动的时候，屏幕不同边缘检测
 - [ ] 根据功能，进行页面布局设计
+- [ ] chatgpt的对话，提供修改功能，点击之前发送的文本，可以便捷的进行修改。
+  - [ ] 在微调自己的prompt的时候非常有用，不用重新开一个对话，把前面调试好的发过去，再继续调试刚才的内容。
 - [ ] chatgpt
   - [x] proxy设置
   - [x] 单次对话、连续对话
@@ -64,6 +66,7 @@ yarn run build
   - [x] markdown\表格\code
   - [x] latex
   - [ ] 其他接口（模型操作、图片操作、语音转文字接口）
+  - [ ] 侧边栏保存不同的配置，例如设置了不同的system message，让chatgpt扮演不同的角色，每次都需要重新输入好麻烦。如果能保存之前的设置，一键切换，会很方便！
 - [ ] 本地配置文件（json）设计
   - [x] 提供操作接口 => db.ts
 - [ ] Pet页面里的gif改成动态加载
