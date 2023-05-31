@@ -66,6 +66,9 @@ yarn run build
   - [x] markdown\表格\code
   - [x] latex
   - [ ] 其他接口（模型操作、图片操作、语音转文字接口）
+  - [x] 重新获取最新一条用户输入的completion
+    - [ ] bug: 目前在修改temperature等参数后，再reload会找不到消息。改了参数不应该重新create client，只是修改发起请求携带的参数而已。
+  - [ ] 最近的一条用户输入可以被修改，用于调试prompt，不用每次都重开一个上下文
   - [ ] 侧边栏保存不同的配置，例如设置了不同的system message，让chatgpt扮演不同的角色，每次都需要重新输入好麻烦。如果能保存之前的设置，一键切换，会很方便！
 - [ ] 本地配置文件（json）设计
   - [x] 提供操作接口 => db.ts

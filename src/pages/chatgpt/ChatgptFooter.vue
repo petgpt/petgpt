@@ -43,7 +43,7 @@ const slotChildData = reactive([
 
 const userInput = ref('');
 
-const emits = defineEmits(['upsertLatestText', 'clearCurrentChat'])
+const emits = defineEmits(['upsertLatestText', 'clearCurrentChat', 'deleteLastMsg'])
 const chatStore = useChatStore()
 function chatTest(event: KeyboardEvent){
   event.preventDefault()
@@ -64,6 +64,21 @@ function chatTest(event: KeyboardEvent){
     input: userInput.value
   })
   userInput.value = ''
+}
+
+// TODO: 如果这里快速点击两次，会发送两次reload的chat请求
+function reloadChat() {
+  emits('deleteLastMsg')
+
+  // 发送消息给插件
+  let pluginPureName = chatStore.getActivePluginNameList[+chatStore.getActivePluginIndex];
+  let channel = `plugin.${pluginPureName}.func.handle`;
+  // 发往main线程，调用插件的handle函数, reload为true
+  sendToMain(channel, {
+    pluginName: pluginPureName,
+    input: userInput.value, // TODO: 这里要获取之前用户输入的，也就是从新获取答案的input。现在暂时不支持改最新的input，只支持reload之前的input，尝试重新获取之前input的回复
+    reload: true
+  })
 }
 
 function clearChat() {
@@ -151,6 +166,9 @@ function removeKeyDownListener() {
   window.removeEventListener('keydown', onTabKeyDown)
 }
 
+defineExpose({
+  reloadChat
+})
 </script>
 
 <style scoped lang="less">

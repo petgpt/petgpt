@@ -85,4 +85,5 @@ export interface ChatItem {
   type: 'user' | 'system',
   text: string,
   time?: string
+  reload?: boolean
 }

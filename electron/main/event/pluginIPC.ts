@@ -83,11 +83,11 @@ export default {
             })
 
             // 监听插件的核心handle事件，调用插件的核心方法
-            ipcMain.on(`plugin.${purePluginName}.func.handle`, (event: IpcMainEvent, args: {pluginName: string, input: any}) => {
+            ipcMain.on(`plugin.${purePluginName}.func.handle`, (event: IpcMainEvent, args: {pluginName: string, input: any, reload: boolean}) => {
                 logger.info(`[ipcMain] plugin.${purePluginName}.func.handle`, ` args:`, args)
                 pluginLoader.getPlugin("petgpt-plugin-" + args.pluginName).then((plugin) => {
                     // 调用插件的handle方法
-                    plugin.handle({type: DataType.Text, data: args.input})
+                    plugin.handle({type: DataType.Text, data: args.input}, args.reload)
                 })
             })
 

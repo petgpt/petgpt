@@ -14,12 +14,17 @@
       <el-main class="chatgpt-main" ref="chatMain">
         <el-scrollbar ref="scrollBar">
           <div ref="chatTextContainer">
-            <chat-text ref="chatText" @on-chat-update="onChatUpdateScrollHandler"></chat-text>
+            <chat-text ref="chatText"
+                       @on-chat-update="onChatUpdateScrollHandler"
+                       @on-reload-latest-chat="onReloadLatestChatHandler"
+            ></chat-text>
           </div>
         </el-scrollbar>
       </el-main>
       <el-footer class="chatgpt-footer">
-        <chatgpt-footer @upsertLatestText="upsertLatestText" @clearCurrentChat="clearChatHandler">
+        <chatgpt-footer @upsertLatestText="upsertLatestText"
+                        @clearCurrentChat="clearChatHandler"
+                        @delete-last-msg="deleteLastMsgHandler" ref="chatgptFooter">
           <template v-for="(slotInfo, index) in currentPluginSlotInfo" v-slot:[`slot`+slotInfo.slot]="{ data }">
             <el-popover
                 placement="top-start"
@@ -235,6 +240,10 @@ function clearChatHandler() {
   chatText.value.clearChatContext(true)
 }
 
+function deleteLastMsgHandler() {
+  chatText.value.deleteLastText()
+}
+
 // scrollbar自动触底
 let scrollBar = ref();
 let chatTextContainer = ref() // chatText的父元素，用于获取chatText的高度
@@ -242,6 +251,11 @@ function onChatUpdateScrollHandler() {
   nextTick(() => {
     scrollBar.value!.setScrollTop(+chatTextContainer.value.clientHeight - 400)
   })
+}
+
+const chatgptFooter = ref()
+function onReloadLatestChatHandler() {
+  chatgptFooter.value.reloadChat()
 }
 </script>
 

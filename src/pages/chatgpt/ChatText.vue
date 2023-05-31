@@ -4,7 +4,9 @@
       <el-col :span="20">
         <el-card :body-style="{ padding: '8px', background: item.type === 'user' ? 'linear-gradient(to right, rgb(241, 242, 181), rgb(19 80 88 / 64%))' : 'none' }">
           <div class="chat-content">
-            <div v-html="textToHtml(item.text)"></div>
+            <div v-html="textToHtml(item.text)">
+            </div>
+            <span v-if="(index === chatList.length - 2 || index === chatList.length - 1) && item.type === 'user'" style="color: white;" @click="reloadCurrentChat">&#10227;</span>
           </div>
         </el-card>
       </el-col>
@@ -125,7 +127,18 @@ const textToHtml = (text: string) => {
 }
 
 function deleteLastText() {
-  chatList.pop()
+  // check chatList last item is user type
+  if (chatList.length === 0) {
+    return
+  }
+
+  if (chatList[chatList.length - 1].type === 'system') {
+    chatList.pop()
+  }
+}
+
+function reloadCurrentChat() {
+  emits('onReloadLatestChat')
 }
 
 onBeforeMount(() => {
@@ -163,10 +176,11 @@ function clearChatContext(isClearContext: boolean) {
   if(isClearContext) chatList.splice(0, chatList.length)
 }
 
-const emits = defineEmits(['onChatUpdate']);
+const emits = defineEmits(['onChatUpdate', 'onReloadLatestChat'])
 defineExpose({
   upsertLatestText,
-  clearChatContext
+  clearChatContext,
+  deleteLastText
 })
 </script>
 
@@ -195,7 +209,13 @@ defineExpose({
     }
   }
   &-content{
+    display: flex;
     text-align: left;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
   }
 }
 </style>
