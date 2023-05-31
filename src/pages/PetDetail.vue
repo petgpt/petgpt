@@ -81,6 +81,9 @@
   <div>
     识别到的东西：{{dragContent}}
   </div>
+  <h1 class="text-3xl font-bold underline">
+    Hello world! Tailwindcss
+  </h1>
 </template>
 
 <script setup lang="ts">
