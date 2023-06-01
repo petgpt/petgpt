@@ -204,6 +204,7 @@ export async function update(plugins: string[], options: IPluginHandlerOptions =
         // update plugins must use pkgNameList:
         // npm update will use the package.json's name
         pkgNameList.push('--latest')
+        await execCommand('install', [], app.getPath('userData'), options, env)
         const result = await execCommand('upgrade', pkgNameList, app.getPath('userData'), options, env)
         if (!result.code) {
             logger.info('PLUGIN_HANDLER_PLUGIN_UPDATE_SUCCESS')

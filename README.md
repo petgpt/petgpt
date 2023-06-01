@@ -112,6 +112,8 @@ yarn run build
 - [x] main窗口拖动的时候，碰到屏幕边缘闪烁
 - [ ] main/renderer的系统通知，监听notification的click事件都失败了，不知道为啥。
 - [ ] electron-clipboard-ex不兼容linux平台
+- [x] 更新插件的时候，error信息：Outdated lockfile. Please run `yarn install` and try again. code为1.
+  - 通过在update前执行一个yarn install暂时解决
 ---
 
 This project was generated with [electron-vite-vue](https://github.com/electron-vite/electron-vite-vue)

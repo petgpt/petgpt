@@ -124,12 +124,12 @@ onMounted(async () => {
   ipcRenderer.on('hideMenu', () => {
     hide.value = true
   })
-  registerCurrentPlugin()
+  initCurrentPluginClient()
 })
 
 // 暂时调用的是插件的register方法，因为api的初始化都是在register里，插件设计的时候没有单独提供init的方法
-function registerCurrentPlugin() {
-  sendToMain('plugin.register', pluginPureName.value)
+function initCurrentPluginClient() {
+  sendToMain('plugin.init', pluginPureName.value)
 }
 
 /**
@@ -222,7 +222,7 @@ function upsertLatestText(arg: any) {
 function changePluginHandler(isClearContext: boolean) {
   fetchSlotData()
   chatText.value.clearChatContext(isClearContext)
-  registerCurrentPlugin()
+  initCurrentPluginClient()
 }
 
 // sidebar menu
