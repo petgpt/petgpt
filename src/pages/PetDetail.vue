@@ -81,9 +81,12 @@
   <div>
     识别到的东西：{{dragContent}}
   </div>
-  <h1 class="text-3xl font-bold underline">
+  <h1 class="text-1xl font-bold underline underline-offset-4">
     Hello world! Tailwindcss
   </h1>
+  <button class="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300">
+    原生tailwind
+  </button>
 </template>
 
 <script setup lang="ts">

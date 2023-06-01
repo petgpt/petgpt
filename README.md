@@ -55,6 +55,8 @@ yarn run build
   - [x] [chatgpt插件](https://www.npmjs.com/package/petgpt-plugin-chatgpt)
     - [ ] 多个对话
   - [x] [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
+  - [ ] poe插件，基本搞定了
+  - [ ] 输入框的 / 字符检测，设计其他插件怎么接入自己的数据？可以在打出/的时候，弹出当前安装所以插件提供的可选命令，然后进行不同的操作
 - [ ] 拖动的时候，屏幕不同边缘检测
 - [ ] 根据功能，进行页面布局设计
 - [ ] chatgpt的对话，提供修改功能，点击之前发送的文本，可以便捷的进行修改。
