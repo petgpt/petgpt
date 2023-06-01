@@ -7,7 +7,7 @@ import {
     Detail_Window_Width,
     Main_Window_Height,
     Main_Window_Width
-} from "../../../src/utils/events/constants";
+} from "../../../src/utils/constants";
 import {app} from "electron";
 
 function dbSetIfNotPresent(db:DBList, key: string, value) {

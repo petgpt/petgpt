@@ -11,7 +11,7 @@ import {
     Main_Window_Height,
     Main_Window_Width,
     Set_Main_Window_Pos
-} from "../../../src/utils/events/constants";
+} from "../../../src/utils/constants";
 import dbMap from "../data/db";
 import WindowManger from "./windowManger";
 import logger from "../utils/logger";

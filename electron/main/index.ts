@@ -6,7 +6,7 @@ import pluginIPC from "./event/pluginIPC";
 import windowManger from "./window/windowManger";
 import WindowManger from "./window/windowManger";
 import {DBList, IWindowList} from "./types/enum";
-import {Main_Window_Height, Main_Window_Width} from "../../src/utils/events/constants";
+import {Main_Window_Height, Main_Window_Width} from "../../src/utils/constants";
 import dbMap from "./data/db";
 import config from '../main/data/config'
 import PluginLoader from "./plugin/PluginLoader";

@@ -19,7 +19,7 @@ import {
   Main_Window_Height,
   Main_Window_Width,
   Set_Main_Window_Pos
-} from "../utils/events/constants";
+} from "../utils/constants";
 import {sendToMain} from "../utils/dataSender";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'

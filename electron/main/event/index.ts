@@ -6,7 +6,7 @@ import {
     Set_Short_Keys, Sys_Notification
 }
 // @ts-ignore
-    from "../../../src/utils/events/constants";
+    from "../../../src/utils/constants";
 
 import {
     app,

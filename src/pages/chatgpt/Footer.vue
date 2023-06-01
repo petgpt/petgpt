@@ -28,7 +28,7 @@ import {v4 as uuidv4} from "uuid";
 import {sendToMain} from "../../utils/dataSender";
 import {useChatStore} from "../../store";
 import {ipcRenderer} from "electron";
-import {Get_ClipBoard_Type} from "../../utils/events/constants";
+import {Get_ClipBoard_Type} from "../../utils/constants";
 import {logger} from "../../utils/common";
 
 // 可以通过这样的方式，把子组件的数据传递给父组件

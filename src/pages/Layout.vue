@@ -98,8 +98,8 @@
 </template>
 
 <script setup lang="ts">
-import ChatgptAside from "./chatgpt/ChatgptAside.vue";
-import ChatgptFooter from "./chatgpt/ChatgptFooter.vue";
+import ChatgptAside from "./chatgpt/Aside.vue";
+import ChatgptFooter from "./chatgpt/Footer.vue";
 import ChatText from "./chatgpt/ChatText.vue";
 import {computed, nextTick, onMounted, reactive, ref} from "vue";
 import {ipcRenderer, IpcRendererEvent} from "electron";

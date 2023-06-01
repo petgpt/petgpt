@@ -6,17 +6,17 @@ export default createRouter({
         {
             path: '/',
             name: "PetTest",
-            component: () => import("../pages/PetTest.vue")
+            component: () => import("../pages/PetMain.vue")
         },
         {
             path: '/petDetail',
             name: "PetDetail",
-            component: () => import("../pages/PetDetail.vue")
+            component: () => import("../pages/example/FunctionalDemo.vue")
         },
         {
             path: '/chatgpt',
             name: "Chatgpt",
-            component: () => import("../pages/ChatgptLayout.vue")
+            component: () => import("../pages/Layout.vue")
         },
         {
             path: '/setting',

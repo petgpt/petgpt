@@ -90,9 +90,9 @@
 </template>
 
 <script setup lang="ts">
-import {usePersistStoreTest, useTitleStore} from "../store";
+import {usePersistStoreTest, useTitleStore} from "../../store";
 import {ipcRenderer, IpcRendererEvent} from "electron";
-import {sendToMain} from "../utils/dataSender";
+import {sendToMain} from "../../utils/dataSender";
 import {computed, onMounted, ref} from "vue";
 import {
   Change_Image,
@@ -102,11 +102,11 @@ import {
   Reset_Short_Key,
   Set_Short_Keys,
   Sys_Notification
-} from "../utils/events/constants";
+} from "../../utils/constants";
 import {writeFile} from "fs";
-import {DBList, IWindowList} from "../utils/types/types";
+import {DBList, IWindowList} from "../../utils/types/types";
 import {RecordRTCPromisesHandler} from 'recordrtc';
-import {logger} from "../utils/common";
+import {logger} from "../../utils/common";
 
 const platform = computed(() => process.platform); // 获取当前的操作系统
 
