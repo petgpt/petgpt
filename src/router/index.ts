@@ -16,7 +16,7 @@ export default createRouter({
         {
             path: '/chatgpt',
             name: "Chatgpt",
-            component: () => import("../pages/Layout.vue")
+            component: () => import("../pages/chatLayout/Layout.vue")
         },
         {
             path: '/setting',
