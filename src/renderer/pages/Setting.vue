@@ -35,7 +35,11 @@
 						<div class="card w-64 bg-base-100 shadow-md">
 							<div class="card-body">
 								<h3 class="card-title">{{ info.name }} - {{ info.version }}</h3>
-								<h3>{{ info.description }}</h3>
+								<div class="tooltip tooltip-top" :data-tip="info.description">
+                  <div class="flex flex-row">
+                    <div class="truncate">{{ info.description }}</div>
+                  </div>
+                </div>
 								<div class="flex flex-row justify-start">
 									<svg
 										@click="configClickHandler(index)"

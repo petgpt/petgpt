@@ -57,10 +57,11 @@
 	</div>
 	<div class="footer-second">
 		<textarea
+      id="input-textarea"
 			v-model="userInput"
 			@keydown.enter="chatTest"
 			ref="userInputRef"
-			class="textarea-bordered textarea textarea-xs w-full"
+			class="textarea-bordered textarea textarea-xs w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
 			:placeholder="placeHolder"
 		></textarea>
 		<!--    <input :autosize="{ minRows: 1, maxRows: 15 }" autofocus clearable>-->
@@ -69,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import {nextTick, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { sendToMain } from '../../utils/dataSender'
 import { useChatStore } from '../../store'
@@ -89,8 +90,8 @@ const userInput = ref('')
 
 const emits = defineEmits(['upsertLatestText', 'clearCurrentChat', 'deleteLastMsg'])
 const chatStore = useChatStore()
-function chatTest(event: Event | null) {
-	event?.preventDefault()
+function chatTest(event: Event | undefined) {
+  if(event) event.preventDefault()
 	// 添加用户输入的文本
 	emits('upsertLatestText', {
 		id: uuidv4(),
@@ -107,7 +108,10 @@ function chatTest(event: Event | null) {
 		pluginName: pluginPureName,
 		input: userInput.value,
 	})
+
 	userInput.value = ''
+  const textarea = document.getElementById('input-textarea')!;
+  textarea.style.height = 'auto';
 }
 
 // TODO: 如果这里快速点击两次，会发送两次reload的chat请求
@@ -127,7 +131,7 @@ function reloadChat() {
 
 function continueChat() {
 	userInput.value = 'continue/继续'
-	chatTest(null)
+	chatTest(undefined)
 }
 
 function clearChat() {
@@ -138,6 +142,8 @@ function clearChat() {
 	let channel = `plugin.${pluginPureName}.func.clear`
 	sendToMain(channel)
 	userInput.value = ''
+  const textarea = document.getElementById('input-textarea')!;
+  textarea.style.height = 'auto';
 }
 
 const clipBoardData = ref<{ type: string; data: string }[]>([])
@@ -181,16 +187,36 @@ function pasteToUserInput() {
 	}
 }
 
+
+const inputTextAreaListener = () => {
+  const textarea = document.getElementById('input-textarea')!;
+  textarea.style.height = 'auto';  // 先将高度设置为 auto
+  textarea.style.height = (textarea.scrollHeight + 3) > 350 ? '350px' : textarea.scrollHeight + 3 + 'px'; // 再将高度设置为内容的高度
+};
 const placeHolder = ref('请输入聊天内容')
 watch(
 	userInput,
 	(newVal, oldVal) => {
 		addOrRemoveTabListener()
+    nextTick(() => {
+      const textarea = document.getElementById('input-textarea')!;
+      textarea.addEventListener('input', inputTextAreaListener);
+    })
 	},
 	{
 		immediate: true,
 	}
 )
+
+onBeforeUnmount(() => {
+  removeAllListener()
+})
+
+function removeAllListener() {
+  const textarea = document.getElementById('input-textarea')!;
+  textarea.removeEventListener('input', inputTextAreaListener);
+  removeKeyDownListener()
+}
 
 function addOrRemoveTabListener() {
 	// 为空, 存在剪贴板数据
