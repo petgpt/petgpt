@@ -4,9 +4,10 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GITHUB_TOKEN: ${{ secrets.PETGPT_TOKEN }}
 
 jobs:
   create-draft:
@@ -34,9 +35,12 @@ jobs:
         run: npm install
 
       - name: Build Release Files
-        run: | 
+        run: |
           npm run build
-          tar -zcvf ${{ env.VERSION }}.tar.gz -C release/${{ env.VERSION }}/win-unpacked .
+          dir
+          dir release
+          dir release\${{ env.VERSION }}
+          tar -zcvf "$VERSION.tar.gz" -C "release\$VERSION\win-unpacked" .
         env:
           GITHUB_TOKEN: ${{ secrets.PETGPT_TOKEN }}
       - run: gh release upload ${{github.ref_name}} ${{ env.VERSION }}.tar.gz
