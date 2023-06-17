@@ -2,8 +2,8 @@
 	<div class="flex h-full flex-row justify-start">
 		<chat-aside @changePlugin="changePluginHandler" v-if="!hide" class="hover:bg-base-300"></chat-aside>
 		<MenuDividerArrow :rotate="!hide" @click="hideMenuHandler"></MenuDividerArrow>
-    <ChatMain ref="chatMain"></ChatMain>
-		<MenuDividerArrow :init-rotate="true" @click="hideSideBarHandler"></MenuDividerArrow>
+    <ChatMain ref="chatMain" class="w-full"></ChatMain>
+		<MenuDividerArrow :init-rotate="true" @click="hideSideBarHandler" class="fixed right-2.5 top-1/2"></MenuDividerArrow>
 		<chat-side-bar></chat-side-bar>
 	</div>
 </template>

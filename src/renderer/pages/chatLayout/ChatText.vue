@@ -6,7 +6,8 @@
 		:class="item.type === 'user' ? 'chat-end' : 'chat-start'"
 	>
 		<div class="chat-bubble flex flex-col items-end justify-start">
-			<div v-html="textToHtml(item.text)"></div>
+			<div v-if="item.type === 'user'" style="width: -webkit-fill-available; overflow: auto" class="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded">{{item.text}}</div>
+			<div v-else v-html="textToHtml(item.text)" style="width: -webkit-fill-available; overflow: auto" class="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"></div>
 			<span
 				v-if="(index === chatList.length - 2 || index === chatList.length - 1) && item.type === 'user'"
 				class="cursor-pointer pl-1 text-2xl text-white"
@@ -171,13 +172,17 @@ onBeforeMount(() => {
 })
 
 function upsertLatestText(message: ChatItem) {
+  if (message.type === 'user') {
+
+  }
+
 	if (chatList.length === 0) {
 		chatList.push({
 			id: message.id,
 			type: message.type,
 			text: message.text,
 			// time: getCurrentTime()
-		})
+		});
 	} else {
 		if (chatList[chatList.length - 1].id === message.id) {
 			// 如果和前面的id一样，就更新text就行
@@ -192,7 +197,7 @@ function upsertLatestText(message: ChatItem) {
 			})
 		}
 		// 对外emit事件，返回信息来了
-		emits('onChatUpdate')
+		emits('onChatUpdate');
 	}
 }
 
