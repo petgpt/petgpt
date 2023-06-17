@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+	html {
+		@apply !bg-transparent;
+	}
+	body {
+		@apply flex;
+	}
+	pre {
+		@apply overflow-x-auto rounded-md bg-base-200 text-black scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded;
+	}
+}
+
+@layer components {
+	#app {
+		@apply flex flex-1 flex-row p-2;
+	}
+
+	.flex-r-c {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		align-content: center;
+	}
+}
+
+/* http://meyerweb.com/eric/tools/css/reset/
+  v2.0 | 20110126
+  License: none (public domain)
+*/
+html,
+body,
+#app {
+	height: 100%;
+}
+
+pre {
+	display: block;
+	background-color: #f3f3f3;
+	overflow-y: auto;
+	font-weight: 300;
+	font-family: Menlo, monospace;
+	border-radius: 0.3rem;
+}
+pre {
+	background-color: #1d242f !important;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+pre > code {
+	border: 0px !important;
+	background-color: #1d242f !important;
+	color: #fff;
+	/* 代码换行 */
+	white-space: pre-wrap;
+}
+code {
+	display: inline-block;
+	background-color: #f3f3f3;
+	border: 1px solid #fdb9cc;
+	border-radius: 3px;
+	font-size: 12px;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: #4f4f4f;
+	margin: 0px 3px;
+}

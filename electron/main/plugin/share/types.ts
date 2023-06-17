@@ -4,6 +4,7 @@
 export interface IPetPluginInterface {
     register: () => void
     unregister: () => void
+    init?: () => void
     config?: (ctx: PetExpose) => IPluginConfig[]
     slotMenu?: (ctx: PetExpose) => SlotMenu[]
     actions?: PluginAction[]

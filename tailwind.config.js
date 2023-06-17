@@ -5,7 +5,18 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
+    container: {
+      center: true,
+    },
     extend: {},
   },
-  plugins: [],
+  daisyui: {
+    themes: ["light", "dark"],
+  },
+  plugins: [
+    require('@tailwindcss/typography'),
+    require("daisyui"),
+    require('prettier-plugin-tailwindcss'),
+    require('tailwind-scrollbar')({ nocompatible: true }),
+  ],
 }

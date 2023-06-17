@@ -57,6 +57,11 @@ yarn run build
   - [x] [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
   - [ ] poe插件，基本搞定了
   - [ ] 输入框的 / 字符检测，设计其他插件怎么接入自己的数据？可以在打出/的时候，弹出当前安装所以插件提供的可选命令，然后进行不同的操作
+  - [ ] 全局的 / 检测
+    - [ ] 可以在任何地方打出 / 进行对话 ==> 随之而来的是，重新生成回复/更创造性的回复/更严谨的回复，
+    - [ ] 快捷键操作，支持回滚自动生成的回复
+    - [ ] 支持读取当前文档里的内容，进行对话
+    - [ ] 在渲染回答的下面添加一个下箭头，用户点击后，相当于输入了继续，会添加一个divider后，把后面的api返回的东西往前面的里拼接（token设置过小问答会中断）
 - [ ] 拖动的时候，屏幕不同边缘检测
 - [ ] 根据功能，进行页面布局设计
 - [ ] chatgpt的对话，提供修改功能，点击之前发送的文本，可以便捷的进行修改。
@@ -106,12 +111,17 @@ yarn run build
 ### bug
 - [x] aside翻页的时候跟随着一起运动了。
 - [x] 消息没有自动滚动到最底部
+- [ ] 用户输入的div，不应该被渲染，应该展示为字符串
+- [ ] ChatText.vue最下面好像被遮住了，布局是不是要再往上一点
+- [ ] markdown渲染的时候，1. 2. 这些有时候会渲染掉？？为啥？？之前好像是好的
 - [ ] 侧边缩小的时候，用户的文字超出边框了 | system的消息在 `包裹` 里面，所以超出边框了 | 用户输入的代码没有格式化 | 用户输入的regex不见了 
 - [ ] chatgpt插件slotMenu的标题没有改
 - [ ] 文件类型获取的时候，md多个hex值。xml与psd冲突。mac没有测试行不行。
 - [x] main窗口拖动的时候，碰到屏幕边缘闪烁
 - [ ] main/renderer的系统通知，监听notification的click事件都失败了，不知道为啥。
 - [ ] electron-clipboard-ex不兼容linux平台
+- [x] 更新插件的时候，error信息：Outdated lockfile. Please run `yarn install` and try again. code为1.
+  - 通过在update前执行一个yarn install暂时解决
 ---
 
 This project was generated with [electron-vite-vue](https://github.com/electron-vite/electron-vite-vue)
