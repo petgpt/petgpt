@@ -4,6 +4,9 @@ on:
     tags:
       - "v*"
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   create-draft:
     runs-on: ubuntu-latest
