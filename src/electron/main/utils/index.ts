@@ -1,8 +1,10 @@
-import { Notification } from 'electron'
+import {dialog, Notification, shell} from 'electron'
 import { lstat } from 'node:fs/promises'
 import clipboardEx from 'electron-clipboard-ex'
 import fs from 'fs'
 import logger from './logger'
+import child_process from "child_process";
+import pkg from '../../../../package.json'
 
 export function showNotification(options: INotification) {
 	const notification = new Notification({
@@ -77,4 +79,28 @@ function fileType(buffer: any) {
 	}
 	let hex = buffer.toString('hex', 0, 4)
 	return { hex: hex, type: types[hex] }
+}
+
+export function updateChecker() {
+	// 获取是否有更新
+	let fetchVersionCMD = "curl -sL \"https://api.github.com/repos/petgpt/petgpt/releases/latest\" | find \"tag_name\" | for /F \"delims=: tokens=2\" %a in ('more') do @echo %~a"
+	let childProcess = child_process.exec(fetchVersionCMD);
+	childProcess.stdout?.on('data', (data) => {
+		let raw = data.trim();
+		let version = raw.substring(1, raw.length - 2)
+		if (version && version != 'v'+pkg.version) {
+			dialog.showMessageBox({
+				title: '检查到新版本',
+				message: `检查到新版本: ${version}, 是否跳转下载地址`,
+				detail: `下载地址：https://github.com/petgpt/petgpt/releases`,
+				buttons: ['确定', '取消']
+			}).then((response) => {
+				if (response.response === 0) {
+					shell.openExternal('https://github.com/petgpt/petgpt/releases');
+				}
+			}).catch((error) => {
+				console.error(error);
+			});
+		}
+	});
 }

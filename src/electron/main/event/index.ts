@@ -177,11 +177,19 @@ export default {
 			})
 		})
 
+		// curl -sL "https://api.github.com/repos/petgpt/petgpt/releases/latest" | find "tag_name" | for /F "delims=: tokens=2" %a in ('more') do @echo %~a
+
 		// 运行cmd
 		ipcMain.on(Execute_Cmd, (event: IpcMainEvent, cmd: string) => {
 			let child = child_process.execFile
 
-			child_process.exec(cmd)
+			let childProcess = child_process.exec(cmd);
+			// log
+			childProcess.stdout?.on('data', (data) => {
+				let version = data.trim();
+				logger.info(`${version.substring(1, version.length - 2)}`);
+			});
+
 			// child(args.executablePath, ['--incognito', '--window-size=800,600'], function(err, data) {
 			//     // dialog.showMessageBox({
 			//     //     // message: `err: ${err}, data: ${data}`

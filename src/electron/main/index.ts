@@ -14,6 +14,7 @@ import { PetExpose } from './plugin/share/types'
 import { EventEmitter } from 'events'
 import logger from './utils/logger'
 import pkg from '../../../package.json'
+import {updateChecker} from "./utils";
 
 process.env.DIST_ELECTRON = join(__dirname, '../')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
@@ -160,6 +161,8 @@ class LifeCycle {
 				let chatWindow = windowManger.get(IWindowList.PET_CHAT_WINDOW)
 				chatWindow?.webContents.send('clear')
 			})
+
+			updateChecker()
 		})
 		pluginIPC.listen(this.pluginLoader, this.ctx)
 	}
