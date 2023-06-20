@@ -220,7 +220,7 @@ function removeAllListener() {
 
 function addOrRemoveTabListener() {
 	// 为空, 存在剪贴板数据
-	if (userInput.value === '' && clipBoardData.value && clipBoardData.value.length) {
+	if (userInput.value === '') {
 		placeHolder.value = 'TAB 粘贴剪贴板内容'
 		addKeyDownListener()
 	} else {
