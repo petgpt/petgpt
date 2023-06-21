@@ -23,6 +23,7 @@ yarn run build
 - [插件模板](https://www.npmjs.com/package/petgpt-plugin-template)
 - [chatgpt插件](https://www.npmjs.com/package/petgpt-plugin-chatgpt)
 - [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
+- [poe chat插件](https://www.npmjs.com/package/poe-node-api)
 
 ---
 
@@ -56,7 +57,7 @@ yarn run build
     - [ ] 多个对话
   - [x] [bing chat插件](https://www.npmjs.com/package/petgpt-plugin-bing-chat)
   - [x] [poe chat插件](https://www.npmjs.com/package/poe-node-api)
-  - [ ] poe插件，基本搞定了
+  - [x] poe插件，基本搞定了
   - [ ] 输入框的 / 字符检测，设计其他插件怎么接入自己的数据？可以在打出/的时候，弹出当前安装所以插件提供的可选命令，然后进行不同的操作
   - [ ] 全局的 / 检测
     - [ ] 可以在任何地方打出 / 进行对话 ==> 随之而来的是，重新生成回复/更创造性的回复/更严谨的回复，
@@ -73,6 +74,7 @@ yarn run build
   - [x] 自定义temperature等参数
   - [x] markdown\表格\code
   - [x] latex
+  - [x] 对话导出为图片
   - [ ] 其他接口（模型操作、图片操作、语音转文字接口）
   - [x] 重新获取最新一条用户输入的completion
     - [ ] bug: 目前在修改temperature等参数后，再reload会找不到消息。改了参数不应该重新create client，只是修改发起请求携带的参数而已。
@@ -102,8 +104,8 @@ yarn run build
 - [ ] 自定义请求
   - [ ] 对接别人免费的网站，模拟请求
   - [ ] 可行吗？要试试
-- [ ] CI
-  - [ ] 修改现有的.github/workflows里的action，改为可以用的
+- [x] CI
+  - [x] 修改现有的.github/workflows里的action，改为可以用的 ==> push tag来触发，而不是模板自带的push触发
 
 素材：
 - [ ] 默认的gif
@@ -112,10 +114,10 @@ yarn run build
 ### bug
 - [x] aside翻页的时候跟随着一起运动了。
 - [x] 消息没有自动滚动到最底部
-- [ ] 用户输入的div，不应该被渲染，应该展示为字符串
-- [ ] ChatText.vue最下面好像被遮住了，布局是不是要再往上一点
+- [x] 用户输入的div，不应该被渲染，应该展示为字符串
+- [x] ChatText.vue最下面好像被遮住了，布局是不是要再往上一点
 - [ ] markdown渲染的时候，1. 2. 这些有时候会渲染掉？？为啥？？之前好像是好的
-- [ ] 侧边缩小的时候，用户的文字超出边框了 | system的消息在 `包裹` 里面，所以超出边框了 | 用户输入的代码没有格式化 | 用户输入的regex不见了 
+- [x] 侧边缩小的时候，用户的文字超出边框了 | system的消息在 `包裹` 里面，所以超出边框了 | 用户输入的代码没有格式化 | 用户输入的regex不见了 
 - [ ] chatgpt插件slotMenu的标题没有改
 - [ ] 文件类型获取的时候，md多个hex值。xml与psd冲突。mac没有测试行不行。
 - [x] main窗口拖动的时候，碰到屏幕边缘闪烁
