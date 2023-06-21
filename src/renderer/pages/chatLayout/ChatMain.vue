@@ -1,7 +1,6 @@
 <template>
   <div class="main-and-footer-container flex w-fit flex-1 flex-col pb-1 pr-2">
-    <div
-      class="el-main m-1 flex h-full w-[70] flex-col overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
+    <div id="image-wrapper"  class="el-main m-1 flex h-full w-[70] flex-col overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
       ref="scrollBar"
     >
       <div class="el-scrollbar">

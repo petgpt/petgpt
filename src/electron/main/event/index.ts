@@ -244,6 +244,26 @@ export default {
 			app.exit(0)
 		})
 
+		// 创建保存文件对话框
+		ipcMain.on('saveImage', (event, imgUrl) => {
+			const options = {
+				title: 'Save Image',
+				defaultPath: app.getPath('downloads'),
+				filters: [{ name: 'Images', extensions: ['png'] }],
+			};
+
+			dialog.showSaveDialog(BrowserWindow?.getFocusedWindow()!, options).then((result) => {
+				if (!result.canceled && result.filePath) {
+					const base64Data = imgUrl.replace(/^data:image\/png;base64,/, '');
+					fs.writeFile(result.filePath, base64Data, 'base64', (err) => {
+						if (err) {
+							console.error(err);
+						}
+					});
+				}
+			});
+		});
+
 		// ipcMain.on('logger', (event: IpcMainEvent, args: string) => {
 		//     logger.info(args)
 		// })
