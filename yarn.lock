@@ -2722,10 +2722,10 @@ vite-plugin-electron-renderer@^0.12.1:
   dependencies:
     lib-esm "~0.3.0"
 
-vite-plugin-electron@^0.11.1:
-  version "0.11.1"
-  resolved "https://registry.npmmirror.com/vite-plugin-electron/-/vite-plugin-electron-0.11.1.tgz"
-  integrity sha512-pi9Wy4KCGjKIRvp7/5VUOT8BYEAJdZrpy3gI+GhGc5vYs2V9yPxLOtfCqNfSTYqH3uM6hYY6MyifFVku3Wg+2A==
+vite-plugin-electron@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-electron/-/vite-plugin-electron-0.12.0.tgz#dcf47111d8b140513f08ae988029e112efa4df14"
+  integrity sha512-MVvi7XZdrPKBkCMMK/Kiwdl4Epg3GSPPyk3wOAMhWEGKmCemrXkD/xUU8rF7jF0pthR6ZPjd2gmeNxSLWMQfZw==
 
 vite-plugin-wasm@^3.2.2:
   version "3.2.2"
