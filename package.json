@@ -34,7 +34,7 @@
 		"@types/uuid": "^9.0.1",
 		"@vitejs/plugin-vue": "^4.1.0",
 		"autoprefixer": "^10.4.14",
-		"daisyui": "^3.0.20",
+		"daisyui": "^3.6.4",
 		"electron": "^23.1.1",
 		"electron-builder": "^23.6.0",
 		"postcss": "^8.4.24",
