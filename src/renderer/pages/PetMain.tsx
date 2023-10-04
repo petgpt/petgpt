@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { DBList } from '../../common/enum';
+import { DBList, IWindowList } from '../../common/enum';
 import { ipcRenderer } from 'electron';
 import { logger, sendToMain } from "../utils/common";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
+import { Create_Window } from "../../common/constants";
 
 function useMove() {
   const [dragging, setDragging] = useState(false);
@@ -100,22 +100,11 @@ function useMove() {
 function PetMain() {
   const [toolsVisible, setToolsVisible] = useState(false);
   // const [imageUrl, setImageUrl] = useState('./gif/1.gif');
-  const [publicDir, setPublicDir] = useState('');
-  const [platform, setPlatform] = useState('');
 
   const [imageUrl, setImageUrl] = useState(image);
 
   useMove();
-  useEffect(() => {
-    ipcRenderer.invoke('platform').then((p) => setPlatform(p));
-    ipcRenderer.invoke('publicDir').then((dir) => {
-      setPublicDir(dir);
-      setImageUrl(`${dir}\\gif\\1.gif`);
-      logger(
-        `platform: ${platform}, publicDir: ${publicDir}， imageUrl: ${imageUrl}`,
-      );
-    });
-  }, [imageUrl, platform, publicDir]);
+
   useEffect(() => {
     ipcRenderer.on('Change_Image_Replay', () => {
       // logger(`收到changeImage, args:`, args)
@@ -136,9 +125,14 @@ function PetMain() {
   function onMouseLeaveWindow() {
     setToolsVisible(false);
   }
-  function openDetailWindow() {}
-  function openChatWindow() {}
-  function openSettingWindow() {}
+  function openDetailWindow() {
+    sendToMain(Create_Window, { window: IWindowList.PET_DETAIL_WINDOW, hash: 'petDetail' });
+  }
+  function openChatWindow() {
+    sendToMain(Create_Window, { window: IWindowList.PET_CHAT_WINDOW, hash: 'chatgpt' });}
+  function openSettingWindow() {
+    sendToMain(Create_Window, { window: IWindowList.PET_SETTING_WINDOW, hash: 'setting' });
+  }
 
   return (
     <div

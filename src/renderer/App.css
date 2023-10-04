@@ -69,34 +69,6 @@ code {
   margin: 0px 3px;
 }
 
-/* PetDetail里使用到的样式 */
-.upload-container {
-  position: relative;
-  /* 其他样式 */
-}
-
-.dragover-border {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 3px dashed #29b9b9;
-  z-index: 999;
-  box-sizing: border-box;
-  border-radius: 5px;
-  background-color: #121212;
-  color: #e1e1e1;
-  pointer-events: none;
-}
-
-.upload-container.dragover .dragover-border {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 /* ChatFooter的样式 */
 .footer-first {
   display: flex;
