@@ -1,41 +1,248 @@
-import { useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import SlashToPop from "./SlashToPop";
+import { ipcRenderer } from "electron";
+import { Get_ClipBoard_Type } from "../../../common/constants";
+import domtoimage from 'dom-to-image';
+import { sendToMain } from "../../utils/common";
+import { useLocalStorageState } from "ahooks";
+import { v4 as uuidv4 } from 'uuid'
 
-function ChatFooter() {
-  const [userInput, setUserInput] = useState<
-    string | ReadonlyArray<string> | number | undefined
-  >();
+function ChatFooter(children?: ReactNode,
+                    clearCurrentChat?: () => void,
+                    upsertLatestText?: ({id, type, text}: {id: string, type: string, text: string}) => void,
+                    ) {
+  const [userInput, setUserInput] = useState<string>('');
   const [placeHolder, setPlaceHolder] = useState('请输入聊天内容');
   const userInputRef = useRef(null);
   const clipBoardSvg = useRef(null);
+  const [clipBoardData, setClipBoardData] = useState<{ type: string; data: string }[]>([]);
+  const isOpenModal = useRef(false);
 
-  function chatTest() {
-    // TODO: 检查是不是enter
+  const [chatStore, setChatStore] = useLocalStorageState('chatStore', {
+    defaultValue: {
+      activePluginIndex: '0',
+      activePluginNameList: []
+    }
+  });
+
+  useEffect(() => {
+    (async function beforeMount(){
+      await getClipBoard();
+      addOrRemoveTabListener();
+    })()
+
+    ipcRenderer.on('show', () => {
+      getClipBoard()
+      addOrRemoveTabListener()
+      setTimeout(() => {
+        focusUserInput();
+      })
+    })
+
+    ipcRenderer.on('clear', () => {
+      clearChat()
+      setTimeout(() => {
+        focusUserInput();
+      })
+    })
+
+    return () => {
+      ipcRenderer.removeAllListeners('show');
+      ipcRenderer.removeAllListeners('clear');
+      removeAllListener()
+    };
+  }, [])
+
+  useEffect(() => {
+    addOrRemoveTabListener()
+    setTimeout(() => {
+      const textarea = document.getElementById('input-textarea')!;
+      textarea.addEventListener('input', inputTextAreaListener);
+    })
+
+    return () => {
+      removeKeyDownListener();
+    }
+  }, [userInput]);
+
+  function focusUserInput() {
+    // @ts-ignore
+    userInputRef.current?.focus()
   }
 
-  function clearChat() {}
+  async function getClipBoard() {
+    let arg = await ipcRenderer.invoke(Get_ClipBoard_Type)
+    setClipBoardData([{
+      type: arg.type,
+      data: arg.data,
+    }]);
+    let clipSvg = document.getElementById('clipBoardSvg')
+    if (arg.length > 0 && clipSvg) {
+      clipSvg.setAttribute('fill', 'url(#gradient-horizontal)')
+      setTimeout(() => {
+        clipSvg!.setAttribute('fill', 'rgb(96, 96, 96, 1)')
+      }, 8000)
+    }
+  }
 
-  function pasteToUserInput() {}
+  function addOrRemoveTabListener() {
+    // 为空, 存在剪贴板数据
+    if (userInput === '') {
+      setPlaceHolder('TAB 粘贴剪贴板内容');
+      addKeyDownListener();
+    } else {
+      removeKeyDownListener();
+    }
+  }
 
-  function exportChatImage() {}
+  function addKeyDownListener() {
+    removeKeyDownListener()
+    window.addEventListener('keydown', onTabKeyDown)
+  }
+
+  function removeKeyDownListener() {
+    window.removeEventListener('keydown', onTabKeyDown)
+  }
+
+  const inputTextAreaListener = () => {
+    const textarea = document.getElementById('input-textarea')!;
+    textarea.style.height = 'auto';  // 先将高度设置为 auto
+    textarea.style.height = (textarea.scrollHeight + 3) > 350 ? '350px' : textarea.scrollHeight + 3 + 'px'; // 再将高度设置为内容的高度
+  };
+  function removeAllListener() {
+    const textarea = document.getElementById('input-textarea')!;
+    textarea.removeEventListener('input', inputTextAreaListener);
+    removeKeyDownListener()
+  }
+
+  function onTabKeyDown(event: KeyboardEvent) {
+    if (event.code === 'Tab') {
+      // tab键的键码是9
+      event.preventDefault()
+      pasteToUserInput()
+      setTimeout(() => {
+        // textarea的高度自适应
+        const textarea = document.getElementById('input-textarea')!;
+        textarea.style.height = 'auto';  // 先将高度设置为 auto
+        textarea.style.height = (textarea.scrollHeight + 3) > 350 ? '350px' : textarea.scrollHeight + 3 + 'px'; // 再将高度设置为内容的高度
+        focusUserInput();
+      })
+    } else if (event.code === 'Slash') {
+      event.preventDefault()
+      // nextTick(() => userInputRef.value?.focus())
+      openSlashPop('slash')
+      // console.log(`slash!!!`)
+    } else if (event.code === 'Escape') {
+      openSlashPop('esc')
+    }
+  }
+
+  function openSlashPop(action: 'esc' | 'slash') {
+    let myModal = document.getElementById('my_modal_7')!
+    if (isOpenModal.current) {
+      if (action === 'slash') {
+        // open && slash
+        myModal.click() // to close
+      } else {
+        // open && esc
+        myModal.click() // to close
+      }
+      // setIsOpen(false);
+      isOpenModal.current = false
+    } else {
+      if (action === 'slash') {
+        // close && slash
+        myModal.click() // to open
+        // setIsOpen(true);
+        isOpenModal.current = true
+        document.getElementById('tips-input')?.focus()
+      } else {
+        // close && esc
+        // do nothing
+      }
+    }
+  }
+
+  function chatTest(event: React.KeyboardEvent | React.MouseEvent | undefined) {
+    if(event) event.preventDefault()
+    // 添加用户输入的文本
+    upsertLatestText?.({
+      id: uuidv4(),
+      type: 'user',
+      text: userInput,
+    });
+
+    // 发送消息给插件
+    let pluginPureName = chatStore?.activePluginNameList[+chatStore.activePluginIndex]
+    let channel = `plugin.${pluginPureName}.func.handle`
+    // logger(`[renderer] plugin channel:`, channel, ` userInput:`, userInput.value)
+    // 发往main线程，调用插件的handle函数
+    sendToMain(channel, {
+      pluginName: pluginPureName,
+      input: userInput,
+    })
+
+    setUserInput('')
+    const textarea = document.getElementById('input-textarea')!;
+    textarea.style.height = 'auto';
+  }
+
+  function clearChat() {
+    clearCurrentChat?.();
+
+    // 发送消息给插件
+    let pluginPureName = chatStore?.activePluginNameList[+chatStore.activePluginIndex]
+    let channel = `plugin.${pluginPureName}.func.clear`
+    sendToMain(channel)
+    setUserInput('');
+    const textarea = document.getElementById('input-textarea')!;
+    textarea.style.height = 'auto';
+  }
+
+  function pasteToUserInput() {
+    let str = clipBoardData.map(item => item.data).join(', ')
+    setUserInput((prevState) => {
+      prevState += str;
+      return prevState;
+    })
+
+    let clipSvg = document.getElementById('clipBoardSvg')
+    if (clipSvg) {
+      clipSvg.setAttribute('fill', 'rgb(96, 96, 96, 1)')
+    }
+  }
+
+  function exportChatImage() {
+    let ele = document.getElementById('image-wrapper')!;
+    domtoimage.toJpeg(ele, { quality: 0.95, height: ele.scrollHeight, width: ele.scrollWidth })
+      .then(function (dataUrl: string) {
+        var link = document.createElement('a');
+        link.download = 'my-image-name.jpeg';
+        link.href = dataUrl;
+        link.click();
+      });
+  }
 
   return (
     <>
       <div className="footer-first mb-1 mt-1">
-        <svg
-          onClick={clearChat}
-          style={{ cursor: 'pointer' }}
-          className="icon"
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-        >
-          <path
-            d="M448 448H224a32 32 0 0 0-32 32v64a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32v-64a32 32 0 0 0-32-32h-224V160a32 32 0 0 0-32-32h-64a32 32 0 0 0-32 32v288z m-64-64V128a64 64 0 0 1 64-64h128a64 64 0 0 1 64 64v256h192a64 64 0 0 1 64 64v128a64 64 0 0 1-64 64v256a64 64 0 0 1-64 64H256a64 64 0 0 1-64-64v-256a64 64 0 0 1-64-64v-128a64 64 0 0 1 64-64h192z m384 256H256v224a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32v-224z m-96 64a32 32 0 0 1 32 32v160h-64v-160a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v96h-64v-96a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v32h-64v-32a32 32 0 0 1 32-32z"
-            fill="#000000"
-          />
-        </svg>
+        <div className="tooltip tooltip-top" data-tip="清除当前对话(ALT+X)">
+          <svg
+            onClick={clearChat}
+            style={{ cursor: 'pointer' }}
+            className="icon"
+            viewBox="0 0 1024 1024"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+          >
+            <path
+              d="M448 448H224a32 32 0 0 0-32 32v64a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32v-64a32 32 0 0 0-32-32h-224V160a32 32 0 0 0-32-32h-64a32 32 0 0 0-32 32v288z m-64-64V128a64 64 0 0 1 64-64h128a64 64 0 0 1 64 64v256h192a64 64 0 0 1 64 64v128a64 64 0 0 1-64 64v256a64 64 0 0 1-64 64H256a64 64 0 0 1-64-64v-256a64 64 0 0 1-64-64v-128a64 64 0 0 1 64-64h192z m384 256H256v224a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32v-224z m-96 64a32 32 0 0 1 32 32v160h-64v-160a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v96h-64v-96a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v32h-64v-32a32 32 0 0 1 32-32z"
+              fill="#000000"
+            />
+          </svg>
+        </div>
         <svg
           ref={clipBoardSvg}
           id="clipBoardSvg"
@@ -82,20 +289,29 @@ function ChatFooter() {
             />
           </g>
         </svg>
+        <div className='footer-first-slot'>
+          {/*{children}*/}
+        </div>
       </div>
       <div className="footer-second">
         <textarea
           id="input-textarea"
           value={userInput}
-          onKeyDown={chatTest}
+          onKeyDown={e => {
+            if (e.code === 'Enter') {
+              chatTest(e);
+            }
+          }}
+          onChange={(e) => setUserInput(e.target.value)}
           ref={userInputRef}
           className="textarea-bordered textarea textarea-xs w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
           placeholder={placeHolder}
         />
-        <button className="btn-info btn-md btn ml-1" onClick={chatTest}>
+        <button className="btn-info btn-md btn ml-1" onClick={e => chatTest(e)}>
           send
         </button>
       </div>
+      <SlashToPop />
     </>
   );
 }
