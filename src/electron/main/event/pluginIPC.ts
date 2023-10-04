@@ -10,7 +10,6 @@ import { handleStreamlinePluginName } from '../plugin/common'
 import { TextFileSync } from '@commonify/lowdb'
 import logger from '../utils/logger'
 import dbMap from '../data/db'
-import { cloneVNode } from 'vue'
 
 export default {
 	listen(pluginLoader: PluginLoader, ctx: PetExpose) {

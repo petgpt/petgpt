@@ -17,7 +17,7 @@ class Logger implements ILogger {
 		// 完整的日志路径：log.transports.file.file，优先级高于 appName、fileName
 
 		// Optional, initialize the logger for any renderer processses
-		log.initialize({ preload: true })
+		// log.initialize({ preload: true })
 		// log.initialize({ spyRendererConsole: true });
 	}
 
