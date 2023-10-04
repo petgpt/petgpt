@@ -1,23 +1,25 @@
 <template>
 	<div class="footer-first mb-1 mt-1">
-		<svg
-			@click="clearChat"
-			style="cursor: pointer"
-			t="1681655238478"
-			class="icon"
-			viewBox="0 0 1024 1024"
-			version="1.1"
-			xmlns="http://www.w3.org/2000/svg"
-			p-id="907"
-			width="18"
-			height="18"
-		>
-			<path
-				d="M448 448H224a32 32 0 0 0-32 32v64a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32v-64a32 32 0 0 0-32-32h-224V160a32 32 0 0 0-32-32h-64a32 32 0 0 0-32 32v288z m-64-64V128a64 64 0 0 1 64-64h128a64 64 0 0 1 64 64v256h192a64 64 0 0 1 64 64v128a64 64 0 0 1-64 64v256a64 64 0 0 1-64 64H256a64 64 0 0 1-64-64v-256a64 64 0 0 1-64-64v-128a64 64 0 0 1 64-64h192z m384 256H256v224a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32v-224z m-96 64a32 32 0 0 1 32 32v160h-64v-160a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v96h-64v-96a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v32h-64v-32a32 32 0 0 1 32-32z"
-				fill="#000000"
-				p-id="908"
-			></path>
-		</svg>
+    <div class="tooltip tooltip-top" data-tip="清除当前对话(ALT+X)">
+      <svg
+          @click="clearChat"
+          style="cursor: pointer"
+          t="1681655238478"
+          class="icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="907"
+          width="18"
+          height="18"
+      >
+        <path
+            d="M448 448H224a32 32 0 0 0-32 32v64a32 32 0 0 0 32 32h576a32 32 0 0 0 32-32v-64a32 32 0 0 0-32-32h-224V160a32 32 0 0 0-32-32h-64a32 32 0 0 0-32 32v288z m-64-64V128a64 64 0 0 1 64-64h128a64 64 0 0 1 64 64v256h192a64 64 0 0 1 64 64v128a64 64 0 0 1-64 64v256a64 64 0 0 1-64 64H256a64 64 0 0 1-64-64v-256a64 64 0 0 1-64-64v-128a64 64 0 0 1 64-64h192z m384 256H256v224a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32v-224z m-96 64a32 32 0 0 1 32 32v160h-64v-160a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v96h-64v-96a32 32 0 0 1 32-32z m-128 64a32 32 0 0 1 32 32v32h-64v-32a32 32 0 0 1 32-32z"
+            fill="#000000"
+            p-id="908"
+        ></path>
+      </svg>
+    </div>
 		<svg
 			ref="clipBoardSvg"
 			id="clipBoardSvg"
@@ -74,6 +76,7 @@
 		<!--    <input :autosize="{ minRows: 1, maxRows: 15 }" autofocus clearable>-->
 		<button class="btn-info btn-md btn ml-1" @click="chatTest">send</button>
 	</div>
+  <SlashToPop ref="slashToPop"></SlashToPop>
 </template>
 
 <script setup lang="ts">
@@ -84,6 +87,7 @@ import { sendToMain } from '../../utils/dataSender'
 import { useChatStore } from '../../store'
 import { ipcRenderer } from 'electron'
 import { Get_ClipBoard_Type } from '../../../common/constants'
+import SlashToPop from "./SlashToPop.vue";
 
 // 可以通过这样的方式，把子组件的数据传递给父组件
 const slotChildData = reactive([
@@ -246,13 +250,28 @@ function addOrRemoveTabListener() {
 	}
 }
 
+const slashToPop = ref()
 function onTabKeyDown(event: KeyboardEvent) {
 	if (event.code === 'Tab') {
 		// tab键的键码是9
 		event.preventDefault()
 		pasteToUserInput()
-		nextTick(() => userInputRef.value?.focus())
-	}
+		nextTick(() => {
+      // textarea的高度自适应
+      const textarea = document.getElementById('input-textarea')!;
+      textarea.style.height = 'auto';  // 先将高度设置为 auto
+      textarea.style.height = (textarea.scrollHeight + 3) > 350 ? '350px' : textarea.scrollHeight + 3 + 'px'; // 再将高度设置为内容的高度
+      userInputRef.value?.focus()
+    })
+	} else if (event.code === 'Slash') {
+    event.preventDefault()
+    // nextTick(() => userInputRef.value?.focus())
+    slashToPop.value.openSlashPop('slash')
+    // console.log(`slash!!!`)
+  } else if (event.code === 'Escape') {
+    slashToPop.value.openSlashPop('esc')
+    // console.log(`escape!!!`)
+  }
 }
 
 function addKeyDownListener() {
