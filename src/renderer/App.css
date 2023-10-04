@@ -6,7 +6,7 @@
     @apply !bg-transparent;
   }
   body {
-    @apply flex border-2 border-red-600;
+    @apply flex;
   }
   pre {
     @apply overflow-x-auto rounded-md bg-base-200 text-black scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded;

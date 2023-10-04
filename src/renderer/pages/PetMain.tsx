@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { DBList } from '../../common/enum';
 import { ipcRenderer } from 'electron';
 import { logger, sendToMain } from "../utils/common";
-
+import image from '../assets/gif/1.gif'
+import image2 from '../assets/gif/2.gif'
 
 function useMove() {
   const [dragging, setDragging] = useState(false);
@@ -102,9 +103,7 @@ function PetMain() {
   const [publicDir, setPublicDir] = useState('');
   const [platform, setPlatform] = useState('');
 
-  const [imageUrl, setImageUrl] = useState('./gif/1.gif');
-  const image = './gif/1.gif';
-  const image2 = './gif/2.gif';
+  const [imageUrl, setImageUrl] = useState(image);
 
   useMove();
   useEffect(() => {
@@ -147,20 +146,15 @@ function PetMain() {
       onMouseLeave={onMouseLeaveWindow}
       className="pet h-fit"
     >
-      <div>
-        <Link to="/" style={{ backgroundColor: 'white' }}>
-          jump to main
-        </Link>
-      </div>
       <div className="pet-container flex-r-c m-4">
-        {/* {imageUrl !== '' ? ( */}
-        {/*   <div */}
-        {/*     className="gif h-20 w-40" */}
-        {/*     style={{ */}
-        {/*       background: `transparent url(${imageUrl}) no-repeat`, */}
-        {/*     }} */}
-        {/*   /> */}
-        {/* ) : null} */}
+         {imageUrl !== '' ? (
+           <div
+             className="gif h-20 w-40"
+             style={{
+               background: `transparent url(${imageUrl}) no-repeat`,
+             }}
+           />
+         ) : null}
       </div>
       {toolsVisible ? (
         <div className="pet-actions flex flex-row content-center items-center justify-center">

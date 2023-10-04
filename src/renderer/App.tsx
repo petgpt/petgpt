@@ -48,8 +48,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/pet" element={<PetMain />} />
+        <Route path="/" element={<PetMain />} />
         <Route path="/petDetail" element={HeadTools('win32', PetDetail())} />
         <Route path="/chatgpt" element={HeadTools('win32', Layout())} />
         <Route path="/setting" element={HeadTools('win32', Setting())} />

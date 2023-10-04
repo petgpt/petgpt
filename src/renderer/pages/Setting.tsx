@@ -1,5 +1,4 @@
-import { CSSProperties, useState } from 'react';
-import { useMount } from 'ahooks';
+import { CSSProperties, useEffect, useState } from 'react';
 import { logger, sendToMain } from '../utils/common';
 import { ipcRenderer } from "electron";
 
@@ -24,36 +23,25 @@ function Setting() {
   async function getPluginsNameList() {
     setPluginsConfigList([]);
     setUpOrDeleteProgress([]);
-    // upOrDeleteProgress.splice(0, upOrDeleteProgress.length);
 
     const pluginInfoList = await ipcRenderer.invoke(
       'plugin.getAllPluginName',
     );
-    pluginInfoList.forEach(
-      (pluginInfo: {
-        name: any;
-        version: any;
-        description: any;
-        config: any;
-        enabled: any;
-      }) => {
-        setPluginsConfigList((prevState) => {
-          return [
-            ...prevState,
-            {
-              name: pluginInfo.name,
-              version: pluginInfo.version,
-              description: pluginInfo.description,
-              config: pluginInfo.config,
-              enabled: pluginInfo.enabled,
-            },
-          ];
-        });
-        setUpOrDeleteProgress((prevState) => {
-          return [...prevState, { percentage: 0, status: '' }];
-        });
-      },
-    );
+    const pluginsConfigList = pluginInfoList.map((pluginInfo: { name: any; version: any; description: any; config: any; enabled: any; }) => {
+      return {
+        name: pluginInfo.name,
+        version: pluginInfo.version,
+        description: pluginInfo.description,
+        config: pluginInfo.config,
+        enabled: pluginInfo.enabled,
+      };
+    });
+    setPluginsConfigList(pluginsConfigList);
+
+    const upOrDeleteProgressList = pluginInfoList.map((pluginInfo: { name: any; version: any; description: any; config: any; enabled: any; }) => {
+      return { percentage: 0, status: '' };
+    });
+    setUpOrDeleteProgress(upOrDeleteProgressList);
   }
 
   function setProgressSuccess(type: 'install' | 'upOrDelete') {
@@ -116,9 +104,10 @@ function Setting() {
     }, 1000);
   }
 
-  useMount(async () => {
-    await getPluginsNameList();
-    // logger(`pluginsConfigList:`, pluginsConfigList)
+  useEffect(() => {
+    (async function getPluginInfo() {
+      await getPluginsNameList();
+    })();
 
     ipcRenderer.on('installSuccess', (event, data) => {
       logger(
@@ -158,7 +147,16 @@ function Setting() {
         }
       });
     });
-  });
+
+    return () => {
+      setPluginsConfigList([]);
+      setUpOrDeleteProgress([]);
+      ipcRenderer.removeAllListeners('installSuccess');
+      ipcRenderer.removeAllListeners('uninstallSuccess');
+      ipcRenderer.removeAllListeners('updateSuccess');
+      ipcRenderer.removeAllListeners('failedProgress');
+    };
+  }, []);
 
   const style: ModalProperties = {
     modalOpen: centerDialogVisible,
@@ -181,7 +179,9 @@ function Setting() {
     });
 
     setPluginsConfigList([]);
-    getPluginsNameList();
+    (async function getPluginInfo() {
+      await getPluginsNameList();
+    })();
   }
 
   function setProgressBegin(index: number) {
@@ -223,7 +223,9 @@ function Setting() {
     setCenterDialogVisible(true);
 
     // 根据下标获取到某个插件的config信息
-    getConfigByIndex(index).config.forEach((config) => {
+    const pluginConfigs = getConfigByIndex(index).config;
+    setDialogConfigList(pluginConfigs);
+    pluginConfigs.forEach((config) => {
       setCurrentRules((prevState) => {
         return [
           ...prevState,
@@ -286,7 +288,7 @@ function Setting() {
         <div className="setting-container mt-4 flex flex-row flex-wrap">
           {pluginsConfigList.map((info, index) => {
             return (
-              <div className="setting-container-item m-1">
+              <div className="setting-container-item m-1" key={index}>
                 <div className="w-full">
                   <div className="card w-64 bg-base-100 shadow-md">
                     <div className="card-body">
@@ -409,16 +411,14 @@ function Setting() {
               </div>
             );
           })}
-          <dialog className="modal" style={style}>
+          <dialog className={centerDialogVisible ? 'modal modal-open' : 'modal'}>
             <form method="dialog" className="modal-box">
               <div>
                 <h3 className="text-lg font-bold">参数设置</h3>
-                {dialogConfigList.map((configItem) => {
+                {dialogConfigList.map((configItem, index) => {
                   return (
-                    <div className="flex flex-row justify-start">
+                    <div className="flex flex-row justify-start" key={index}>
                       <div className="form-control mt-1 w-full">
-                        {/* TODO:  */}
-                        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                         <label className="input-group">
                           <span className="w-full">{configItem.name}：</span>
                           <input
@@ -426,6 +426,12 @@ function Setting() {
                             placeholder={configItem.name}
                             className="input input-bordered input-xs w-full"
                             value={dialogModelData[configItem.name]}
+                            onChange={(event) => setDialogModelData((prevState) => {
+                              return {
+                                ...prevState,
+                                [configItem.name]: event.target.value,
+                              };
+                            })}
                           />
                         </label>
                       </div>

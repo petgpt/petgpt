@@ -35,11 +35,6 @@ function HeadTools(os: string, children: ReactNode) {
 
   return (
     <>
-      <div>
-        <Link to="/" style={{ backgroundColor: 'white' }}>
-          jump to main
-        </Link>
-      </div>
       <div className="flex flex-1 flex-row content-center justify-center rounded-md bg-base-200">
         <div className="flex flex-1 flex-col">
           <div
