@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import ChatAside from './ChatAside';
 import MenuDividerArrow from './MenuDividerArrow';
 import ChatMain from './ChatMain';
@@ -20,7 +20,7 @@ function Layout() {
 
   return (
     <div className="flex h-full flex-row justify-start">
-      {!hideLeft ? <ChatAside /> : null}
+      {!hideLeft ? ChatAside() : null}
       {hideLeft ? null : null}
       <div
         role="button"
@@ -31,7 +31,7 @@ function Layout() {
       >
         <div>{MenuDividerArrow({ rotate: !hideLeft })}</div>
       </div>
-      <ChatMain />
+      {<ChatMain />}
       <div
         role="button"
         tabIndex={0}

@@ -1,8 +1,8 @@
 import {
+	Create_Window,
 	Execute_Cmd,
 	Get_ClipBoard_Type,
 	Get_System_File_Path,
-	Create_Window,
 	Reset_Short_Key,
 	Set_Short_Keys,
 	Sys_Notification,
@@ -10,17 +10,17 @@ import {
 
 import {
 	app,
+	BrowserWindow,
 	clipboard,
+	desktopCapturer,
 	dialog,
 	globalShortcut,
 	ipcMain,
 	IpcMainEvent,
 	IpcMainInvokeEvent,
 	shell,
-	desktopCapturer,
-	BrowserWindow,
 } from 'electron'
-import { getFileType, isDirectory, showNotification } from '../utils'
+import { isDirectory, showNotification } from '../utils'
 import * as child_process from 'child_process'
 import windowManger from '../window/windowManger'
 import { DBList, IWindowList } from '../../../common/enum'
@@ -88,6 +88,7 @@ export default {
 				window?.show()
 			} else {
 				logger.info(`show: `, arg.window)
+				windowManger?.get(arg.window)?.webContents.send('show');
 				windowManger?.get(arg.window)?.show()
 			}
 		})

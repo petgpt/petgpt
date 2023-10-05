@@ -213,6 +213,12 @@ export default {
 			})
 		})
 
+		ipcMain.on('plugin.unregister', (event: IpcMainEvent, name: string) => {
+			pluginLoader.getPlugin(`petgpt-plugin-${name}`).then((plugin: IPetPluginInterface | undefined) => {
+				plugin?.unregister()
+			})
+		})
+
 		ipcMain.on('plugin.init', (event: IpcMainEvent, name: string) => {
 			pluginLoader.getPlugin(`petgpt-plugin-${name}`).then((plugin: IPetPluginInterface | undefined) => {
 				if (!plugin || !plugin.init) return

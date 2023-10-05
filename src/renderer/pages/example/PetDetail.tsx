@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ipcRenderer } from "electron";
 import { DBList, IWindowList } from "../../../common/enum";
-import { useLocalStorageState, useMount } from "ahooks";
 import { logger, sendToMain } from "../../utils/common";
 import {
   Change_Image, Execute_Cmd,
@@ -13,6 +12,7 @@ import {
 } from "../../../common/constants";
 import IpcRendererEvent = Electron.IpcRendererEvent;
 import './PetDetail.css';
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 function PetDetail() {
   const [os, setOs] = useState<string>(process.platform);
@@ -21,12 +21,7 @@ function PetDetail() {
   const [platform, setPlatform] = useState<string>(process.platform);
   const [computedStoreTitle, setComputedStoreTitle] = useState<string>();
   // const [persistStoreTestCount, setPersistStoreTestCount] = useState<string>();
-  const [persistStoreTestCount, setPersistStoreTestCount] = useLocalStorageState<string | undefined>(
-    'PersistStoreTest',
-    {
-      defaultValue: '0',
-    },
-  );
+  const [persistStoreTestCount, setPersistStoreTestCount] = useLocalStorage<string | undefined>('PersistStoreTest', '0');
   const [shortcut, setShortcut] = useState<string>('');
   const [oldKeys, setOldKeys] = useState('')
   const [placeholder, setPlaceholder] = useState<string>('');

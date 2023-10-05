@@ -1,29 +1,47 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { forwardRef, ReactNode, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import SlashToPop from "./SlashToPop";
 import { ipcRenderer } from "electron";
 import { Get_ClipBoard_Type } from "../../../common/constants";
 import domtoimage from 'dom-to-image';
-import { sendToMain } from "../../utils/common";
-import { useLocalStorageState } from "ahooks";
+import { logger, sendToMain } from "../../utils/common";
 import { v4 as uuidv4 } from 'uuid'
+import { useLocalStorage } from "@uidotdev/usehooks";
 
-function ChatFooter(children?: ReactNode,
-                    clearCurrentChat?: () => void,
-                    upsertLatestText?: ({id, type, text}: {id: string, type: string, text: string}) => void,
-                    ) {
+
+type ChatFooterProps = {
+  children?: ReactNode,
+  clearCurrentChat?: () => void,
+  upsertLatestText?: ({ id, type, text }: { id: string, type: string, text: string }) => void,
+  deleteLastMsg?: () => void,
+}
+
+const ChatFooter = (props: ChatFooterProps, ref: Ref<{
+  reloadChat: () => void,
+  continueChat: () => void,
+} | undefined>) => {
+  const {children, clearCurrentChat, upsertLatestText, deleteLastMsg} = props;
   const [userInput, setUserInput] = useState<string>('');
+  const userInputCurrent = useRef<string>(userInput);
   const [placeHolder, setPlaceHolder] = useState('请输入聊天内容');
   const userInputRef = useRef(null);
   const clipBoardSvg = useRef(null);
   const [clipBoardData, setClipBoardData] = useState<{ type: string; data: string }[]>([]);
   const isOpenModal = useRef(false);
 
-  const [chatStore, setChatStore] = useLocalStorageState('chatStore', {
-    defaultValue: {
-      activePluginIndex: '0',
-      activePluginNameList: []
+  const [chatStore, setChatStore] = useLocalStorage<{ activePluginIndex: string; activePluginNameList: string[]; }>('chatStore');
+
+  useImperativeHandle(ref, () => ({ // 暴露给父组件的方法
+    reloadChat: () => {
+      reloadChat()
+    },
+    continueChat: () => {
+      continueChat();
     }
-  });
+  }))
+
+  useEffect(() => {
+    userInputCurrent.current = userInput;
+  }, [userInput]);
 
   useEffect(() => {
     (async function beforeMount(){
@@ -32,7 +50,9 @@ function ChatFooter(children?: ReactNode,
     })()
 
     ipcRenderer.on('show', () => {
-      getClipBoard()
+      (async function setClipboardData() {
+        await getClipBoard();
+      })()
       addOrRemoveTabListener()
       setTimeout(() => {
         focusUserInput();
@@ -65,6 +85,27 @@ function ChatFooter(children?: ReactNode,
     }
   }, [userInput]);
 
+  function reloadChat() {
+    deleteLastMsg?.()
+
+    // 发送消息给插件
+    let pluginPureName = chatStore?.activePluginNameList[+chatStore.activePluginIndex]
+    let channel = `plugin.${pluginPureName}.func.handle`
+    // 发往main线程，调用插件的handle函数, reload为true
+    sendToMain(channel, {
+      pluginName: pluginPureName,
+      input: userInput, // TODO: 这里要获取之前用户输入的，也就是从新获取答案的input。现在暂时不支持改最新的input，只支持reload之前的input，尝试重新获取之前input的回复
+      reload: true,
+    })
+  }
+
+  function continueChat() {
+    // setUserInput('continue/继续');
+    userInputCurrent.current = 'continue/继续'
+    chatTest(undefined);
+  }
+
+
   function focusUserInput() {
     // @ts-ignore
     userInputRef.current?.focus()
@@ -72,10 +113,7 @@ function ChatFooter(children?: ReactNode,
 
   async function getClipBoard() {
     let arg = await ipcRenderer.invoke(Get_ClipBoard_Type)
-    setClipBoardData([{
-      type: arg.type,
-      data: arg.data,
-    }]);
+    setClipBoardData(arg);
     let clipSvg = document.getElementById('clipBoardSvg')
     if (arg.length > 0 && clipSvg) {
       clipSvg.setAttribute('fill', 'url(#gradient-horizontal)')
@@ -165,22 +203,28 @@ function ChatFooter(children?: ReactNode,
 
   function chatTest(event: React.KeyboardEvent | React.MouseEvent | undefined) {
     if(event) event.preventDefault()
+
+    const message = userInputCurrent.current;
+
     // 添加用户输入的文本
     upsertLatestText?.({
       id: uuidv4(),
       type: 'user',
-      text: userInput,
+      text: message, // set完Input，这里获取到的还是之前的状态......
     });
 
     // 发送消息给插件
     let pluginPureName = chatStore?.activePluginNameList[+chatStore.activePluginIndex]
+    // console.log(`chatStore: `, chatStore, ` message: `, message)
     let channel = `plugin.${pluginPureName}.func.handle`
     // logger(`[renderer] plugin channel:`, channel, ` userInput:`, userInput.value)
     // 发往main线程，调用插件的handle函数
-    sendToMain(channel, {
+    const args = {
       pluginName: pluginPureName,
-      input: userInput,
-    })
+      input: message,
+    };
+    console.log(`[renderer] send to main: `, ` args:`, args)
+    sendToMain(channel, args)
 
     setUserInput('')
     const textarea = document.getElementById('input-textarea')!;
@@ -200,11 +244,8 @@ function ChatFooter(children?: ReactNode,
   }
 
   function pasteToUserInput() {
-    let str = clipBoardData.map(item => item.data).join(', ')
-    setUserInput((prevState) => {
-      prevState += str;
-      return prevState;
-    })
+    let str = clipBoardData.filter(i => i.data?.trim()).map(item => item.data.trim()).join(', ')
+    setUserInput(str)
 
     let clipSvg = document.getElementById('clipBoardSvg')
     if (clipSvg) {
@@ -316,4 +357,4 @@ function ChatFooter(children?: ReactNode,
   );
 }
 
-export default ChatFooter;
+export default forwardRef(ChatFooter);
