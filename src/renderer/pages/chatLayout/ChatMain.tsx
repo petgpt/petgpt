@@ -5,9 +5,7 @@ import { ipcRenderer } from "electron";
 import { logger, sendToMain } from "../../utils/common";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
-type ChatMainProps = {}
-
-const ChatMain = (props: ChatMainProps) => {
+const ChatMain = () => {
   const scrollBar = useRef(null);
   const [chatStore, setChatStore] = useLocalStorage<{
     activePluginIndex: string;

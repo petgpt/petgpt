@@ -7,7 +7,6 @@ import PetMain from './pages/PetMain';
 import PetDetail from './pages/example/PetDetail';
 import Layout from './pages/chatLayout/Layout';
 import Setting from './pages/Setting';
-import Main from './pages/Main';
 
 // function Hello() {
 //   return <button className="btn w-64 rounded-full">Button</button>;

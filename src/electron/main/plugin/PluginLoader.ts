@@ -4,7 +4,6 @@ import resolve from 'resolve'
 import { IPetPlugin, IPluginLoader } from './types'
 import { IEventBus, IPetPluginInterface, PetExpose } from './share/types'
 import logger from '../utils/logger'
-import { configureBuildCommand } from 'electron-builder/out/builder'
 
 /**
  * Local plugin loader, file system is required

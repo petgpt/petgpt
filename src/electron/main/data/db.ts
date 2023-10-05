@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import { app } from 'electron'
 import path from 'path'
-import { Low, JSONFile, TextFileSync } from '@commonify/lowdb'
+import { JSONFile, Low, TextFileSync } from '@commonify/lowdb'
 import lodash from 'lodash'
 import { DBList } from '../../../common/enum'
 import { IDB } from '../plugin/share/types'

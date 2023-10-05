@@ -1,4 +1,7 @@
-function AddSvg(width: string, height: string) {
+import React from "react";
+
+const AddSvg: React.FC<{ width: string, height: string }> = (props) => {
+  const { width, height } = props;
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

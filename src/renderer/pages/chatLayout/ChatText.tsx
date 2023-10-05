@@ -10,8 +10,8 @@ type ChatTextProps = {
   onContinueChat?: () => void
 }
 
-export function MarkdownToHtml(md: string){
-  return(
+export function MarkdownToHtml(md: string) {
+  return (
     <ReactMarkdown remarkPlugins={[gfm, rehypeKatex]}>{md}</ReactMarkdown>
   )
 }
@@ -21,7 +21,7 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
   clearChatContext: (isClearContext: boolean) => void,
   deleteLastText: () => void,
 } | undefined>) => {
-  const {onChatUpdate, onReloadLatestChat, onContinueChat} = props;
+  const { onChatUpdate, onReloadLatestChat, onContinueChat } = props;
 
   // const [chatList, setChatList] = useState<ChatItem[]>([]);
   const chatListRef = useRef<ChatItem[]>([]);
@@ -182,7 +182,8 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
                   tabIndex={0}
                   className="cursor-pointer pl-1 text-2xl text-white"
                   onClick={reloadCurrentChat}
-                  onKeyDown={() => {}}
+                  onKeyDown={() => {
+                  }}
                 >
                   &#10227;
                 </span>

@@ -1,4 +1,4 @@
-import {dialog, Notification, shell} from 'electron'
+import { dialog, Notification, shell } from 'electron'
 import { lstat } from 'node:fs/promises'
 import clipboardEx from 'electron-clipboard-ex'
 import fs from 'fs'

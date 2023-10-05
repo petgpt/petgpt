@@ -13,7 +13,6 @@ import {
 	Set_Main_Window_Pos,
 } from '../../../common/constants'
 import dbMap from '../data/db'
-import WindowManger from './windowManger'
 import logger from '../utils/logger'
 
 const windowList = new Map<IWindowList, IWindowListItem>()

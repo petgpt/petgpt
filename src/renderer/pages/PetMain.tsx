@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DBList, IWindowList } from '../../common/enum';
 import { ipcRenderer } from 'electron';
-import { logger, sendToMain } from "../utils/common";
+import { sendToMain } from "../utils/common";
 import image from '../assets/gif/1.gif'
 import image2 from '../assets/gif/2.gif'
 import { Create_Window } from "../../common/constants";

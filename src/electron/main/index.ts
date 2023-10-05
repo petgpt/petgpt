@@ -14,7 +14,7 @@ import { PetExpose } from './plugin/share/types'
 import { EventEmitter } from 'events'
 import logger from './utils/logger'
 import pkg from '../../../package.json'
-import {updateChecker} from "./utils";
+import { updateChecker } from "./utils";
 
 process.env.DIST_ELECTRON = join(__dirname, '../')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')

@@ -3,7 +3,7 @@ import { ipcRenderer } from "electron";
 import { logger } from "../../utils/common";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
-function ChatAside(changePlugin?: (isChange: boolean) => void) {
+function ChatAside() {
   // useEffect(() => {
   //   .ipcRenderer
   //     .invoke('plugin.getAllPluginName')
@@ -18,7 +18,10 @@ function ChatAside(changePlugin?: (isChange: boolean) => void) {
 
   const [pluginsConfigList, setPluginsConfigList] = useState<PluginInfo[]>([])
   const [defaultActiveMenu, setDefaultActiveMenu] = useState('0')
-  const [chatStore, setChatStore] = useLocalStorage<{ activePluginIndex: string; activePluginNameList: string[]; }>('chatStore');
+  const [chatStore, setChatStore] = useLocalStorage<{
+    activePluginIndex: string;
+    activePluginNameList: string[];
+  }>('chatStore');
 
   useEffect(() => {
     setDefaultActiveMenu(chatStore?.activePluginIndex || '0');
@@ -42,7 +45,8 @@ function ChatAside(changePlugin?: (isChange: boolean) => void) {
       version: string;
       description: string;
       config: any;
-      enabled: boolean; }[] = await ipcRenderer.invoke('plugin.getAllPluginName');
+      enabled: boolean;
+    }[] = await ipcRenderer.invoke('plugin.getAllPluginName');
     const pluginsConfigs = pluginInfoList
       .filter((pluginInfo) => pluginInfo.enabled)
       .map(p => {
@@ -87,7 +91,6 @@ function ChatAside(changePlugin?: (isChange: boolean) => void) {
       activePluginIndex: index + '',
       activePluginNameList: chatStore?.activePluginNameList || []
     });
-    // changePlugin?.(true);
   }
 
   return (
@@ -96,8 +99,8 @@ function ChatAside(changePlugin?: (isChange: boolean) => void) {
         {pluginsConfigList.map((info, index) => {
           return (
             <li key={index}>
-              <a className={ defaultActiveMenu === (index+'') ? 'active' : '' }
-                onClick={e => onPluginClick(index)}>{ info.name }</a>
+              <a className={defaultActiveMenu === (index + '') ? 'active' : ''}
+                 onClick={e => onPluginClick(index)}>{info.name}</a>
             </li>
           )
         })}

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import ChatAside from './ChatAside';
 import MenuDividerArrow from './MenuDividerArrow';
 import ChatMain from './ChatMain';
@@ -27,17 +27,19 @@ function Layout() {
         tabIndex={0}
         className="flex flex-col justify-center"
         onClick={() => hideMenuHandler()}
-        onKeyDown={() => {}}
+        onKeyDown={() => {
+        }}
       >
         <div>{MenuDividerArrow({ rotate: !hideLeft })}</div>
       </div>
-      {<ChatMain />}
+      {<ChatMain/>}
       <div
         role="button"
         tabIndex={0}
         className="fixed right-2.5 top-1/2"
         onClick={() => hideSideBarHandler()}
-        onKeyDown={() => {}}
+        onKeyDown={() => {
+        }}
       >
         {MenuDividerArrow({ initRotate: true })}
       </div>
