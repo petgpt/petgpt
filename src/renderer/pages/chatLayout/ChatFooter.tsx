@@ -331,7 +331,7 @@ const ChatFooter = (props: ChatFooterProps, ref: Ref<{
           </g>
         </svg>
         <div className='footer-first-slot'>
-          {/*{children}*/}
+          {children}
         </div>
       </div>
       <div className="footer-second">

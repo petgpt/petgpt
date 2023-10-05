@@ -80,7 +80,7 @@ code {
 
 .footer-first-slot {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
 }
 .footer-second {
