@@ -1,8 +1,6 @@
 import { forwardRef, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { ipcRenderer } from "electron";
-import ReactMarkdown from 'react-markdown'
-import gfm from 'remark-gfm'
-import rehypeKatex from "rehype-katex";
+import Markdown from "./Markdown";
 
 type ChatTextProps = {
   onChatUpdate?: () => void,
@@ -12,7 +10,7 @@ type ChatTextProps = {
 
 export function MarkdownToHtml(md: string) {
   return (
-    <ReactMarkdown remarkPlugins={[gfm, rehypeKatex]}>{md}</ReactMarkdown>
+    <Markdown markdown={md}></Markdown>
   )
 }
 
