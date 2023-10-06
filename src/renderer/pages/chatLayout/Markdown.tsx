@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC } from 'react';
+import React, { CSSProperties, FC, ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 
@@ -17,11 +17,11 @@ const Markdown: FC<MarkdownProps> = ({ markdown }) => {
 
   const syntaxTheme = oneDark;
 
-  function CodeCopyBtn({ children }) { // TODO: 从children里获得code内容
+  function CodeCopyBtn({ children }: {children?: ReactNode}) { // TODO: 从children里获得code内容
     const [copyOk, setCopyOk] = React.useState(false);
     const iconColor = copyOk ? '#0af20a' : '#ddd';
     const icon = copyOk ? 'fa-check-square' : 'fa-copy';
-    const handleClick = (e) => {
+    const handleClick = () => {
       // navigator.clipboard.writeText(children[0].props.children[0]);
       // console.log(children)
       // setCopyOk(true);
@@ -39,7 +39,7 @@ const Markdown: FC<MarkdownProps> = ({ markdown }) => {
     )
   }
 
-  const Pre = ({ children }) => {
+  const Pre = ({ children }: {children: ReactNode}) => {
     return (
       <pre className="mb-12 relative">
         <CodeCopyBtn>{children}</CodeCopyBtn>
@@ -50,7 +50,7 @@ const Markdown: FC<MarkdownProps> = ({ markdown }) => {
 
   const MarkdownComponents: object = {
     pre: Pre,
-    code({ node, inline, className, ...props }: { node: any, inline: any, className: string }) {
+    code({ node, inline, className, children, ...props }: { node: any, inline: any, className: string, children: string }) {
       const hasLang = /language-(\w+)/.exec(className || '');
       const hasMeta = node?.data?.meta;
 
@@ -85,11 +85,11 @@ const Markdown: FC<MarkdownProps> = ({ markdown }) => {
           lineProps={applyHighlights}
           customStyle={codeStyle}
         >
-          {String(props.children).replace(/\n$/, '')}
+          {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       ) : (
         <code className={className} {...props}>
-          {props.children}
+          {children}
         </code>
       )
     },

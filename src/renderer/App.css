@@ -81,6 +81,8 @@ span.linenumber { display: none; }
   align-items: center;
   justify-content: flex-start;
   align-content: center;
+  /*兼容slot里select的高度*/
+  height: 17px;
 }
 
 .footer-first-slot {
