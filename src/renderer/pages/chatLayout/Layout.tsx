@@ -21,7 +21,6 @@ function Layout() {
   return (
     <div className="flex h-full flex-row justify-start">
       {!hideLeft ? ChatAside() : null}
-      {hideLeft ? null : null}
       <div
         role="button"
         tabIndex={0}

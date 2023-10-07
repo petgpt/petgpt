@@ -13,7 +13,7 @@ function ChatSideBar(hidden: boolean, setHidden: (hidden: boolean) => void) {
           onClick={() => setHidden(!hidden)}
         />
         {hidden ? null : (
-          <ul className="menu mr-2 mt-12 h-4/5 w-60 rounded-md bg-base-200 p-4 text-base-content">
+          <ul className="menu mr-4 mt-12 h-4/5 w-60 rounded-md bg-base-200 p-4 text-base-content">
             <button className="btn btn-outline btn-sm rounded-btn" onClick={captureCurrentPlugin}>capture</button>
           </ul>
         )}

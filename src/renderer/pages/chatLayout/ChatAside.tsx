@@ -4,18 +4,6 @@ import { logger } from "../../utils/common";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
 function ChatAside() {
-  // useEffect(() => {
-  //   .ipcRenderer
-  //     .invoke('plugin.getAllPluginName')
-  //     .then((res) => {
-  //       console.log(`plugins: `, res);
-  //       return res;
-  //     })
-  //     .catch((e) => {
-  //       throw e;
-  //     });
-  // }, []);
-
   const [pluginsConfigList, setPluginsConfigList] = useState<PluginInfo[]>([])
   const [defaultActiveMenu, setDefaultActiveMenu] = useState('0')
   const [chatStore, setChatStore] = useLocalStorage<{

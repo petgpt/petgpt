@@ -155,8 +155,12 @@ windowList.set(IWindowList.PET_DETAIL_WINDOW, {
 		if (process.env.VITE_DEV_SERVER_URL) {
 			let winUrl = `http://localhost:5173` + `#/petDetail`
 
-			petDetailWindow.loadURL(winUrl)
-			petDetailWindow.webContents.openDevTools()
+			petDetailWindow.loadURL(winUrl);
+
+			// (async function installDevTools() {
+			// 	await installExtensions(); // 不起作用
+			// })();
+			petDetailWindow.webContents.openDevTools();
 		} else {
 			petDetailWindow.loadFile(join(process.env.DIST!, 'index.html'), { hash: 'petDetail' })
 		}

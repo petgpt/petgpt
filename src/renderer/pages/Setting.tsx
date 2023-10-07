@@ -80,6 +80,60 @@ function Setting() {
   const [currentConfigIndex, setCurrentConfigIndex] = useState(0);
   const [currentRules, setCurrentRules] = useState<Rule[]>([]);
 
+  useEffect(() => {
+    (async function getPluginInfo() {
+      await getPluginsNameList();
+    })();
+
+    ipcRenderer.on('installSuccess', (event, data) => {
+      logger(
+        `installSuccess: `,
+        data,
+        ` pluginsConfigList:`,
+        pluginsConfigList,
+      );
+      getPluginsNameList();
+      logger(`[after install success] pluginsConfigList:`, pluginsConfigList);
+      setProgressSuccess('install');
+    });
+
+    ipcRenderer.on('uninstallSuccess', (event, data) => {
+      logger(
+        `uninstallSuccess: `,
+        data,
+        ` pluginsConfigList:`,
+        pluginsConfigList,
+      );
+      setProgressSuccess('upOrDelete');
+      getPluginsNameList();
+      logger(`[after install success] pluginsConfigList:`, pluginsConfigList);
+    });
+
+    ipcRenderer.on('updateSuccess', (event, data) => {
+      logger(`updateSuccess: `, data);
+      setProgressSuccess('upOrDelete');
+      getPluginsNameList();
+    });
+
+    // update \ delete 失败的时候，设置失败的进度条
+    ipcRenderer.on('failedProgress', () => {
+      upOrDeleteProgress.forEach((progress, index) => {
+        if (progress.percentage > 0) {
+          setProgressFailed('upOrDelete', index);
+        }
+      });
+    });
+
+    return () => {
+      setPluginsConfigList([]);
+      setUpOrDeleteProgress([]);
+      ipcRenderer.removeAllListeners('installSuccess');
+      ipcRenderer.removeAllListeners('uninstallSuccess');
+      ipcRenderer.removeAllListeners('updateSuccess');
+      ipcRenderer.removeAllListeners('failedProgress');
+    };
+  }, []);
+
   async function getPluginsNameList() {
     setPluginsConfigList([]);
     setUpOrDeleteProgress([]);
@@ -163,64 +217,6 @@ function Setting() {
       }
     }, 1000);
   }
-
-  useEffect(() => {
-    (async function getPluginInfo() {
-      await getPluginsNameList();
-    })();
-
-    ipcRenderer.on('installSuccess', (event, data) => {
-      logger(
-        `installSuccess: `,
-        data,
-        ` pluginsConfigList:`,
-        pluginsConfigList,
-      );
-      getPluginsNameList();
-      logger(`[after install success] pluginsConfigList:`, pluginsConfigList);
-      setProgressSuccess('install');
-    });
-
-    ipcRenderer.on('uninstallSuccess', (event, data) => {
-      logger(
-        `uninstallSuccess: `,
-        data,
-        ` pluginsConfigList:`,
-        pluginsConfigList,
-      );
-      setProgressSuccess('upOrDelete');
-      getPluginsNameList();
-      logger(`[after install success] pluginsConfigList:`, pluginsConfigList);
-    });
-
-    ipcRenderer.on('updateSuccess', (event, data) => {
-      logger(`updateSuccess: `, data);
-      setProgressSuccess('upOrDelete');
-      getPluginsNameList();
-    });
-
-    // update \ delete 失败的时候，设置失败的进度条
-    ipcRenderer.on('failedProgress', () => {
-      upOrDeleteProgress.forEach((progress, index) => {
-        if (progress.percentage > 0) {
-          setProgressFailed('upOrDelete', index);
-        }
-      });
-    });
-
-    return () => {
-      setPluginsConfigList([]);
-      setUpOrDeleteProgress([]);
-      ipcRenderer.removeAllListeners('installSuccess');
-      ipcRenderer.removeAllListeners('uninstallSuccess');
-      ipcRenderer.removeAllListeners('updateSuccess');
-      ipcRenderer.removeAllListeners('failedProgress');
-    };
-  }, []);
-
-  const style: ModalProperties = {
-    modalOpen: centerDialogVisible,
-  };
 
   function closeHandler() {
     setCenterDialogVisible(false);
@@ -426,44 +422,46 @@ function Setting() {
               </div>
             );
           })}
-          <dialog className={centerDialogVisible ? 'modal modal-open' : 'modal'}>
-            <form method="dialog" className="modal-box">
-              <div>
-                <h3 className="text-lg font-bold">参数设置</h3>
-                {dialogConfigList.map((configItem, index) => {
-                  return (
-                    <div className="flex flex-row justify-start" key={index}>
-                      <div className="form-control mt-1 w-full">
-                        <label className="input-group">
-                          <span className="w-full">{configItem.name}：</span>
-                          <input
-                            type="text"
-                            placeholder={configItem.name}
-                            className="input input-bordered input-xs w-full"
-                            value={dialogModelData[configItem.name]}
-                            onChange={(event) => setDialogModelData((prevState) => {
-                              return {
-                                ...prevState,
-                                [configItem.name]: event.target.value,
-                              };
-                            })}
-                          />
-                        </label>
+          {centerDialogVisible ? (
+            <dialog className={centerDialogVisible ? 'modal modal-open' : 'modal'}>
+              <form method="dialog" className="modal-box">
+                <div>
+                  <h3 className="text-lg font-bold">参数设置</h3>
+                  {dialogConfigList.map((configItem, index) => {
+                    return (
+                      <div className="flex flex-row justify-start" key={index}>
+                        <div className="form-control mt-1 w-full">
+                          <label className="input-group">
+                            <span className="w-full">{configItem.name}：</span>
+                            <input
+                              type="text"
+                              placeholder={configItem.name}
+                              className="input input-bordered input-xs w-full"
+                              value={dialogModelData[configItem.name]}
+                              onChange={(event) => setDialogModelData((prevState) => {
+                                return {
+                                  ...prevState,
+                                  [configItem.name]: event.target.value,
+                                };
+                              })}
+                            />
+                          </label>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="modal-action">
-                <button className="btn" onClick={closeHandler}>
-                  Close
-                </button>
-                <button className="btn" onClick={confirmHandler}>
-                  confirm
-                </button>
-              </div>
-            </form>
-          </dialog>
+                    );
+                  })}
+                </div>
+                <div className="modal-action">
+                  <button className="btn" onClick={closeHandler}>
+                    Close
+                  </button>
+                  <button className="btn" onClick={confirmHandler}>
+                    confirm
+                  </button>
+                </div>
+              </form>
+            </dialog>
+          ) : null}
         </div>
       </div>
     </div>
