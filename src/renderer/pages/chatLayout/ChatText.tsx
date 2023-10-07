@@ -30,6 +30,26 @@ function ChatContinueSVG(props: { onClick: () => void }) {
   </svg>;
 }
 
+function ChatDialogue(props: { item: ChatItem }) {
+  return <>
+    {props.item.type === "user" ? (
+      <div
+        style={{ width: "-webkit-fill-available", overflow: "auto" }}
+        className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
+      >
+        {props.item.text}
+      </div>
+    ) : (
+      <div
+        style={{ width: "-webkit-fill-available", overflow: "auto" }}
+        className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
+      >
+        {MarkdownToHtml(props.item.text)}
+      </div>
+    )}
+  </>;
+}
+
 const ChatText = (props: ChatTextProps, ref: Ref<{
   upsertLatestText: (message: ChatItem) => void,
   clearChatContext: (isClearContext: boolean) => void,
@@ -59,10 +79,6 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
     })
   }, []);
 
-  // function textToHtml(text: string) {
-  //   return <div>1</div>;
-  // }
-
   function deleteLastText() {
     // check chatList last item is user type
     if (chatListRef.current.length === 0) {
@@ -79,7 +95,6 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
   function clearChatContext(isClearContext: boolean) {
     // clear chatList
     if (isClearContext) {
-      // setChatList([]);
       chatListRef.current = []
       setChatUpdated(prevState => prevState + 1);
     }
@@ -91,16 +106,6 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
     }
 
     if (chatListRef.current.length === 0) {
-      // setChatList((prevState) => {
-      //   return [
-      //     ...prevState,
-      //     {
-      //       id: message.id,
-      //       type: message.type,
-      //       text: message.text,
-      //     }
-      //   ]
-      // })
       chatListRef.current.push({
         id: message.id,
         type: message.type,
@@ -117,35 +122,13 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
           return item
         });
         chatListRef.current = chatItemsToUpdate
-        // setChatList(chatItemsToUpdate);
-        // setChatList((prevState) => {
-        //   // update latest item
-        //   return prevState.map((item, index) => {
-        //     if (index === chatList.length - 1) {
-        //       item.text = message.text
-        //     }
-        //     return item;
-        //   });
-        // });
-        // console.log(`[update] chatListRef.current: `, chatListRef.current)
       } else {
-        // 如果和前面的不一样，就push进去，代表第一次收到这个id的消息
-        // setChatList([
-        //   ...chatList,
-        //   {
-        //     id: message.id,
-        //     type: message.type,
-        //     text: message.text,
-        //     // time: getCurrentTime()
-        //   }
-        // ])
         chatListRef.current.push({
           id: message.id,
           type: message.type,
           text: message.text,
           // time: getCurrentTime()
         })
-        // console.log(`[append] chatListRef.current: `, chatListRef.current)
       }
       // 对外emit事件，返回信息来了
       onChatUpdate && onChatUpdate();
@@ -165,29 +148,9 @@ const ChatText = (props: ChatTextProps, ref: Ref<{
     <>
       {chatListRef.current.map((item, index) => {
         return (
-          <div
-            className={
-              item.type === 'user' ? 'chat chat-end' : 'chat chat-start'
-            }
-            key={index}
-          >
+          <div className={item.type === 'user' ? 'chat chat-end' : 'chat chat-start'} key={index}>
             <div className="chat-bubble flex flex-col items-end justify-start">
-              {item.type === 'user' ? (
-                <div
-                  style={{ width: '-webkit-fill-available', overflow: 'auto' }}
-                  className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
-                >
-                  {item.text}
-                </div>
-              ) : (
-                <div
-                  // dangerouslySetInnerHTML={{ __html: textToHtml(item.text) }}
-                  style={{ width: '-webkit-fill-available', overflow: 'auto' }}
-                  className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
-                >
-                  {MarkdownToHtml(item.text)}
-                </div>
-              )}
+              <ChatDialogue item={item}/>
               {(index === chatListRef.current.length - 2 ||
                 index === chatListRef.current.length - 1) &&
               item.type === 'user' ? (

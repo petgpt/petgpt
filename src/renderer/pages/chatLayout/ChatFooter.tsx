@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, ReactNode, Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import SlashToPop from "./SlashToPop";
 import { ipcRenderer } from "electron";
 import { Get_ClipBoard_Type } from "../../../common/constants";
@@ -337,7 +337,7 @@ const ChatFooter = (props: ChatFooterProps, ref: Ref<{
 
   return (
     <>
-      <div className="footer-first mb-1 mt-1">
+      <div className="footer-first mb-2 mt-1">
         <div className="tooltip tooltip-top" data-tip="清除当前对话(ALT+X)">
           <FooterClearChatSVG onClick={clearChat}/>
         </div>
@@ -351,12 +351,12 @@ const ChatFooter = (props: ChatFooterProps, ref: Ref<{
         <textarea
           id="input-textarea"
           value={userInput}
-          onKeyDown={e => {
+          onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
             if (e.code === 'Enter') {
               chatTest(e);
             }
           }}
-          onChange={(e) => setUserInput(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setUserInput(e.target.value)}
           ref={userInputRef}
           className="textarea-bordered textarea textarea-xs w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded"
           placeholder={placeHolder}

@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useState } from 'react';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import { logger, sendToMain } from '../utils/common';
 import { ipcRenderer } from "electron";
 
@@ -64,6 +64,149 @@ function PluginDeleteSVG(props: { onClick: () => void }) {
       />
     </g>
   </svg>;
+}
+
+function PluginSettingBody(props: { info: PluginInfo, onSettingClick: () => Promise<void>, onUpdateClick: () => void, onDeleteClick: () => void, onPluginEnableClick: () => void }) {
+  return <div className="card w-64 bg-base-100 shadow-md">
+    <div className="card-body">
+      <div
+        className="tooltip tooltip-top"
+        data-tip={`${props.info.name}-${props.info.version}`}
+      >
+        <div className="flex flex-row">
+          <div className="card-title truncate">
+            {props.info.name} - {props.info.version}
+          </div>
+        </div>
+      </div>
+      <div
+        className="tooltip tooltip-top"
+        data-tip={props.info.description}
+      >
+        <div className="flex flex-row">
+          <div className="truncate">{props.info.description}</div>
+        </div>
+      </div>
+      <div className="flex flex-row justify-start">
+        <div className="tooltip tooltip-top" data-tip="设置">
+          <div className="flex flex-row">
+            <PluginSettingSVG onClick={props.onSettingClick}/>
+          </div>
+        </div>
+        <div
+          className="tooltip tooltip-top"
+          data-tip="更新插件"
+        >
+          <div className="flex flex-row">
+            <PluginUpdateSVG onClick={props.onUpdateClick}/>
+          </div>
+        </div>
+        <div
+          className="tooltip tooltip-top"
+          data-tip="删除插件"
+        >
+          <div className="flex flex-row">
+            <PluginDeleteSVG onClick={props.onDeleteClick}/>
+          </div>
+        </div>
+        <div
+          className="tooltip tooltip-top"
+          data-tip="是否开启插件"
+        >
+          <div className="flex flex-row">
+            <input
+              onClick={props.onPluginEnableClick}
+              type="checkbox"
+              className="toggle toggle-xs ml-1"
+              // @ts-ignore 这里使用的ui组件
+              value={props.info.enabled}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+function ModalActions(props: { onClose: () => void, onConfirm: () => void }) {
+  return <div className="modal-action">
+    <button className="btn" onClick={props.onClose}>
+      Close
+    </button>
+    <button className="btn" onClick={props.onConfirm}>
+      confirm
+    </button>
+  </div>;
+}
+
+function ModalConfigs(props: { configItem: IPluginConfig, dialogModelData: Record<any, string>, onChange: (event: React.ChangeEvent<HTMLInputElement>) => void }) {
+  return <div className="flex flex-row justify-start">
+    <div className="form-control mt-1 w-full">
+      <label className="input-group">
+        <span className="w-full">{props.configItem.name}：</span>
+        <input
+          type="text"
+          placeholder={props.configItem.name}
+          className="input input-bordered input-xs w-full"
+          value={props.dialogModelData[props.configItem.name]}
+          onChange={props.onChange}
+        />
+      </label>
+    </div>
+  </div>;
+}
+
+function SettingPluginInstaller(props: { value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, installPercentage: number, installStatus: string, onClick: () => void }) {
+  return <div className="setting-actions flex">
+    <div className="setting-actions-input flex w-5/6 flex-col">
+      <input
+        type="text"
+        value={props.value}
+        onChange={props.onChange}
+        placeholder="plugin name to install, like: template/chatgpt"
+        className="setting-actions-item input-bordered input w-full"
+      />
+      {props.installPercentage !== 0 ? (
+        <progress
+          className={
+            props.installStatus === ""
+              ? "progress ml-1 w-56 progress-info"
+              : props.installStatus === "success"
+                ? "progress ml-1 w-56 progress-success"
+                : "progress ml-1 w-56 progress-error"
+          }
+          value={props.installPercentage}
+          max="100"
+        />
+      ) : null}
+    </div>
+    <div className="ml-1 w-1/6">
+      <button
+        className="setting-actions-button setting-actions-item btn-info btn"
+        onClick={props.onClick}
+      >
+        install
+      </button>
+    </div>
+  </div>;
+}
+
+function PluginStateProgress(props: { progresses: Progress[], index: number, installStatus: string }) {
+  return <>
+    {props.progresses[props.index].percentage !== 0 ? (
+      <progress
+        className={
+          props.progresses[props.index].status === ""
+            ? "progress ml-1 w-56 progress-info"
+            : props.installStatus === "success"
+              ? "progress ml-1 w-56 progress-success"
+              : "progress ml-1 w-56 progress-error"
+        }
+        value={props.progresses[props.index].percentage}
+        max="100"
+      />
+    ) : null}
+  </>;
 }
 
 function Setting() {
@@ -299,8 +442,8 @@ function Setting() {
           [config.name]: config.value
             ? config.value
             : config.default
-            ? config.default
-            : '',
+              ? config.default
+              : '',
         };
       });
     });
@@ -309,115 +452,18 @@ function Setting() {
   return (
     <div>
       <div className="setting flex-col p-4">
-        <div className="setting-actions flex">
-          <div className="setting-actions-input flex w-5/6 flex-col">
-            <input
-              type="text"
-              value={pluginNameToInstall}
-              onChange={(e) => setPluginNameToInstall(e.target.value)}
-              placeholder="plugin name to install, like: template/chatgpt"
-              className="setting-actions-item input-bordered input w-full"
-            />
-            {installPercentage !== 0 ? (
-              <progress
-                className={
-                  installStatus === ''
-                    ? 'progress ml-1 w-56 progress-info'
-                    : installStatus === 'success'
-                    ? 'progress ml-1 w-56 progress-success'
-                    : 'progress ml-1 w-56 progress-error'
-                }
-                value={installPercentage}
-                max="100"
-              />
-            ) : null}
-          </div>
-          <div className="ml-1 w-1/6">
-            <button
-              className="setting-actions-button setting-actions-item btn-info btn"
-              onClick={installPlugin}
-            >
-              install
-            </button>
-          </div>
-        </div>
+        <SettingPluginInstaller value={pluginNameToInstall} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPluginNameToInstall(e.target.value)}
+                                installPercentage={installPercentage} installStatus={installStatus}
+                                onClick={installPlugin}/>
         <div className="setting-container mt-4 flex flex-row flex-wrap">
           {pluginsConfigList.map((info, index) => {
             return (
               <div className="setting-container-item m-1" key={index}>
                 <div className="w-full">
-                  <div className="card w-64 bg-base-100 shadow-md">
-                    <div className="card-body">
-                      <div
-                        className="tooltip tooltip-top"
-                        data-tip={`${info.name}-${info.version}`}
-                      >
-                        <div className="flex flex-row">
-                          <div className="card-title truncate">
-                            {info.name} - {info.version}
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className="tooltip tooltip-top"
-                        data-tip={info.description}
-                      >
-                        <div className="flex flex-row">
-                          <div className="truncate">{info.description}</div>
-                        </div>
-                      </div>
-                      <div className="flex flex-row justify-start">
-                        <div className="tooltip tooltip-top" data-tip="设置">
-                          <div className="flex flex-row">
-                            <PluginSettingSVG onClick={() => configClickHandler(index)}/>
-                          </div>
-                        </div>
-                        <div
-                          className="tooltip tooltip-top"
-                          data-tip="更新插件"
-                        >
-                          <div className="flex flex-row">
-                            <PluginUpdateSVG onClick={() => updatePlugin(index)}/>
-                          </div>
-                        </div>
-                        <div
-                          className="tooltip tooltip-top"
-                          data-tip="删除插件"
-                        >
-                          <div className="flex flex-row">
-                            <PluginDeleteSVG onClick={() => deletePlugin(index)}/>
-                          </div>
-                        </div>
-                        <div
-                          className="tooltip tooltip-top"
-                          data-tip="是否开启插件"
-                        >
-                          <div className="flex flex-row">
-                            <input
-                              onClick={() => enablePlugin(info.enabled, index)}
-                              type="checkbox"
-                              className="toggle toggle-xs ml-1"
-                              // @ts-ignore 这里使用的ui组件
-                              value={info.enabled}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {upOrDeleteProgress[index].percentage !== 0 ? (
-                    <progress
-                      className={
-                        upOrDeleteProgress[index].status === ''
-                          ? 'progress ml-1 w-56 progress-info'
-                          : installStatus === 'success'
-                            ? 'progress ml-1 w-56 progress-success'
-                            : 'progress ml-1 w-56 progress-error'
-                      }
-                      value={upOrDeleteProgress[index].percentage}
-                      max="100"
-                    />
-                  ) : null}
+                  <PluginSettingBody info={info} onSettingClick={() => configClickHandler(index)}
+                                     onUpdateClick={() => updatePlugin(index)} onDeleteClick={() => deletePlugin(index)}
+                                     onPluginEnableClick={() => enablePlugin(info.enabled, index)}/>
+                  <PluginStateProgress progresses={upOrDeleteProgress} index={index} installStatus={installStatus}/>
                 </div>
               </div>
             );
@@ -427,38 +473,19 @@ function Setting() {
               <form method="dialog" className="modal-box">
                 <div>
                   <h3 className="text-lg font-bold">参数设置</h3>
-                  {dialogConfigList.map((configItem, index) => {
+                  {dialogConfigList?.map((configItem, index) => {
                     return (
-                      <div className="flex flex-row justify-start" key={index}>
-                        <div className="form-control mt-1 w-full">
-                          <label className="input-group">
-                            <span className="w-full">{configItem.name}：</span>
-                            <input
-                              type="text"
-                              placeholder={configItem.name}
-                              className="input input-bordered input-xs w-full"
-                              value={dialogModelData[configItem.name]}
-                              onChange={(event) => setDialogModelData((prevState) => {
-                                return {
-                                  ...prevState,
-                                  [configItem.name]: event.target.value,
-                                };
-                              })}
-                            />
-                          </label>
-                        </div>
-                      </div>
+                      <ModalConfigs key={index} configItem={configItem} dialogModelData={dialogModelData}
+                                    onChange={(event) => setDialogModelData((prevState) => {
+                                      return {
+                                        ...prevState,
+                                        [configItem.name]: event.target.value,
+                                      };
+                                    })}/>
                     );
                   })}
                 </div>
-                <div className="modal-action">
-                  <button className="btn" onClick={closeHandler}>
-                    Close
-                  </button>
-                  <button className="btn" onClick={confirmHandler}>
-                    confirm
-                  </button>
-                </div>
+                <ModalActions onClose={closeHandler} onConfirm={confirmHandler}/>
               </form>
             </dialog>
           ) : null}
