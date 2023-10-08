@@ -50,13 +50,6 @@ body,
 /*  margin-top: 0.3em;*/
 /*  margin-bottom: 0.3em;*/
 /*}*/
-pre > code {
-	/*border: 0px !important;*/
-	/*background-color: #1d242f !important;*/
-	/*color: #fff;*/
-	/*!* 代码换行 *!*/
-	/*white-space: pre-wrap;*/
-}
 code {
 	display: inline-block;
 	background-color: #f3f3f3;

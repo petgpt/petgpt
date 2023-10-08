@@ -1,6 +1,6 @@
 import React from 'react'
 // import PropTypes from 'prop-types';
-import DoubleArrowSVG from '../svg/DoubleArrowSVG'
+import DoubleArrowSVG from '../../assets/svg/DoubleArrowSVG'
 
 type MyComponentProps = {
 	rotate?: boolean
