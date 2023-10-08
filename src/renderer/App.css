@@ -2,29 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 @layer base {
-  html {
-    @apply !bg-transparent;
-  }
-  body {
-    @apply flex;
-  }
-  pre {
-    @apply overflow-x-auto rounded-md bg-base-200 text-black scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded;
-  }
+	html {
+		@apply !bg-transparent;
+	}
+	body {
+		@apply flex;
+	}
+	pre {
+		@apply overflow-x-auto rounded-md bg-base-200 text-black scrollbar-thin scrollbar-thumb-gray-300 scrollbar-thumb-rounded;
+	}
 }
 
 @layer components {
-  #app {
-    @apply flex flex-1 flex-row p-2;
-  }
+	#app {
+		@apply flex flex-1 flex-row p-2;
+	}
 
-  .flex-r-c {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-  }
+	.flex-r-c {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		align-content: center;
+	}
 }
 
 /* http://meyerweb.com/eric/tools/css/reset/
@@ -34,7 +34,7 @@
 html,
 body,
 #app {
-  height: 100%;
+	height: 100%;
 }
 
 /*pre {*/
@@ -51,65 +51,67 @@ body,
 /*  margin-bottom: 0.3em;*/
 /*}*/
 pre > code {
-  /*border: 0px !important;*/
-  /*background-color: #1d242f !important;*/
-  /*color: #fff;*/
-  /*!* 代码换行 *!*/
-  /*white-space: pre-wrap;*/
+	/*border: 0px !important;*/
+	/*background-color: #1d242f !important;*/
+	/*color: #fff;*/
+	/*!* 代码换行 *!*/
+	/*white-space: pre-wrap;*/
 }
 code {
-  display: inline-block;
-  background-color: #f3f3f3;
-  /*border: 1px solid #fdb9cc;*/
-  border-radius: 3px;
-  font-size: 12px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #4f4f4f;
-  margin: 0px 3px;
-  /*transform: translateZ(0);*/
-  /*min-width: 100%;*/
-  /*float: left;*/
+	display: inline-block;
+	background-color: #f3f3f3;
+	/*border: 1px solid #fdb9cc;*/
+	border-radius: 3px;
+	font-size: 12px;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: #4f4f4f;
+	margin: 0px 3px;
+	/*transform: translateZ(0);*/
+	/*min-width: 100%;*/
+	/*float: left;*/
 }
 
-span.linenumber { display: none; }
+span.linenumber {
+	display: none;
+}
 
 /* ChatFooter的样式 */
 .footer-first {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  align-content: center;
-  /*兼容slot里select的高度*/
-  height: 17px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	align-content: center;
+	/*兼容slot里select的高度*/
+	height: 17px;
 }
 
 .footer-first-slot {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 .footer-second {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	align-content: center;
 }
 
 #gradient-horizontal {
-  --color-stop-1: rgb(96, 96, 96, 1);
-  animation: colorFlow 2s ease-in-out infinite;
+	--color-stop-1: rgb(96, 96, 96, 1);
+	animation: colorFlow 2s ease-in-out infinite;
 }
 
 @keyframes colorFlow {
-  from {
-    --color-stop-1: rgb(96, 96, 96, 1);
-    transform: translate(0%);
-  }
-  to {
-    --color-stop-1: #309aa9ff;
-    transform: translate(100%);
-  }
+	from {
+		--color-stop-1: rgb(96, 96, 96, 1);
+		transform: translate(0%);
+	}
+	to {
+		--color-stop-1: #309aa9ff;
+		transform: translate(100%);
+	}
 }

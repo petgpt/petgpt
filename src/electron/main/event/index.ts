@@ -88,7 +88,7 @@ export default {
 				window?.show()
 			} else {
 				logger.info(`show: `, arg.window)
-				windowManger?.get(arg.window)?.webContents.send('show');
+				windowManger?.get(arg.window)?.webContents.send('show')
 				windowManger?.get(arg.window)?.show()
 			}
 		})
@@ -184,12 +184,12 @@ export default {
 		ipcMain.on(Execute_Cmd, (event: IpcMainEvent, cmd: string) => {
 			let child = child_process.execFile
 
-			let childProcess = child_process.exec(cmd);
+			let childProcess = child_process.exec(cmd)
 			// log
-			childProcess.stdout?.on('data', (data) => {
-				let version = data.trim();
-				logger.info(`${version.substring(1, version.length - 2)}`);
-			});
+			childProcess.stdout?.on('data', data => {
+				let version = data.trim()
+				logger.info(`${version.substring(1, version.length - 2)}`)
+			})
 
 			// child(args.executablePath, ['--incognito', '--window-size=800,600'], function(err, data) {
 			//     // dialog.showMessageBox({
@@ -251,19 +251,19 @@ export default {
 				title: 'Save Image',
 				defaultPath: app.getPath('downloads'),
 				filters: [{ name: 'Images', extensions: ['png'] }],
-			};
+			}
 
-			dialog.showSaveDialog(BrowserWindow?.getFocusedWindow()!, options).then((result) => {
+			dialog.showSaveDialog(BrowserWindow?.getFocusedWindow()!, options).then(result => {
 				if (!result.canceled && result.filePath) {
-					const base64Data = imgUrl.replace(/^data:image\/png;base64,/, '');
-					fs.writeFile(result.filePath, base64Data, 'base64', (err) => {
+					const base64Data = imgUrl.replace(/^data:image\/png;base64,/, '')
+					fs.writeFile(result.filePath, base64Data, 'base64', err => {
 						if (err) {
-							console.error(err);
+							console.error(err)
 						}
-					});
+					})
 				}
-			});
-		});
+			})
+		})
 
 		// ipcMain.on('logger', (event: IpcMainEvent, args: string) => {
 		//     logger.info(args)
