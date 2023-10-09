@@ -4,6 +4,7 @@ import { ipcRenderer } from 'electron'
 import { PluginSettingSVG } from '../assets/svg/plugin/PluginSettingSVG'
 import { PluginUpdateSVG } from '../assets/svg/plugin/PluginUpdateSVG'
 import { PluginDeleteSVG } from '../assets/svg/plugin/PluginDeleteSVG'
+import { useImmer } from 'use-immer'
 
 interface ModalProperties extends CSSProperties {
 	modalOpen: boolean
@@ -14,7 +15,8 @@ function PluginSettingBody(props: {
 	onSettingClick: () => Promise<void>
 	onUpdateClick: () => void
 	onDeleteClick: () => void
-	onPluginEnableClick: () => void
+	onPluginEnableClick: (enabled: boolean) => void
+	refresh?: () => void
 }) {
 	return (
 		<div className="card w-64 bg-base-100 shadow-md">
@@ -54,9 +56,8 @@ function PluginSettingBody(props: {
 								type="checkbox"
 								className="toggle toggle-xs ml-1"
 								onChange={e => {
-									logger(`e.target.checked: `, e.target.checked)
-									logger(`props.info.enabled: `, props.info.enabled)
-									props.onPluginEnableClick()
+									props.onPluginEnableClick(e.target.checked)
+									props.refresh?.()
 								}}
 								checked={props.info.enabled}
 							/>
@@ -168,9 +169,12 @@ function Setting() {
 	const [pluginNameToInstall, setPluginNameToInstall] = useState('')
 	const [centerDialogVisible, setCenterDialogVisible] = useState(false)
 	const [dialogConfigList, setDialogConfigList] = useState<IPluginConfig[]>([])
-	const [dialogModelData, setDialogModelData] = useState<Record<any, string>>({})
-	const [pluginsConfigList, setPluginsConfigList] = useState<PluginInfo[]>([])
+	const [dialogModelDataImmer, updatedialogModelData] = useImmer<Record<any, string>>({})
+	const [pluginsConfigListImmer, updatePluginsConfigList] = useImmer<PluginInfo[]>([])
+
 	const [upOrDeleteProgress, setUpOrDeleteProgress] = useState<Progress[]>([])
+	const [upOrDeleteProgressImmer, updateUpOrDeleteProgress] = useImmer<Progress[]>([])
+
 	const [installPercentage, setInstallPercentage] = useState(0)
 	const [installStatus, setInstallStatus] = useState('')
 	const [currentConfigIndex, setCurrentConfigIndex] = useState(0)
@@ -182,17 +186,17 @@ function Setting() {
 		})()
 
 		ipcRenderer.on('installSuccess', (event, data) => {
-			logger(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+			logger(`installSuccess: `, data, ` pluginsConfigList:`, pluginsConfigListImmer)
 			getPluginsNameList()
-			logger(`[after install success] pluginsConfigList:`, pluginsConfigList)
+			logger(`[after install success] pluginsConfigList:`, pluginsConfigListImmer)
 			setProgressSuccess('install')
 		})
 
 		ipcRenderer.on('uninstallSuccess', (event, data) => {
-			logger(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigList)
+			logger(`uninstallSuccess: `, data, ` pluginsConfigList:`, pluginsConfigListImmer)
 			setProgressSuccess('upOrDelete')
 			getPluginsNameList()
-			logger(`[after install success] pluginsConfigList:`, pluginsConfigList)
+			logger(`[after install success] pluginsConfigList:`, pluginsConfigListImmer)
 		})
 
 		ipcRenderer.on('updateSuccess', (event, data) => {
@@ -203,7 +207,7 @@ function Setting() {
 
 		// update \ delete 失败的时候，设置失败的进度条
 		ipcRenderer.on('failedProgress', () => {
-			upOrDeleteProgress.forEach((progress, index) => {
+			upOrDeleteProgressImmer.forEach((progress, index) => {
 				if (progress.percentage > 0) {
 					setProgressFailed('upOrDelete', index)
 				}
@@ -211,8 +215,8 @@ function Setting() {
 		})
 
 		return () => {
-			setPluginsConfigList([])
-			setUpOrDeleteProgress([])
+			updatePluginsConfigList([])
+			updateUpOrDeleteProgress([])
 			ipcRenderer.removeAllListeners('installSuccess')
 			ipcRenderer.removeAllListeners('uninstallSuccess')
 			ipcRenderer.removeAllListeners('updateSuccess')
@@ -221,8 +225,8 @@ function Setting() {
 	}, [])
 
 	async function getPluginsNameList() {
-		setPluginsConfigList([])
-		setUpOrDeleteProgress([])
+		updatePluginsConfigList([])
+		updateUpOrDeleteProgress([])
 
 		const pluginInfoList = await ipcRenderer.invoke('plugin.getAllPluginName')
 		const pluginsConfigList = pluginInfoList.map(
@@ -236,14 +240,14 @@ function Setting() {
 				}
 			}
 		)
-		setPluginsConfigList(pluginsConfigList)
+		updatePluginsConfigList(pluginsConfigList)
 
 		const upOrDeleteProgressList = pluginInfoList.map(
 			(pluginInfo: { name: any; version: any; description: any; config: any; enabled: any }) => {
 				return { percentage: 0, status: '' }
 			}
 		)
-		setUpOrDeleteProgress(upOrDeleteProgressList)
+		updateUpOrDeleteProgress(upOrDeleteProgressList)
 	}
 
 	function setProgressSuccess(type: 'install' | 'upOrDelete') {
@@ -251,12 +255,10 @@ function Setting() {
 			setInstallPercentage(100)
 			setInstallStatus('success')
 		} else {
-			upOrDeleteProgress.forEach((progress, index) => {
+			upOrDeleteProgressImmer.forEach((progress, index) => {
 				if (progress.percentage > 0) {
-					setUpOrDeleteProgress(prevState => {
-						const updatedArray = [...prevState]
-						updatedArray[index] = { percentage: 100, status: 'success' }
-						return updatedArray
+					updateUpOrDeleteProgress(draft => {
+						draft[index] = { percentage: 100, status: 'success' }
 					})
 				}
 			})
@@ -267,12 +269,10 @@ function Setting() {
 				setInstallPercentage(0)
 				setInstallStatus('')
 			} else {
-				upOrDeleteProgress.forEach((progress, index) => {
+				upOrDeleteProgressImmer.forEach((progress, index) => {
 					if (progress.percentage > 0) {
-						setUpOrDeleteProgress(prevState => {
-							const updatedArray = [...prevState]
-							updatedArray[index] = { percentage: 0, status: '' }
-							return updatedArray
+						updateUpOrDeleteProgress(draft => {
+							draft[index] = { percentage: 0, status: '' }
 						})
 					}
 				})
@@ -285,10 +285,8 @@ function Setting() {
 			setInstallPercentage(100)
 			setInstallStatus('exception')
 		} else {
-			setUpOrDeleteProgress(prevState => {
-				const updatedArray = [...prevState]
-				updatedArray[index] = { percentage: 100, status: 'exception' }
-				return updatedArray
+			updateUpOrDeleteProgress(draft => {
+				draft[index] = { percentage: 100, status: 'exception' }
 			})
 		}
 		setTimeout(() => {
@@ -297,10 +295,8 @@ function Setting() {
 				setInstallPercentage(0)
 				setInstallStatus('')
 			} else {
-				setUpOrDeleteProgress(prevState => {
-					const updatedArray = [...prevState]
-					updatedArray[index] = { percentage: 0, status: '' }
-					return updatedArray
+				updateUpOrDeleteProgress(draft => {
+					draft[index] = { percentage: 0, status: '' }
 				})
 			}
 		}, 1000)
@@ -310,7 +306,7 @@ function Setting() {
 		setCenterDialogVisible(false)
 	}
 
-	const getConfigByIndex = (index: number) => pluginsConfigList[index]
+	const getConfigByIndex = (index: number) => pluginsConfigListImmer[index]
 
 	function confirmHandler() {
 		setCenterDialogVisible(false)
@@ -319,10 +315,10 @@ function Setting() {
 		// logger(`name:${purePluginName}, configData: `, dialogModelData)
 		sendToMain(`plugin.${purePluginName}.config.update`, {
 			name: purePluginName,
-			data: dialogModelData,
+			data: dialogModelDataImmer,
 		})
 
-		setPluginsConfigList([])
+		updatePluginsConfigList([])
 		;(async function getPluginInfo() {
 			await getPluginsNameList()
 		})()
@@ -335,6 +331,9 @@ function Setting() {
 			// 根据索引更新值
 			updatedArray[index] = { percentage: 10, status: '' }
 			return updatedArray
+		})
+		updateUpOrDeleteProgress(draft => {
+			draft[index] = { percentage: 10, status: '' }
 		})
 	}
 
@@ -360,7 +359,7 @@ function Setting() {
 	}
 
 	async function configClickHandler(index: number) {
-		setDialogModelData({})
+		updatedialogModelData({})
 		setCurrentRules([])
 
 		setCurrentConfigIndex(index)
@@ -381,11 +380,8 @@ function Setting() {
 				]
 			})
 
-			setDialogModelData(prevState => {
-				return {
-					...prevState,
-					[config.name]: config.value ? config.value : config.default ? config.default : '',
-				}
+			updatedialogModelData(draft => {
+				draft[config.name] = config.value ? config.value : config.default ? config.default : ''
 			})
 		})
 	}
@@ -401,7 +397,7 @@ function Setting() {
 					onClick={installPlugin}
 				/>
 				<div className="setting-container mt-4 flex flex-row flex-wrap">
-					{pluginsConfigList.map((info, index) => {
+					{pluginsConfigListImmer.map((info, index) => {
 						return (
 							<div className="setting-container-item m-1" key={index}>
 								<div className="w-full">
@@ -410,9 +406,13 @@ function Setting() {
 										onSettingClick={() => configClickHandler(index)}
 										onUpdateClick={() => updatePlugin(index)}
 										onDeleteClick={() => deletePlugin(index)}
-										onPluginEnableClick={() => enablePlugin(info.enabled, index)}
+										onPluginEnableClick={(enabled: boolean) => enablePlugin(enabled, index)}
 									/>
-									<PluginStateProgress progresses={upOrDeleteProgress} index={index} installStatus={installStatus} />
+									<PluginStateProgress
+										progresses={upOrDeleteProgressImmer}
+										index={index}
+										installStatus={installStatus}
+									/>
 								</div>
 							</div>
 						)
@@ -427,15 +427,12 @@ function Setting() {
 											<ModalConfigs
 												key={index}
 												configItem={configItem}
-												dialogModelData={dialogModelData}
-												onChange={event =>
-													setDialogModelData(prevState => {
-														return {
-															...prevState,
-															[configItem.name]: event.target.value,
-														}
+												dialogModelData={dialogModelDataImmer}
+												onChange={event => {
+													updatedialogModelData(draft => {
+														draft[configItem.name] = event.target.value
 													})
-												}
+												}}
 											/>
 										)
 									})}
